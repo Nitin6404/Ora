@@ -14,7 +14,8 @@ export default function ManagePrograms() {
 
   const loadPrograms = async () => {
     const data = await fetchPrograms();
-    setPrograms(data);
+    console.log('data',data);
+    setPrograms(data.results || []);
   };
 
   useEffect(() => {
