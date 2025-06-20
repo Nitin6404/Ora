@@ -18,10 +18,16 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import ProtectedRoute from "../components/ProtectedRoute";
 import DecisionTree from '../pages/admin/DecisionTree'
 import DecisionTreeFlow from '../pages/admin/DecisionTreeFlow'
+import NewProgram from '../pages/NewProgram'
 import { ReactFlowProvider } from 'reactflow';
 import { AnimatePresence, motion } from 'framer-motion';
 import FadeWrapper from "./FadeWrapper";
 import Test from "../pages/admin/Text";
+import ViewProgram from "../pages/ViewProgram";
+import EditProgram from "../pages/EditProgram";
+import NewPatient from "../pages/NewPatient";
+import AddPatient from "../pages/AddPatient";
+import EditPatient from "../pages/EditPatient";
 const AllRoutes = () => {
   const isAuthenticated = localStorage.getItem("token"); // or your own logic
 
@@ -31,17 +37,78 @@ const AllRoutes = () => {
     <Routes>
       <Route path="/" element={<Login />} />
       <Route path="/login" element={<Login />} />
+
       <Route path="/test" element={<Test />} />
-    <Route
-  path="/dashboard"
-  element={
-    <ProtectedRoute pageName="dashboard">
-      <FadeWrapper>
-        <Dashboard />
-      </FadeWrapper>
-    </ProtectedRoute>
-  }
-/>
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute pageName="dashboard">
+            <FadeWrapper>
+              <Dashboard />
+            </FadeWrapper>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/newprogram"
+        element={
+          <ProtectedRoute pageName="newprogram">
+            <FadeWrapper>
+              <NewProgram />
+            </FadeWrapper>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/programview/:id"
+        element={
+          <ProtectedRoute pageName="programview">
+            <FadeWrapper>
+              <ViewProgram />
+            </FadeWrapper>
+          </ProtectedRoute>
+        }
+      />
+       <Route
+        path="/editprogram/:id"
+        element={
+          <ProtectedRoute pageName="editprogram">
+            <FadeWrapper>
+              <EditProgram />
+            </FadeWrapper>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/newpatient"
+        element={
+          <ProtectedRoute pageName="newpatient">
+            <FadeWrapper>
+              <NewPatient />
+            </FadeWrapper>
+          </ProtectedRoute>
+        }
+      />
+           <Route
+        path="/addpatient"
+        element={
+          <ProtectedRoute pageName="addpatient">
+            <FadeWrapper>
+              <AddPatient />
+            </FadeWrapper>
+          </ProtectedRoute>
+        }
+      />
+          <Route
+        path="/editpatient/:id"
+        element={
+          <ProtectedRoute pageName="editpatient">
+            <FadeWrapper>
+              <EditPatient />
+            </FadeWrapper>
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/roles"
         element={

@@ -147,7 +147,7 @@ const Dashboard = () => {
   });
 
   return (
-    <Navigation>
+   <Navigation>
       <div
         className="flex flex-col min-h-screen font-inter"
         // style={{
@@ -164,7 +164,7 @@ const Dashboard = () => {
             <div className="col-span-1">
               <ActiveProgramsCard />
             </div>
-
+                                         
             <div className="col-span-1 md:col-span-2 min-w-0">
               <SessionPerformanceChart />
             </div>

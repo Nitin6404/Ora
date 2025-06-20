@@ -99,7 +99,7 @@ export default function Navigation({ children }) {
   return (
     <>
       {/* Top Bar */}
-      {!isDashboard && (
+      {/* {!isDashboard && (
         <header className="fixed top-0 left-0 right-0 h-14 bg-gray-100 shadow flex items-center justify-between px-6 z-40">
           <div className="text-2xl font-bold text-gray-800">ORA</div>
           <div className="flex items-center gap-4">
@@ -115,7 +115,7 @@ export default function Navigation({ children }) {
             </button>
           </div>
         </header>
-      )}
+      )} */}
 
       {/* Sidebar */}
 
