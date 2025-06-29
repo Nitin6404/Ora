@@ -168,9 +168,9 @@ export default function Navigation({ children }) {
 
       {/* Main Content */}
       <main
-        className={`transition-margin duration-300 ${
+        className={`transition-margin duration-300 no-scrollbar ${
           isOpen ? "ml-56" : "ml-16"
-        } ${isDashboard ? "pt-0 px-0" : "pt-14 px-6"}
+        } ${isDashboard ? "pt-0 px-0" : "pt-0.5 px-6"}
         }`}
       >
         {/* {location.pathname === "/dashboard" && (
@@ -178,7 +178,7 @@ export default function Navigation({ children }) {
         )} */}
         <div
           className={`
-          ${isDashboard ? "mt-0" : "mt-4 text-gray-700"}
+          ${isDashboard ? "mt-0" : "mt-2 text-gray-700"}
           `}
         >
           {children}

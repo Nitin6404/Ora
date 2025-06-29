@@ -1,0 +1,157 @@
+/* patient.css */
+
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  gap: 8px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid #E9EAEB;
+  background-color: #FFF;
+  transition: all 0.3s ease-in-out;
+}
+
+.input-wrapper:hover {
+  border-color: #ABA4F6;
+}
+
+.input-wrapper.focused {
+  border-color: #7367F0;
+  box-shadow: 0 0 0 1px #7367F0;
+}
+
+.input-wrapper.error {
+  border-color: #F04438;
+}
+
+.input-field {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: transparent;
+  color: #333;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border-radius: 0 !important;
+}
+
+.login-button {
+  width: 320px;
+  height: 42px;
+  padding: 6px 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+
+  border-radius: 24px;
+  border: 0.75px solid rgba(255, 255, 255, 0.3);
+  background: radial-gradient(79.76% 79.76% at 50% 0%, #7367F0 0%, rgba(115, 103, 240, 0.00) 100%), #453E90;
+  box-shadow: 0px 0px 0px 1px #7367F0;
+  color: white;
+  font-weight: 500;
+  font-size: 16px;
+
+  transition: background 300ms ease-in-out;
+}
+
+.login-button:hover {
+  background: radial-gradient(56.34% 50% at 50% 50%, #7367F0 0%, rgba(115, 103, 240, 0.00) 100%), #352F6E;
+}
+/* patient.css */
+
+/* Background card behind the form */
+.form-background {
+ background: #FFFFFF4D; /* Or rgba(255, 255, 255, 0.3) */
+  backdrop-filter: blur(30px);
+  /* -webkit-backdrop-filter: blur(30px); */
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  margin-top: 30px;
+}
+
+/* Input wrapper with rounded card feel */
+.input-wrapper {
+  background: white;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  padding: 0;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  padding-left: 16px;
+  transition: all 0.3s ease;
+}
+
+.input-wrapper:hover {
+  border-color: #a99ef9;
+}
+
+.input-wrapper:focus-within {
+  border-color: #7367f0;
+  box-shadow: 0 0 0 1px #7367f0;
+}
+
+.input-field {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #333;
+  height: 100%;
+  background: transparent;
+  padding-right: 12px;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Buttons */
+.login-button,
+.next-button,
+.back-button {
+  padding: 10px 24px;
+  border-radius: 24px;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.3s ease-in-out;
+}
+
+.login-button {
+  background: radial-gradient(79.76% 79.76% at 50% 0%, #7367F0 0%, rgba(115, 103, 240, 0.00) 100%), #453E90;
+  color: white;
+  box-shadow: 0px 0px 0px 1px #7367F0;
+  border: none;
+}
+
+.login-button:hover {
+  background: radial-gradient(56.34% 50% at 50% 50%, #7367F0 0%, rgba(115, 103, 240, 0.00) 100%), #352F6E;
+}
+
+.next-button {
+  background: #7367f0;
+  color: white;
+  border: none;
+}
+
+.next-button:hover {
+  background: #5f54cc;
+}
+
+.back-button {
+  background: #3c3c3c;
+  color: white;
+  border: none;
+}
+
+.back-button:hover {
+  background: #2e2e2e;
+}
