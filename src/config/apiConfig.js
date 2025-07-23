@@ -25,5 +25,5 @@ export const DELETE_AUDIO_ENDPOINT = "/api/media/delete-audio/";
 export const MEDIA_VIDEO_ENDPOINT = "/api/media/video/";
 export const UPLOAD_VIDEO_ENDPOINT = "/api/media/upload-video/";
 export const UPDATE_VIDEO_ENDPOINT = "/api/media/update-video/";
-export const DELETE_VIDEO_ENDPOINT = "/api/media/delete-video/";
+// export const DELETE_VIDEO_ENDPOINT = "/api/media/delete-video/";
 export const VIDEO_PRESIGNED_URL_ENDPOINT = "/api/media/videos/presigned-url/";
