@@ -1,15 +1,22 @@
 import React, { useRef } from "react";
 
-const ScrollWrapper = ({ children }) => {
+const ScrollWrapper = ({ children, direction = "horizontal", className = "" }) => {
   const scrollRef = useRef(null);
+  const isHorizontal = direction !== "vertical";
+
   let isDown = false;
-  let startX;
-  let scrollLeft;
+  let startPos;
+  let scrollStart;
 
   const handleMouseDown = (e) => {
     isDown = true;
-    startX = e.pageX - scrollRef.current.offsetLeft;
-    scrollLeft = scrollRef.current.scrollLeft;
+    startPos = isHorizontal
+      ? e.pageX - scrollRef.current.offsetLeft
+      : e.pageY - scrollRef.current.offsetTop;
+
+    scrollStart = isHorizontal
+      ? scrollRef.current.scrollLeft
+      : scrollRef.current.scrollTop;
   };
 
   const handleMouseLeave = () => {
@@ -23,33 +30,42 @@ const ScrollWrapper = ({ children }) => {
   const handleMouseMove = (e) => {
     if (!isDown) return;
     e.preventDefault();
-    const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 1.5; // scroll speed multiplier
-    scrollRef.current.scrollLeft = scrollLeft - walk;
+    const pos = isHorizontal
+      ? e.pageX - scrollRef.current.offsetLeft
+      : e.pageY - scrollRef.current.offsetTop;
+
+    const walk = (pos - startPos) * 1.5;
+    if (isHorizontal) {
+      scrollRef.current.scrollLeft = scrollStart - walk;
+    } else {
+      scrollRef.current.scrollTop = scrollStart - walk;
+    }
   };
 
   return (
-   <div
-  className="rounded-3xl overflow-hidden bg-transparent"
-  style={{ maxWidth: '100%' }}
->
-  <div
-    ref={scrollRef}
-    onMouseDown={handleMouseDown}
-    onMouseLeave={handleMouseLeave}
-    onMouseUp={handleMouseUp}
-    onMouseMove={handleMouseMove}
-    className="cursor-grab active:cursor-grabbing overflow-x-auto no-scrollbar"
-    style={{
-      WebkitOverflowScrolling: "touch",
-      userSelect: "none",
-      touchAction: "pan-x",
-    }}
-  >
-    <div className="flex space-x-4 ">{children}</div>
-  </div>
-</div>
-
+    <div className={`rounded-3xl overflow-hidden bg-transparent ${className}`}>
+      <div
+        ref={scrollRef}
+        onMouseDown={handleMouseDown}
+        onMouseLeave={handleMouseLeave}
+        onMouseUp={handleMouseUp}
+        onMouseMove={handleMouseMove}
+        className={`cursor-grab active:cursor-grabbing no-scrollbar ${
+          isHorizontal ? "overflow-x-auto" : "overflow-y-auto"
+        }`}
+        style={{
+          WebkitOverflowScrolling: "touch",
+          userSelect: "none",
+          touchAction: isHorizontal ? "pan-x" : "pan-y",
+          maxHeight: isHorizontal ? undefined : "100%",
+          maxWidth: isHorizontal ? "100%" : undefined,
+        }}
+      >
+        <div className={`${isHorizontal ? "flex space-x-4" : "flex flex-col space-y-4"}`}>
+          {children}
+        </div>
+      </div>
+    </div>
   );
 };
 

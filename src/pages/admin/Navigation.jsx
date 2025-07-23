@@ -10,12 +10,12 @@ const modules = [
     path: "/dashboard",
     icon: "/dashboard-icon.svg",
   },
-  {
-    name: "roles",
-    label: "Manage Roles",
-    path: "/roles",
-    icon: "/role-icon.svg",
-  },
+  // {
+  //   name: "roles",
+  //   label: "Manage Roles",
+  //   path: "/roles",
+  //   icon: "/role-icon.svg",
+  // },
   {
     name: "users",
     label: "User Management",
@@ -23,8 +23,14 @@ const modules = [
     icon: "/user-icon.svg",
   },
   {
+    name: "assign",
+    label: "Assign",
+    path: "/assign",
+    icon: "/assign-icon.png",
+  },
+  {
     name: "programs",
-    label: "Manage Programs",
+    label: "Programs",
     path: "/programs",
     icon: "/program-icon.svg",
   },
@@ -35,35 +41,41 @@ const modules = [
     icon: "/patient-icon.svg",
   },
   {
-    name: "tickets",
-    label: "Tickets",
-    path: "/tickets",
-    icon: "/ticket-icon.svg",
+    name: "media",
+    label: "Media",
+    path: "/media",
+    icon: "/media-icon.svg",
   },
-  {
-    name: "faq",
-    label: "FAQ Manager",
-    path: "/faq",
-    icon: "program-icon.svg",
-  },
-  {
-    name: "register",
-    label: "Patient Register",
-    path: "/register",
-    icon: "program-icon.svg",
-  },
-  {
-    name: "support",
-    label: "Patient Support",
-    path: "/support",
-    icon: "program-icon.svg",
-  },
-  {
-    name: "profile",
-    label: "Patient Profile",
-    path: "/profile",
-    icon: "program-icon.svg",
-  },
+  // {
+  //   name: "tickets",
+  //   label: "Tickets",
+  //   path: "/tickets",
+  //   icon: "/ticket-icon.svg",
+  // },
+  // {
+  //   name: "faq",
+  //   label: "FAQ Manager",
+  //   path: "/faq",
+  //   icon: "program-icon.svg",
+  // },
+  // {
+  //   name: "register",
+  //   label: "Patient Register",
+  //   path: "/register",
+  //   icon: "program-icon.svg",
+  // },
+  // {
+  //   name: "support",
+  //   label: "Patient Support",
+  //   path: "/support",
+  //   icon: "program-icon.svg",
+  // },
+  // {
+  //   name: "profile",
+  //   label: "Patient Profile",
+  //   path: "/profile",
+  //   icon: "program-icon.svg",
+  // },
 ];
 
 export default function Navigation({ children }) {
@@ -71,7 +83,7 @@ export default function Navigation({ children }) {
   const location = useLocation();
 
   const user = JSON.parse(localStorage.getItem("user"));
-  const allowedPages = user?.allowed_pages || [];
+  const allowedPages = [...user?.allowed_pages, "assign", "media"] || [];
 
   const visibleModules = modules.filter((mod) =>
     allowedPages.includes(mod.name)
@@ -121,28 +133,22 @@ export default function Navigation({ children }) {
 
       {/*  shadow-[4px_0_10px_-4px_rgba(0,0,0,0.1)] */}
       <nav
-        className={`fixed top-7 left-2 h-[calc(100vh-56px)] rounded-3xl bg-transparent
-
-    text-gray-700 flex flex-col transition-all duration-300 ease-in-out
-    py-2 ${isOpen ? "w-56 px-3" : "w-[70px] px-2"} overflow-hidden z-50`}
-        // onMouseEnter={() => setIsOpen(true)}
-        // onMouseLeave={() => setIsOpen(false)}
+        className={`fixed top-4 left-0 h-[calc(100vh-64px)] rounded-3xl bg-transparent text-gray-700 flex flex-col transition-all duration-300 ease-in-out py-4 z-50
+    ${isOpen ? "lg:w-56 md:w-44 w-36 px-4" : "w-16 px-2"} overflow-hidden`}
       >
-        <div className="flex items-center justify-center h-16 font-semibold text-lg">
-          {isOpen ? <img src={oralogo} alt="Logo" /> : ""}
+        <div className="flex items-center justify-center h-12 mb-8">
+          {isOpen ? <img src={oralogo} alt="Logo" className="h-full w-auto" /> : ""}
         </div>
 
-        <div className="flex flex-col mt-8 flex-1">
+        <div className="flex flex-col gap-2 flex-1">
           {visibleModules.map(({ name, label, path, icon }) => (
             <NavLink
               key={name}
               to={path}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 transition-colors rounded text-[#292935] font-semibold ${
-                  isActive ? "text-[#7b71c8] bg-white " : "hover:bg-gray-200"
-                }
-      ${isOpen ? "rounded-3xl" : "rounded-full "}
-      `
+                `flex items-center gap-4 py-3 px-2 transition-colors rounded font-semibold
+          ${isActive ? "text-[#7b71c8] bg-white" : "hover:bg-gray-200 text-[#292935]"}
+          ${isOpen ? "rounded-full justify-start pl-6" : "rounded-full justify-center"}`
               }
             >
               {({ isActive }) => (
@@ -150,40 +156,30 @@ export default function Navigation({ children }) {
                   <img
                     src={icon}
                     alt={`${label} icon`}
-                    className={`w-5 h-5 transition duration-200 ${
-                      isActive ? "filter-purple" : "filter-gray"
-                    }`}
+                    className={`w-5 h-5 transition duration-200 ${isActive ? "filter-purple" : "filter-gray"}`}
                   />
-                  {isOpen && <span className="whitespace-nowrap">{label}</span>}
+                  <span className={`text-xs md:text-sm lg:text-base ${isOpen ? "block" : "hidden"} whitespace-nowrap`}>
+                    {label}
+                  </span>
                 </>
               )}
             </NavLink>
           ))}
         </div>
-
-        {/* <div className="mb-4 px-4 py-3 text-sm text-gray-500">
-          {isOpen ? "© 2025 ORA Company" : ""}
-        </div> */}
       </nav>
+
 
       {/* Main Content */}
       <main
-        className={`transition-margin duration-300 no-scrollbar ${
-          isOpen ? "ml-56" : "ml-16"
-        } ${isDashboard ? "pt-0 px-0" : "pt-0.5 px-6"}
-        }`}
+        className={`transition-margin duration-300 h-full no-scrollbar
+    ${isOpen ? "lg:ml-56 md:ml-44 ml-36" : "ml-16"}
+    ${isDashboard ? "pt-0 px-0" : ""}`}
       >
-        {/* {location.pathname === "/dashboard" && (
-          <h1 className="text-3xl font-bold mt-6">Welcome to ORA Dashboard</h1>
-        )} */}
-        <div
-          className={`
-          ${isDashboard ? "mt-0" : "mt-2 text-gray-700"}
-          `}
-        >
+        <div className={`h-screen flex flex-col ${isDashboard ? "mt-0" : "text-gray-700"}`}>
           {children}
         </div>
       </main>
+
     </>
   );
 }

@@ -18,16 +18,24 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import ProtectedRoute from "../components/ProtectedRoute";
 import DecisionTree from '../pages/admin/DecisionTree'
 import DecisionTreeFlow from '../pages/admin/DecisionTreeFlow'
-import NewProgram from '../pages/NewProgram'
+import NewProgram from '../pages/program/NewProgram'
 import { ReactFlowProvider } from 'reactflow';
 import { AnimatePresence, motion } from 'framer-motion';
 import FadeWrapper from "./FadeWrapper";
 import Test from "../pages/admin/Text";
 import ViewProgram from "../pages/ViewProgram";
-import EditProgram from "../pages/EditProgram";
+// import EditProgram from "../pages/EditProgram";
+import EditProgram from "../pages/program/components/EditProgram";
 import NewPatient from "../pages/NewPatient";
 import AddPatient from "../pages/AddPatient";
 import EditPatient from "../pages/EditPatient";
+import AddProgram from "../pages/program/components/AddProgram";
+import NewDecisionTreeFlow from "../pages/program/components/NewDecisionTreeFlow";
+import EditDecisionTreeFlow from "../pages/program/components/EditDecitionTreeFlow"
+import Assign from "../pages/assign";
+import AssignProgram from "../pages/assign/components/AssignProgram";
+import QrAssign from "../pages/assign/components/QrAssign";
+
 const AllRoutes = () => {
   const isAuthenticated = localStorage.getItem("token"); // or your own logic
 
@@ -50,7 +58,7 @@ const AllRoutes = () => {
         }
       />
       <Route
-        path="/newprogram"
+        path="/programs/newprogram"
         element={
           <ProtectedRoute pageName="newprogram">
             <FadeWrapper>
@@ -60,7 +68,7 @@ const AllRoutes = () => {
         }
       />
       <Route
-        path="/programview/:id"
+        path="/programs/programview/:id"
         element={
           <ProtectedRoute pageName="programview">
             <FadeWrapper>
@@ -70,7 +78,7 @@ const AllRoutes = () => {
         }
       />
        <Route
-        path="/editprogram/:id"
+        path="/programs/editprogram/:id"
         element={
           <ProtectedRoute pageName="editprogram">
             <FadeWrapper>
@@ -80,7 +88,17 @@ const AllRoutes = () => {
         }
       />
       <Route
-        path="/newpatient"
+        path="/programs/edit-decision-tree-flow/:id"
+        element={
+          <ProtectedRoute>
+            <FadeWrapper>
+              <EditDecisionTreeFlow />
+            </FadeWrapper>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/patients"
         element={
           <ProtectedRoute pageName="newpatient">
             <FadeWrapper>
@@ -90,7 +108,7 @@ const AllRoutes = () => {
         }
       />
            <Route
-        path="/addpatient"
+        path="/patients/addpatient"
         element={
           <ProtectedRoute pageName="addpatient">
             <FadeWrapper>
@@ -100,7 +118,7 @@ const AllRoutes = () => {
         }
       />
           <Route
-        path="/editpatient/:id"
+        path="/patients/editpatient/:id"
         element={
           <ProtectedRoute pageName="editpatient">
             <FadeWrapper>
@@ -129,7 +147,20 @@ const AllRoutes = () => {
         path="/programs"
         element={
           <ProtectedRoute pageName="programs">
-            <ManagePrograms />
+            <FadeWrapper>
+              <NewProgram />
+            </FadeWrapper>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/programs/addprogram"
+        element={
+          <ProtectedRoute pageName="addprogram">
+            <FadeWrapper>
+              <AddProgram />
+            </FadeWrapper>
           </ProtectedRoute>
         }
       />
@@ -141,14 +172,14 @@ const AllRoutes = () => {
           </ProtectedRoute>
         }
       />
-      <Route
+      {/* <Route
         path="/patients"
         element={
           <ProtectedRoute pageName="patients">
             <AdminPatients />
           </ProtectedRoute>
         }
-      />
+      /> */}
       <Route
         path="/faq"
         element={
@@ -182,7 +213,7 @@ const AllRoutes = () => {
         }
       />
       <Route
-        path="/decisiontree"
+        path="/programs/decisiontree"
         element={
           <ProtectedRoute pageName="profile">
             <DecisionTree />
@@ -190,12 +221,48 @@ const AllRoutes = () => {
         }
       />
       <Route
-        path="/decisiontreeflow"
+        path="/programs/decisiontreeflow"
         element={
           <ProtectedRoute pageName="profile">
+            <FadeWrapper>
             <ReactFlowProvider>
-              <DecisionTreeFlow />
+              <NewDecisionTreeFlow />
+              {/* <DecisionTreeFlow /> */}
             </ReactFlowProvider>
+            </FadeWrapper>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/assign"
+        element={
+          <ProtectedRoute pageName="assign">
+            <FadeWrapper>
+              <Assign />
+            </FadeWrapper>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/assign/assignprogram"
+        element={
+          <ProtectedRoute pageName="assignprogram">
+            <FadeWrapper>
+              <AssignProgram />
+            </FadeWrapper>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/assign/qrcode"
+        element={
+          <ProtectedRoute pageName="qrcode">
+            <FadeWrapper>
+              <QrAssign />
+            </FadeWrapper>
           </ProtectedRoute>
         }
       />

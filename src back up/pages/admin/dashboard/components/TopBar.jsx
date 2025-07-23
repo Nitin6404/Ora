@@ -46,10 +46,11 @@ const TopBar = () => {
           </button>
           <div className="relative">
             <button
-              className="w-10 h-10 rounded-full flex items-center justify-center"
+              className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden border-2 border-gray-300"
               onClick={() => setOpen(!open)}
+              style={{ aspectRatio: '1/1' }}
             >
-              <img src="/pp.png" alt="Profile" className="w-full h-full" />
+              <img src="/pp.png" alt="Profile" className="w-full h-full object-cover rounded-full" />
             </button>
             {open && (
               <div className="absolute right-0 mt-2 rounded shadow p-2 w-32 z-10 bg-white">
@@ -65,8 +66,12 @@ const TopBar = () => {
         </div>
 
         <div className="relative lg:hidden bg-transparent">
-          <button onClick={() => setOpen(!open)}>
-            <img src="/pp.png" alt="Profile" className="w-10 h-10 rounded-full bg-transparent" />
+          <button
+            onClick={() => setOpen(!open)}
+            className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-300"
+            style={{ aspectRatio: '1/1' }}
+          >
+            <img src="/pp.png" alt="Profile" className="w-10 h-10 object-cover rounded-full" />
           </button>
           {open && (
             <div className="absolute right-0 mt-2 rounded shadow p-2 w-32 z-10 bg-white">

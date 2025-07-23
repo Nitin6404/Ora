@@ -1,60 +1,51 @@
-import AllRoutes from './routes/AllRoutes'
-import React, { useEffect } from 'react';
-import { BrowserRouter as ReactRoutes } from "react-router-dom";
-import './App.css'
-import { refreshAccessToken } from '../src/services/tokenService';
+// src/App.js
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import AllRoutes from "./routes/AllRoutes";
+import {
+  isTokenExpiringSoon,
+  refreshAccessToken,
+} from "./services/tokenService";
+import "./App.css";
 
-function decodeToken(token) {
-  try {
-    const base64Payload = token.split('.')[1];
-    const decoded = JSON.parse(atob(base64Payload));
-    return decoded;
-  } catch (e) {
-    return null;
-  }
-}
+const queryClient = new QueryClient();
+
 function App() {
- 
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    const validateToken = async () => {
+      const token = localStorage.getItem("token");
+      const refresh = localStorage.getItem("refresh");
 
-useEffect(() => {
-    const checkAndRefreshToken = async () => {
-      const token = localStorage.getItem('token');
-      const refresh = localStorage.getItem('refresh');
+      if (!token || !refresh) {
+        console.log("❌ No token or refresh found");
+        localStorage.clear();
+        navigate("/login");
+        return;
+      }
 
-      if (!refresh || !token) return;
-
-      const decoded = decodeToken(token);
-      if (!decoded || !decoded.exp) return;
-
-      const expiryTime = decoded.exp * 1000; // Convert to ms
-      const now = Date.now();
-      const bufferTime = 60 * 1000; // 1 min before expiry
-
-      if (expiryTime - now <= bufferTime) {
+      if (isTokenExpiringSoon(token)) {
         try {
-          const newToken = await refreshAccessToken(refresh);
-          console.log("✅ Token auto-refreshed:", newToken);
+          await refreshAccessToken(refresh);
+          console.log("🔁 Access token refreshed");
         } catch (err) {
-          console.error("❌ Refresh token failed:", err);
+          console.error("❌ Refresh failed:", err);
           localStorage.clear();
-          window.location.href = '/login'; // ⬅️ No navigate used
+          navigate("/login");
         }
       }
     };
 
-    checkAndRefreshToken();
-    const intervalId = setInterval(checkAndRefreshToken, 30 * 1000); // Check every 30s
+    validateToken();
+  }, [navigate]);
 
-    return () => clearInterval(intervalId); // Cleanup
-  }, []);
   return (
-    <>
-    <ReactRoutes>
-     <AllRoutes />
-     </ReactRoutes>
-    </>
-  )
+    <QueryClientProvider client={queryClient}>
+      <AllRoutes />
+    </QueryClientProvider>
+  );
 }
 
-export default App
+export default App;

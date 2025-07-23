@@ -10,12 +10,12 @@ const modules = [
     path: "/dashboard",
     icon: "/dashboard-icon.svg",
   },
-  {
-    name: "roles",
-    label: "Manage Roles",
-    path: "/roles",
-    icon: "/role-icon.svg",
-  },
+  // {
+  //   name: "roles",
+  //   label: "Manage Roles",
+  //   path: "/roles",
+  //   icon: "/role-icon.svg",
+  // },
   {
     name: "users",
     label: "User Management",
@@ -23,8 +23,14 @@ const modules = [
     icon: "/user-icon.svg",
   },
   {
+    name: "assign",
+    label: "Assign",
+    path: "/assign",
+    icon: "/assign-icon.png",
+  },
+  {
     name: "programs",
-    label: "Manage Programs",
+    label: "Programs",
     path: "/programs",
     icon: "/program-icon.svg",
   },
@@ -34,36 +40,36 @@ const modules = [
     path: "/patients",
     icon: "/patient-icon.svg",
   },
-  {
-    name: "tickets",
-    label: "Tickets",
-    path: "/tickets",
-    icon: "/ticket-icon.svg",
-  },
-  {
-    name: "faq",
-    label: "FAQ Manager",
-    path: "/faq",
-    icon: "program-icon.svg",
-  },
-  {
-    name: "register",
-    label: "Patient Register",
-    path: "/register",
-    icon: "program-icon.svg",
-  },
-  {
-    name: "support",
-    label: "Patient Support",
-    path: "/support",
-    icon: "program-icon.svg",
-  },
-  {
-    name: "profile",
-    label: "Patient Profile",
-    path: "/profile",
-    icon: "program-icon.svg",
-  },
+  // {
+  //   name: "tickets",
+  //   label: "Tickets",
+  //   path: "/tickets",
+  //   icon: "/ticket-icon.svg",
+  // },
+  // {
+  //   name: "faq",
+  //   label: "FAQ Manager",
+  //   path: "/faq",
+  //   icon: "program-icon.svg",
+  // },
+  // {
+  //   name: "register",
+  //   label: "Patient Register",
+  //   path: "/register",
+  //   icon: "program-icon.svg",
+  // },
+  // {
+  //   name: "support",
+  //   label: "Patient Support",
+  //   path: "/support",
+  //   icon: "program-icon.svg",
+  // },
+  // {
+  //   name: "profile",
+  //   label: "Patient Profile",
+  //   path: "/profile",
+  //   icon: "program-icon.svg",
+  // },
 ];
 
 export default function Navigation({ children }) {
@@ -71,7 +77,7 @@ export default function Navigation({ children }) {
   const location = useLocation();
 
   const user = JSON.parse(localStorage.getItem("user"));
-  const allowedPages = user?.allowed_pages || [];
+  const allowedPages = [...user?.allowed_pages, "assign"] || [];
 
   const visibleModules = modules.filter((mod) =>
     allowedPages.includes(mod.name)
@@ -124,12 +130,12 @@ export default function Navigation({ children }) {
         className={`fixed top-7 left-2 h-[calc(100vh-56px)] rounded-3xl bg-transparent
 
     text-gray-700 flex flex-col transition-all duration-300 ease-in-out
-    py-2 ${isOpen ? "w-56 px-3" : "w-[70px] px-2"} overflow-hidden z-50`}
-        // onMouseEnter={() => setIsOpen(true)}
-        // onMouseLeave={() => setIsOpen(false)}
+    py-2 ${isOpen ? "w-56 px-3" : "w-[4.3rem] px-2"} overflow-hidden z-50`}
+      // onMouseEnter={() => setIsOpen(true)}
+      // onMouseLeave={() => setIsOpen(false)}
       >
-        <div className="flex items-center justify-center h-16 font-semibold text-lg">
-          {isOpen ? <img src={oralogo} alt="Logo" /> : ""}
+        <div className="flex items-center justify-center h-12 font-semibold text-lg">
+          {isOpen ? <img src={oralogo} alt="Logo" className="h-full w-full" /> : ""}
         </div>
 
         <div className="flex flex-col mt-8 flex-1">
@@ -138,8 +144,7 @@ export default function Navigation({ children }) {
               key={name}
               to={path}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-3 transition-colors rounded text-[#292935] font-semibold ${
-                  isActive ? "text-[#7b71c8] bg-white " : "hover:bg-gray-200"
+                `flex items-center gap-3 px-4 py-3 transition-colors rounded text-[#292935] font-semibold ${isActive ? "text-[#7b71c8] bg-white " : "hover:bg-gray-200"
                 }
       ${isOpen ? "rounded-3xl" : "rounded-full "}
       `
@@ -150,9 +155,8 @@ export default function Navigation({ children }) {
                   <img
                     src={icon}
                     alt={`${label} icon`}
-                    className={`w-5 h-5 transition duration-200 ${
-                      isActive ? "filter-purple" : "filter-gray"
-                    }`}
+                    className={`w-5 h-5 transition duration-200 ${isActive ? "filter-purple" : "filter-gray"
+                      }`}
                   />
                   {isOpen && <span className="whitespace-nowrap">{label}</span>}
                 </>
@@ -168,9 +172,8 @@ export default function Navigation({ children }) {
 
       {/* Main Content */}
       <main
-        className={`transition-margin duration-300 ${
-          isOpen ? "ml-56" : "ml-16"
-        } ${isDashboard ? "pt-0 px-0" : "pt-0.5 px-6"}
+        className={`transition-margin duration-300 h-full no-scrollbar ${isOpen ? "ml-56" : "ml-16"
+          } ${isDashboard ? "pt-0 px-0" : "pt-0.5 px-1"}
         }`}
       >
         {/* {location.pathname === "/dashboard" && (
@@ -178,7 +181,7 @@ export default function Navigation({ children }) {
         )} */}
         <div
           className={`
-          ${isDashboard ? "mt-0" : "mt-4 text-gray-700"}
+          ${isDashboard ? "mt-0" : "text-gray-700 h-[calc(100vh-2px)]"}
           `}
         >
           {children}

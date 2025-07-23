@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axiosInstance from "../services/apiService";
 import Navigation from  '../pages/admin/Navigation';
 import TopBar from "../pages/admin/dashboard/components/TopBar";
 import { useNavigate } from "react-router-dom";
@@ -21,7 +21,7 @@ const navigate = useNavigate();
     }
 
     try {
-      const res = await axios.get(API_URL, {
+      const res = await axiosInstance.get(API_URL, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -41,12 +41,12 @@ const navigate = useNavigate();
   // Handlers for dropdown
   const handleView = (id) => {
     console.log("👁️ View program ID:", id);
-    navigate(`/programview/${id}`);
+    navigate(`/programs/programview/${id}`);
   };
 
   const handleEdit = (id) => {
     console.log("✏️ Edit program ID:", id);
-     navigate(`/editprogram/${id}`);
+     navigate(`/programs/editprogram/${id}`);
   };
 
   const handleDelete = (id) => {
@@ -55,7 +55,7 @@ const navigate = useNavigate();
 
   const handleAddProgram = () => {
     console.log("➕ Add New Program clicked");
-    navigate("/decisiontreeflow");
+    navigate("/programs/decisiontreeflow");
   };
 
   return (

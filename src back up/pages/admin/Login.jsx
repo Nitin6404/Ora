@@ -78,6 +78,7 @@ console.log('execute');
         last_name,
         first_name,
       } = response.data;
+      console.log(response.data);
 
       // Save token and user info in localStorage
       localStorage.setItem("token", token);
@@ -135,7 +136,7 @@ console.log('execute');
     font-inter
   "
         >
-          <p>Welcome to ORA's</p>
+          <p>Welcome to Eliyya's</p>
           <p>Peaceful World</p>
         </div>
       </div>
@@ -226,7 +227,7 @@ console.log('execute');
 
               <button
                 type="button"
-                className="text-xs text-gray-500 ml-2 focus:outline-none"
+                className="text-xs text-gray-500 mr-2 focus:outline-none"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (

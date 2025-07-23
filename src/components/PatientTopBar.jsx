@@ -1,9 +1,9 @@
-import { Settings, User, Bell, ArrowLeft, LogOut } from "lucide-react";
+import { Settings, Bell, ArrowLeft, LogOut } from "lucide-react";
 import { useState } from "react";
 import api from '../services/apiService';
 import { LOGOUT } from '../config/apiConfig'
-import axios from 'axios';
 import { useNavigate } from "react-router-dom";
+
 const PatientTopBar = ({ isAddPatient, isEditPatient }) => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -31,16 +31,18 @@ const PatientTopBar = ({ isAddPatient, isEditPatient }) => {
   return (
     <div className="sticky top-0 z-50 backdrop-blur-md border-gray-200 ">
       <div className="flex flex-col justify-center items-end space-x-4">
+
+        {/* Desktop Topbar */}
         <div className="hidden lg:flex items-center justify-between w-full">
           {/* Left side: Back Button */}
-          <div>
+          <div className="w-full">
             {(isAddPatient || isEditPatient) && (
               <button
                 onClick={() => navigate(-1)}
-                className="flex items-center space-x-2 p-1 text-sm text-left bg-white rounded-full hover:bg-gray-100"
+                className="flex justify-center items-center space-x-0 pl-2 pr-3 py-1 bg-white rounded-full"
               >
-                <ArrowLeft />
-                <span>Back</span>
+                <ArrowLeft color="#252B37" className="w-8 h-6"/>
+                <span className="text-[#252B37] font-medium text-xs w-full">Back</span>
               </button>
             )}
           </div>
@@ -79,11 +81,11 @@ const PatientTopBar = ({ isAddPatient, isEditPatient }) => {
 
         <div className="hidden lg:flex w-full justify-start items-center space-x-4">
           {isAddPatient || isEditPatient ? (
-            <p className="text-sm lg:text-xl text-black mt-2">
+            <p className="text-sm lg:text-xl text-black font-medium mt-2">
               {isAddPatient ? "Add Patients" : "Edit Patient"}
             </p>
           ) : (
-            <p className="text-sm lg:text-lg text-black">
+            <p className="text-sm lg:text-xl text-black font-medium mt-2 ml-4">
               Therapy Patient
             </p>
           )}

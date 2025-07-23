@@ -1,11 +1,30 @@
+// src/services/tokenService.js
 import axios from 'axios';
+import {jwtDecode} from 'jwt-decode';
+import { API_BASE_URL, REFRESH_ENDPOINT } from '../config/apiConfig';
 
-const REFRESH_ENDPOINT = 'https://a4do66e8y1.execute-api.us-east-1.amazonaws.com/dev/api/auth/token/refresh/';
+export function decodeToken(token) {
+  try {
+    return jwtDecode(token);
+  } catch (e) {
+    console.error("Token decode failed:", e);
+    return null;
+  }
+}
+
+export function isTokenExpiringSoon(token, bufferMs = 60 * 1000) {
+  const decoded = decodeToken(token);
+  if (!decoded || !decoded.exp) return true;
+
+  const expiryTime = decoded.exp * 1000;
+  const currentTime = Date.now();
+  return expiryTime - currentTime <= bufferMs;
+}
 
 export async function refreshAccessToken(refreshToken) {
   try {
     const response = await axios.post(
-      REFRESH_ENDPOINT,
+      `${API_BASE_URL}${REFRESH_ENDPOINT}`,
       { refresh: refreshToken },
       {
         headers: {
@@ -15,10 +34,7 @@ export async function refreshAccessToken(refreshToken) {
     );
 
     const { access } = response.data;
-
-    // Save new token to localStorage
     localStorage.setItem('token', access);
-
     return access;
   } catch (error) {
     console.error("🔁 Token refresh failed:", error.response?.data || error.message);

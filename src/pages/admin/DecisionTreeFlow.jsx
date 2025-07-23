@@ -10,7 +10,7 @@ import ReactFlow, {
   Handle,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-import api from "../../services/loginService";
+import axiosInstance from '../../services/apiService';
 import { PROGRAM_ENDPOINT } from "../../config/apiConfig";
 
 
@@ -325,7 +325,7 @@ const confirmAddQuestion = () => {
     const token = localStorage.getItem('token');
     if (!token) throw new Error("No auth token found");
 
-    const response = await api.post(
+    const response = await axiosInstance.post(
       PROGRAM_ENDPOINT,
       {
         name: "Cognitive Therapy",

@@ -1,14 +1,17 @@
 import React, { useState } from "react";
-import axios from "axios";
-import Navigation from "../pages/admin/Navigation";
-import "./patient.css";
-import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import axiosInstance from "../services/apiService";
+import Navigation from "../pages/admin/Navigation";
+import UniversalTopBar from "../components/UniversalTopBar";
 import CustomFileUploader from "../components/CustomFileUploader";
-import PatientTopBar from "../components/PatientTopBar";
+import CustomDropdown from "../components/CustomDropDown";
 import { ChevronLeft } from "lucide-react";
-const API_URL =
-  "https://a4do66e8y1.execute-api.us-east-1.amazonaws.com/dev/api/patient/patients/";
+import { API_BASE_URL, PATIENT_ENDPOINT } from "../config/apiConfig";
+import { GENDER_DROPDOWN } from "../constants";
+import "./patient.css";
+
+const API_URL = `${API_BASE_URL}${PATIENT_ENDPOINT}`;
 
 export default function AddPatient() {
   const [formData, setFormData] = useState({
@@ -19,16 +22,13 @@ export default function AddPatient() {
     password: "",
     is_active: true,
     concent_given: true,
-    // program_id: 1,
     profile_image: null,
+    gender: "",
   });
 
-
-
-  const [activeTab, setActiveTab] = useState("Patient Details");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const tabs = ["Patient Details"];
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -38,30 +38,35 @@ export default function AddPatient() {
     }));
   };
 
+  const handlePasswordVisibility = () => setShowPassword((prev) => !prev);
+
   const handleSubmit = async () => {
+    const { full_name, date_of_birth, email, phone_no, password, gender } =
+      formData;
+    if (
+      !full_name ||
+      !date_of_birth ||
+      !email ||
+      !phone_no ||
+      !password ||
+      !gender
+    ) {
+      toast.error("Please fill all the fields!");
+      return;
+    }
+
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      
       const multipartData = new FormData();
-      multipartData.append("full_name", formData.full_name);
-      multipartData.append("date_of_birth", formData.date_of_birth);
-      multipartData.append("email", formData.email);
-      multipartData.append("phone_no", formData.phone_no);
-      multipartData.append("password", formData.password);
-      multipartData.append("is_active", formData.is_active);
-      multipartData.append("concent_given", formData.concent_given);
-  
-      if (formData.profile_image) {
-        multipartData.append("profile_image", formData.profile_image); 
-      }
-  
-      const res = await axios.post(API_URL, multipartData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== null) multipartData.append(key, value);
       });
-  
+
+      await axiosInstance.post(API_URL, multipartData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
       toast.success("Patient created!");
       navigate("/patients");
     } catch (err) {
@@ -71,183 +76,238 @@ export default function AddPatient() {
       setLoading(false);
     }
   };
-  
-
-  const [showPassword, setShowPassword] = useState(false);
-  const handlePasswordVisibility = () => setShowPassword((prev) => !prev);
 
   return (
     <Navigation>
-
       <ToastContainer />
-      <div className="flex flex-col min-h-screen font-inter" >
-        <div className="sticky top-0 z-[999] p-4 md:px-6 md:py-3 backdrop-blur-sm md:ml-4">
-          <div className=" flex flex-col gap-2">
-            <PatientTopBar isAddPatient={true} />
-            <div
-              style={{ minHeight: "500px" }}
-              className="w-full bg-[#ebeafd]/40 rounded-[15px] lg:rounded-[30px] px-2 py-2 md:px-4 lg:px-3 lg:pt-2 lg:pb-8"
-            >
-
-              <div className="flex gap-2 overflow-x-auto no-scrollbar w-full md:w-auto rounded-full px-2 py-1 bg-white backdrop-blur-md border border-white/30 shadow-sm mb-2">
-                <h1 className="lg:px-3 lg:py-2 md:px-2 md:py-1 text-sm md:text-base lg:text-lg">Patient Details</h1>
-              </div>
-
-
-
-              <div className="form-background mx-2 md:mx-4 lg:mx-3 !rounded-[15px] lg:!rounded-[30px]">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div className="lg:space-y-4 space-y-2">
-
-                    <div className="flex flex-col">
-                      <label htmlFor="full_name" className="text-sm font-medium text-gray-700 mb-1">Patient Name</label>
-                      <div className="input-wrapper">
-                        <input
-                          id="full_name"
-                          name="full_name"
-                          type="text"
-                          value={formData.full_name}
-                          onChange={handleChange}
-                          className="input-field"
-                          placeholder="Enter name"
-                          autoComplete="off"
-                        />
-                      </div>
-                    </div>
-
-
-                    <div className="flex flex-col">
-                      <label htmlFor="date_of_birth" className="text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-                      <div className="input-wrapper">
-                        <input
-                          id="date_of_birth"
-                          name="date_of_birth"
-                          type="date"
-                          value={formData.date_of_birth}
-                          onChange={handleChange}
-                          className="input-field"
-                          autoComplete="off"
-                        />
-                      </div>
-                    </div>
-
-
-                    <div className="flex flex-col">
-                      <label htmlFor="email" className="text-sm font-medium text-gray-700 mb-1">Email</label>
-                      <div className="input-wrapper">
-                        <input
-                          id="email"
-                          name="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          className="input-field"
-                          placeholder="Enter email"
-                          autoComplete="off"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col lg:flex-row gap-4 pt-6">
-                      <label className="inline-flex items-center gap-3 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          name="is_active"
-                          checked={formData.is_active}
-                          onChange={handleChange}
-                          className="h-5 w-5 text-indigo-600 bg-white border-gray-300 rounded-md focus:ring-indigo-500 transition duration-200"
-                        />
-                        <span className="text-sm text-gray-700 font-medium">Active</span>
-                      </label>
-
-                      <label className="inline-flex items-center gap-3 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          name="concent_given"
-                          checked={formData.concent_given}
-                          onChange={handleChange}
-                          className="h-5 w-5 text-indigo-600 bg-white border-gray-300 rounded-md focus:ring-indigo-500 transition duration-200"
-                        />
-                        <span className="text-sm text-gray-700 font-medium">Consent Given</span>
-                      </label>
-                    </div>
-
-
-
-                  </div>
-
-
-                  <div className="lg:space-y-4 space-y-2">
-
-                    <div className="flex flex-col">
-                      <label htmlFor="phone_no" className="text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                      <div className="input-wrapper">
-                        <input
-                          id="phone_no"
-                          name="phone_no"
-                          type="text"
-                          value={formData.phone_no}
-                          onChange={handleChange}
-                          className="input-field"
-                          placeholder="Enter phone"
-                          autoComplete="off"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col relative">
-                      <label htmlFor="password" className="text-sm font-medium text-gray-700 mb-1">Password</label>
-                      <div className="input-wrapper">
-                        <input
-                          id="password"
-                          name="password"
-                          type={showPassword ? "text" : "password"}
-                          value={formData.password}
-                          onChange={handleChange}
-                          className="input-field pr-10"
-                          placeholder="Enter password"
-                          autoComplete="off"
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handlePasswordVisibility}
-                        className="absolute right-3 top-9 text-xs"
-                        tabIndex={-1}
-                      >
-                        {showPassword ? "🙈" : "👁️"}
-                      </button>
-                    </div>
-
-                  </div>
-
-
-                  <div className="lg:space-y-4 space-y-2">
-                    {/* <label className="text-sm font-medium text-gray-700 mb-1">Upload File</label> */}
-                    <CustomFileUploader onFileSelect={(file) => setFormData({ ...formData, profile_image: file })} />
-                  </div>
-                </div>
-
-                <div className="flex justify-between pt-6 mt-16 border-t-2 border-purple-300">
-                  <button
-                    onClick={() => navigate(-1)}
-                    className="back-button flex space-x-1">
-                    <ChevronLeft className="w-5 h-5" />
-                    <span>Back</span>
-                  </button>
-                  <div className="flex gap-4">
-                    {/* <button className="back-button">Save as draft</button> */}
-                    <button onClick={handleSubmit} disabled={loading} className="next-button">
-                      {loading ? "Saving..." : "Submit"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <UniversalTopBar isAdd addTitle="Add Patient" backPath="/patients" />
+      <div className="h-full flex flex-col py-2 bg-white/30 m-2 p-2 rounded-2xl gap-2">
+        <BreadCrumb />
+        <AddPatientForm
+          formData={formData}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+          loading={loading}
+          showPassword={showPassword}
+          handlePasswordVisibility={handlePasswordVisibility}
+          setFormData={setFormData}
+          navigate={navigate}
+        />
       </div>
     </Navigation>
   );
 }
 
+const BreadCrumb = () => (
+  <div className="flex gap-2 overflow-x-auto no-scrollbar w-full md:w-auto rounded-full px-1 py-1 bg-white backdrop-blur-md border border-white/30 shadow-sm mb-2">
+    <button
+      className={`px-6 py-3 text-xs lg:text-sm font-medium rounded-full flex items-center gap-2 bg-gradient-to-b from-[#7367F0] to-[#453E90] text-white shadow-md`}
+    >
+      Patient Details
+    </button>
+  </div>
+);
+
+const inputFields = [
+  {
+    id: "full_name",
+    label: "Patient Name",
+    type: "text",
+    placeholder: "Enter name",
+  },
+  {
+    id: "date_of_birth",
+    label: "Date of Birth",
+    type: "date",
+  },
+  {
+    id: "email",
+    label: "Email",
+    type: "email",
+    placeholder: "Enter email",
+  },
+  {
+    id: "phone_no",
+    label: "Phone Number",
+    type: "text",
+    placeholder: "Enter phone",
+  },
+];
+
+const AddPatientForm = ({
+  formData,
+  setFormData,
+  handleChange,
+  handleSubmit,
+  loading,
+  showPassword,
+  handlePasswordVisibility,
+  navigate,
+}) => {
+  return (
+    <div className="bg-white/30 mx-2 lg:px-4 rounded-xl h-[92%] flex flex-col justify-between">
+      <div className="flex flex-row flex-wrap gap-4 px-4 py-2">
+        {/* need 1, 2, 3  */}
+        <div className="flex flex-col gap-4 w-full md:w-[48%] lg:w-[30%]">
+          {inputFields.slice(0, 3).map(({ id, label, type, placeholder }) => (
+            <div key={id} className="flex flex-col ">
+              <label htmlFor={id} className="text-sm font-medium text-gray-700">
+                {label}
+              </label>
+              <div className="input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8">
+                <input
+                  id={id}
+                  name={id}
+                  type={type}
+                  value={formData[id]}
+                  onChange={handleChange}
+                  placeholder={placeholder}
+                  autoComplete="off"
+                  className="input-field"
+                />
+              </div>
+            </div>
+          ))}
+          <div className="hidden md:flex flex-wrap gap-4 pt-4 w-full">
+            {[
+              { name: "is_active", label: "Active" },
+              { name: "concent_given", label: "Consent Given" },
+            ].map(({ name, label }) => (
+              <label
+                key={name}
+                className="inline-flex items-center gap-2 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  name={name}
+                  checked={formData[name]}
+                  onChange={handleChange}
+                  className="h-4 w-4 text-indigo-600 bg-white border-gray-300 rounded-md focus:ring-indigo-500 transition"
+                />
+                <span className="text-sm text-gray-700 font-medium">
+                  {label}
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-4 w-full md:w-[48%] lg:w-[30%]">
+          {inputFields.slice(3, 4).map(({ id, label, type, placeholder }) => (
+            <div key={id} className="flex flex-col ">
+              <label htmlFor={id} className="text-sm font-medium text-gray-700">
+                {label}
+              </label>
+              <div className="input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8">
+                <input
+                  id={id}
+                  name={id}
+                  type={type}
+                  value={formData[id]}
+                  onChange={handleChange}
+                  placeholder={placeholder}
+                  autoComplete="off"
+                  className="input-field"
+                />
+              </div>
+            </div>
+          ))}
+
+          {/* Password Field */}
+          <div className="flex flex-col relative">
+            <label
+              htmlFor="password"
+              className="text-sm font-medium text-gray-700"
+            >
+              Password
+            </label>
+            <div className="input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter password"
+                autoComplete="off"
+                className="input-field pr-10"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={handlePasswordVisibility}
+              className="absolute right-3 top-9 text-xs"
+              tabIndex={-1}
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
+
+          {/* Gender Dropdown */}
+          <div className="flex flex-col">
+            <CustomDropdown
+              label="Gender"
+              options={GENDER_DROPDOWN}
+              selected={
+                GENDER_DROPDOWN.find((item) => item.value === formData.gender)
+                  ?.name
+              }
+              onSelect={(item) =>
+                setFormData({ ...formData, gender: item.value })
+              }
+            />
+          </div>
+        </div>
+
+        {/* File Upload */}
+        <div className="flex flex-col flex-1">
+          <CustomFileUploader
+            onFileSelect={(file) =>
+              setFormData({ ...formData, profile_image: file })
+            }
+          />
+        </div>
+
+        {/* Checkboxes */}
+        <div className="md:hidden flex flex-wrap gap-4 w-full">
+          {[
+            { name: "is_active", label: "Active" },
+            { name: "concent_given", label: "Consent Given" },
+          ].map(({ name, label }) => (
+            <label
+              key={name}
+              className="inline-flex items-center gap-2 cursor-pointer"
+            >
+              <input
+                type="checkbox"
+                name={name}
+                checked={formData[name]}
+                onChange={handleChange}
+                className="h-4 w-4 text-indigo-600 bg-white border-gray-300 rounded-md focus:ring-indigo-500 transition"
+              />
+              <span className="text-sm text-gray-700 font-medium">{label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Footer Buttons */}
+      <div className="flex flex-col sm:flex-row justify-between py-3 px-2 border-t border-[#ABA4F6] gap-3">
+        <button
+          onClick={() => navigate(-1)}
+          className="custom-gradient-button flex justify-center items-center text-sm px-4 py-2"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          <span>Back</span>
+        </button>
+        <button
+          onClick={handleSubmit}
+          disabled={loading}
+          className="patient-btn flex justify-center items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-b from-[#7367F0] to-[#453E90] rounded-full shadow-md gap-2"
+        >
+          {loading ? "Creating..." : "Create Patient"}
+        </button>
+      </div>
+    </div>
+  );
+};

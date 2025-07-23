@@ -78,6 +78,7 @@ console.log('execute');
         last_name,
         first_name,
       } = response.data;
+      console.log(response.data);
 
       // Save token and user info in localStorage
       localStorage.setItem("token", token);
