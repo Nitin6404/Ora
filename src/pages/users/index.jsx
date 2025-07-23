@@ -442,6 +442,7 @@ import Pagination from "../../components/Pagination";
 import DateRangeModal from "../../components/DateRangeModal";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "../../services/apiService";
+import { isArrayWithValues } from "../../utils/isArrayWithValues";
 
 const API_URL = API_BASE_URL + USER_ENDPOINT;
 
@@ -491,9 +492,8 @@ export default function Users() {
           ...col,
           render: (row) => (
             <EllipsisVertical
-              className="hover:cursor-pointer hover:text-[#7367F0] w-5 h-5"
+              className="hover:cursor-pointer hover:text-[#7367F0] w-5 h-5 dropdown-trigger"
               onClick={(e) => {
-                console.log(row.id);
                 if (dropdownUserId === row.id) {
                   setDropdownUserId(null);
                   return;
@@ -613,7 +613,7 @@ export default function Users() {
                 </tr>
               </thead>
               <tbody className="overflow-y-auto h-full w-full">
-                {Array.isArray(users) && users.length > 0 ? (
+                {isArrayWithValues(users) ? (
                   <>
                     {users.map((row, rowIndex) => (
                       <tr

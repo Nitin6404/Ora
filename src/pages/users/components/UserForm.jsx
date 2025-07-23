@@ -13,6 +13,7 @@ const UserForm = ({
   showPassword,
   handlePasswordVisibility,
   navigate,
+  formType,
 }) => {
   const { data: roles = [] } = useQuery({
     queryKey: ["roles"],
@@ -73,7 +74,6 @@ const UserForm = ({
     },
   ];
 
-  console.log(formData);
   const renderField = ({ id, label, type, placeholder, options = [] }) => {
     if (type === "select") {
       return (
@@ -132,15 +132,6 @@ const UserForm = ({
             {renderField(field)}
           </div>
         ))}
-
-        {/* Profile Image Upload */}
-        {/* <div className="flex flex-col gap-4 w-full md:w-[48%] lg:w-[30%]">
-          <CustomFileUploader
-            onFileSelect={(file) =>
-              setFormData({ ...formData, profile_image: file })
-            }
-          />
-        </div> */}
       </div>
 
       {/* Footer Buttons */}
@@ -157,7 +148,13 @@ const UserForm = ({
           disabled={loading}
           className="patient-btn flex justify-center items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-b from-[#7367F0] to-[#453E90] rounded-full shadow-md gap-2"
         >
-          {loading ? "Creating..." : "Create User"}
+          {loading
+            ? formType === "edit"
+              ? "Updating..."
+              : "Creating..."
+            : formType === "edit"
+            ? "Update User"
+            : "Create User"}
         </button>
       </div>
     </div>

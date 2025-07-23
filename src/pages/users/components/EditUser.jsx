@@ -39,11 +39,11 @@ export default function EditUser() {
   const updateUserMutation = useMutation({
     mutationFn: updateUser,
     onSuccess: () => {
-      toast.success("User created successfully!");
+      toast.success("User updated successfully!");
       navigate("/users");
     },
     onError: (error) => {
-      toast.error(error?.error || "Failed to create user.");
+      toast.error(error?.error || "Failed to update user.");
     },
   });
 
@@ -86,23 +86,12 @@ export default function EditUser() {
       multipartData.append("password", formData.password);
       multipartData.append("gender", formData.gender);
       multipartData.append("role_ids", formData.role_ids);
-      updateUserMutation.mutate(multipartData);
+      updateUserMutation.mutate(id, multipartData);
     } catch (err) {
       console.error("❌ Upload error:", err.response?.data || err.message);
-      toast.error("Failed to create user.");
+      toast.error("Failed to update user.");
     } finally {
       setLoading(false);
-      setFormData({
-        first_name: "",
-        middle_name: "",
-        last_name: "",
-        date_of_birth: "",
-        email: "",
-        phone_no: "",
-        password: "",
-        gender: "",
-        role_ids: [],
-      });
     }
   };
 
@@ -125,6 +114,7 @@ export default function EditUser() {
           showPassword={showPassword}
           handlePasswordVisibility={handlePasswordVisibility}
           navigate={navigate}
+          formType="edit"
         />
       </div>
     </Navigation>
