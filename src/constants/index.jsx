@@ -151,6 +151,81 @@ const VIDEO_COLUMN = [
   },
 ];
 
+const USER_COLUMN = [
+  {
+    key: "first_name",
+    label: "First Name",
+    render: (p) => p.first_name || "NA",
+  },
+  { key: "last_name", label: "Last Name", render: (p) => p.last_name || "NA" },
+  { key: "id", label: "ID" },
+  {
+    key: "role_names",
+    label: "Role",
+    render: (p) => p.role_names.join(", ") || "NA",
+  },
+  { key: "gender", label: "Gender", render: (p) => p.gender || "NA" },
+  {
+    key: "date_of_birth",
+    label: "DOB",
+    render: (p) => {
+      const date = new Date(p.date_of_birth);
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      });
+    },
+  },
+  {
+    key: "email",
+    label: "Email",
+    render: (p) => p.email || "NA",
+  },
+  { key: "phone_no", label: "Phone", render: (p) => p.phone_no || "NA" },
+  {
+    key: "created_date",
+    label: "Created At",
+    render: (p) => new Date(p.created_date).toLocaleDateString() || "NA",
+  },
+  {
+    key: "actions",
+    label: "Actions",
+    render: (p) => {
+      return (
+        <div className="relative">
+          {/* <button
+              className=""
+              onClick={() => {
+                fetchUserDetails(p.id);
+                setIsModalOpen(true);
+              }}
+            >
+              <img src="/tilde-icon.png" alt="" />
+            </button> */}
+          <button
+            onClick={() => {}}
+            className="text-gray-500 hover:text-gray-700 dropdown-trigger"
+          >
+            <EllipsisVertical size={18} />
+          </button>
+        </div>
+      );
+    },
+  },
+];
+
+const USER_FORM_FIELD = [
+  { key: "first_name", label: "First Name", type: "text" },
+  { key: "middle_name", label: "Middle Name", type: "text" },
+  { key: "last_name", label: "Last Name", type: "text" },
+  { key: "date_of_birth", label: "Date of Birth", type: "date" },
+  { key: "email", label: "Email", type: "email" },
+  { key: "phone_no", label: "Phone", type: "number" },
+  { key: "password", label: "Password", type: "password" },
+  { key: "gender", label: "Gender", type: "select", options: GENDER_DROPDOWN },
+];
+
 export {
   CONDITION_OPTIONS,
   DURATION_OPTIONS,
@@ -167,4 +242,6 @@ export {
   MEDIA_FILTER_OPTIONS,
   AUDIO_COLUMN,
   VIDEO_COLUMN,
+  USER_COLUMN,
+  USER_FORM_FIELD,
 };

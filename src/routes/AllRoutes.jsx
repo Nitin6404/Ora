@@ -38,6 +38,9 @@ import QrAssign from "../pages/assign/components/QrAssign";
 import MediaPage from "../pages/media";
 import AddMedia from "../pages/media/components/AddMedia";
 import EditMedia from "../pages/media/components/EditMedia";
+import Users from "../pages/users";
+import AddUser from "../pages/users/components/AddUser";
+import EditUser from "../pages/users/components/EditUser";
 
 const AllRoutes = () => {
   const isAuthenticated = localStorage.getItem("token"); // or your own logic
@@ -141,10 +144,36 @@ const AllRoutes = () => {
           path="/users"
           element={
             <ProtectedRoute pageName="users">
-              <UserManagement />
+              <FadeWrapper>
+                {/* <UserManagement /> */}
+                <Users />
+              </FadeWrapper>
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/users/add"
+          element={
+            <ProtectedRoute pageName="users">
+              <FadeWrapper>
+                <AddUser />
+              </FadeWrapper>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/users/edit/:id"
+          element={
+            <ProtectedRoute pageName="users">
+              <FadeWrapper>
+                <EditUser />
+              </FadeWrapper>
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/programs"
           element={
