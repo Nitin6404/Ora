@@ -75,6 +75,11 @@ const PATIENT_FILTER_OPTIONS = [
   { id: "inactive", label: "Inactive", isActive: false },
 ];
 
+const USERS_FILTER_OPTIONS = [
+  { id: "patient", label: "Patient", isActive: true },
+  { id: "admin", label: "Admin", isActive: false },
+];
+
 const GENDER_DROPDOWN = [
   { name: "Male", value: "male" },
   { name: "Female", value: "female" },
@@ -244,4 +249,5 @@ export {
   VIDEO_COLUMN,
   USER_COLUMN,
   USER_FORM_FIELD,
+  USERS_FILTER_OPTIONS,
 };

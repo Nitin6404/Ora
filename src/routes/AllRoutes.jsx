@@ -4,7 +4,7 @@ import React from "react";
 import Home from "../pages/admin/Home";
 import Login from "../pages/admin/Login";
 // import Dashboard from '../pages/admin/Dashboard'
-import Dashboard from "../pages/admin/dashboard/index";
+import Dashboard from "../pages/dashboard";
 import ManageRoles from "../pages/admin/ManageRoles";
 import UserManagement from "../pages/admin/UserManagement";
 import ManagePrograms from "../pages/admin/ManagePrograms";

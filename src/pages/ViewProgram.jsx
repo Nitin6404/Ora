@@ -1,4 +1,4 @@
-import React, { useCallback, useState ,useEffect} from 'react';
+import React, { useCallback, useState, useEffect } from "react";
 import ReactFlow, {
   Background,
   Controls,
@@ -8,10 +8,10 @@ import ReactFlow, {
   useEdgesState,
   useNodesState,
   Handle,
-} from 'reactflow';
-import 'reactflow/dist/style.css';
-import Navigation from  '../pages/admin/Navigation';
-import TopBar from "../pages/admin/dashboard/components/TopBar";
+} from "reactflow";
+import "reactflow/dist/style.css";
+import Navigation from "../pages/admin/Navigation";
+import TopBar from "../pages/dashboard/components/TopBar";
 // import api from "../../services/loginService";
 
 let id = 0;
@@ -20,7 +20,11 @@ const getId = () => `node_${id++}`;
 const QuestionNode = ({ data }) => {
   return (
     <div className="bg-yellow-100 border border-gray-300 rounded-lg p-4 shadow-md w-72 relative">
-      <Handle type="target" position={Position.Top} style={{ background: '#555' }} />
+      <Handle
+        type="target"
+        position={Position.Top}
+        style={{ background: "#555" }}
+      />
       <div className="flex justify-between items-center mb-2">
         <div className="text-sm font-medium">{data.label}</div>
         <button
@@ -51,12 +55,16 @@ const QuestionNode = ({ data }) => {
         Send to Analytics
       </button> */}
       {data.settings && (
-  <div className="mt-2 text-xs text-gray-600">
-    Settings: {JSON.stringify(data.settings)}
-  </div>
-)}
+        <div className="mt-2 text-xs text-gray-600">
+          Settings: {JSON.stringify(data.settings)}
+        </div>
+      )}
 
-      <Handle type="source" position={Position.Bottom} style={{ background: '#555' }} />
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        style={{ background: "#555" }}
+      />
     </div>
   );
 };
@@ -75,100 +83,104 @@ export default function ViewProgram() {
     [setEdges]
   );
 
-const handleOpenSettings = (nodeId) => {
-  setActiveNodeId(nodeId);
+  const handleOpenSettings = (nodeId) => {
+    setActiveNodeId(nodeId);
 
-  const node = nodes.find(n => n.id === nodeId);
-  if (node) {
-    const defaultSettings = { music: '', username: '', patientName: '', keyword: '', therapyStatus: '' };
-    setNodeSettings(prev => ({
-      ...prev,
-      [nodeId]: { ...defaultSettings, ...node.data.settings }
-    }));
-  }
-};
-
-
-useEffect(() => {
-  const fetchProgram = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      console.error("No auth token found.");
-      return;
+    const node = nodes.find((n) => n.id === nodeId);
+    if (node) {
+      const defaultSettings = {
+        music: "",
+        username: "",
+        patientName: "",
+        keyword: "",
+        therapyStatus: "",
+      };
+      setNodeSettings((prev) => ({
+        ...prev,
+        [nodeId]: { ...defaultSettings, ...node.data.settings },
+      }));
     }
+  };
 
-    try {
-    // Extract program id from URL (e.g., /programview/10)
-    const pathParts = window.location.pathname.split('/');
-    const programId = pathParts[pathParts.length - 1];
-    const response = await fetch(
-      `https://a4do66e8y1.execute-api.us-east-1.amazonaws.com/dev/api/program/programs/${programId}`,
-      {
-        headers: {
-        Authorization: `Bearer ${token}`,
-        },
+  useEffect(() => {
+    const fetchProgram = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No auth token found.");
+        return;
       }
-    );
 
-      if (!response.ok) throw new Error("Failed to fetch program data");
+      try {
+        // Extract program id from URL (e.g., /programview/10)
+        const pathParts = window.location.pathname.split("/");
+        const programId = pathParts[pathParts.length - 1];
+        const response = await fetch(
+          `https://a4do66e8y1.execute-api.us-east-1.amazonaws.com/dev/api/program/programs/${programId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-      const program = await response.json();
+        if (!response.ok) throw new Error("Failed to fetch program data");
 
-      const nodesFromAPI = (program.program_data.nodes || []).map((node, index) => ({
-        id: node.id,
-        type: 'questionNode',
-        position: { x: 300, y: 150 + index * 200 }, // you may calculate smarter later
-        data: {
-          label: node.label,
-          nodeId: node.id,
-          answers: node.answers || [],
-          settings: node.settings || {},
-          onSelectAnswer: handleSelectAnswer,
-          onOpenSettings: handleOpenSettings,
-        },
-      }));
+        const program = await response.json();
 
-      const edgesFromAPI = (program.program_data.edges || []).map((edge) => ({
-        id: edge.id,
-        source: edge.source,
-        target: edge.target,
-        label: edge.label,
-        animated: true,
-        style: { stroke: '#888' },
-        labelBgStyle: { fill: '#fff', fillOpacity: 0.9 },
-        labelStyle: { fontSize: 12 },
-      }));
+        const nodesFromAPI = (program.program_data.nodes || []).map(
+          (node, index) => ({
+            id: node.id,
+            type: "questionNode",
+            position: { x: 300, y: 150 + index * 200 }, // you may calculate smarter later
+            data: {
+              label: node.label,
+              nodeId: node.id,
+              answers: node.answers || [],
+              settings: node.settings || {},
+              onSelectAnswer: handleSelectAnswer,
+              onOpenSettings: handleOpenSettings,
+            },
+          })
+        );
 
-      setNodes(nodesFromAPI);
-      setEdges(edgesFromAPI);
-    } catch (error) {
-      console.error("Error loading program:", error);
-    }
+        const edgesFromAPI = (program.program_data.edges || []).map((edge) => ({
+          id: edge.id,
+          source: edge.source,
+          target: edge.target,
+          label: edge.label,
+          animated: true,
+          style: { stroke: "#888" },
+          labelBgStyle: { fill: "#fff", fillOpacity: 0.9 },
+          labelStyle: { fontSize: 12 },
+        }));
+
+        setNodes(nodesFromAPI);
+        setEdges(edgesFromAPI);
+      } catch (error) {
+        console.error("Error loading program:", error);
+      }
+    };
+
+    fetchProgram();
+  }, []);
+
+  const logFullTree = async () => {
+    const fullData = {
+      nodes: nodes.map((n) => ({
+        id: n.id,
+        label: n.data.label,
+        answers: n.data.answers || [],
+        settings: n.data.settings || nodeSettings[n.id] || {},
+      })),
+      edges: edges.map((e) => ({
+        id: e.id,
+        source: e.source,
+        target: e.target,
+        label: e.label,
+      })),
+    };
+    console.log("Full Decision Tree:", fullData);
   };
-
-  fetchProgram();
-}, []);
-
-
-const logFullTree = async () => {
-  const fullData = {
-    nodes: nodes.map(n => ({
-      id: n.id,
-      label: n.data.label,
-      answers: n.data.answers || [],
-      settings: n.data.settings || nodeSettings[n.id] || {},
-    })),
-    edges: edges.map(e => ({
-      id: e.id,
-      source: e.source,
-      target: e.target,
-      label: e.label,
-    })),
-  };
-  console.log('Full Decision Tree:', fullData);
-
-};
-
 
   const handleSettingsChange = (e) => {
     const { name, value } = e.target;
@@ -181,57 +193,53 @@ const logFullTree = async () => {
     }));
   };
 
-const saveSettings = () => {
-  setNodes((nds) =>
-    nds.map((node) => {
-      if (node.id === activeNodeId) {
-        return {
-          ...node,
-          data: {
-            ...node.data,
-            settings: nodeSettings[activeNodeId] || {},
-          },
-        };
-      }
-      return node;
-    })
-  );
-  setActiveNodeId(null);
-  setTimeout(logFullTree, 0); // log after saving settings
-};
-
-
-
+  const saveSettings = () => {
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.id === activeNodeId) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              settings: nodeSettings[activeNodeId] || {},
+            },
+          };
+        }
+        return node;
+      })
+    );
+    setActiveNodeId(null);
+    setTimeout(logFullTree, 0); // log after saving settings
+  };
 
   const closeModal = () => {
     setActiveNodeId(null);
   };
 
- const addNewNode = () => {
-  const question = prompt('Enter your question:');
-  if (!question) return;
+  const addNewNode = () => {
+    const question = prompt("Enter your question:");
+    if (!question) return;
 
-  const newId = getId();
-  const newNode = {
-    id: newId,
-    type: 'questionNode',
-    position: { x: 300, y: 150 + nodes.length * 200 },
-    data: {
-      label: question,
-      nodeId: newId,
-      answers: [],
-      onSelectAnswer: handleSelectAnswer,
-      onOpenSettings: handleOpenSettings,
-      // Removed sendToAnalytics
-    },
+    const newId = getId();
+    const newNode = {
+      id: newId,
+      type: "questionNode",
+      position: { x: 300, y: 150 + nodes.length * 200 },
+      data: {
+        label: question,
+        nodeId: newId,
+        answers: [],
+        onSelectAnswer: handleSelectAnswer,
+        onOpenSettings: handleOpenSettings,
+        // Removed sendToAnalytics
+      },
+    };
+    setNodes((nds) => {
+      const updated = [...nds, newNode];
+      setTimeout(logFullTree, 0); // log after state updates
+      return updated;
+    });
   };
-  setNodes((nds) => {
-    const updated = [...nds, newNode];
-    setTimeout(logFullTree, 0); // log after state updates
-    return updated;
-  });
-};
-
 
   const handleSelectAnswer = (fromNodeId, answerId) => {
     setSelectingConnection({ fromNodeId, answerId });
@@ -250,8 +258,8 @@ const saveSettings = () => {
       target: toNodeId,
       label,
       animated: true,
-      style: { stroke: '#888' },
-      labelBgStyle: { fill: '#fff', fillOpacity: 0.9 },
+      style: { stroke: "#888" },
+      labelBgStyle: { fill: "#fff", fillOpacity: 0.9 },
       labelStyle: { fontSize: 12 },
     };
 
@@ -259,90 +267,84 @@ const saveSettings = () => {
     setSelectingConnection(null);
   };
 
- const addAnswerToLastNode = () => {
-  if (nodes.length === 0) return;
-  const lastNode = nodes[nodes.length - 1];
-  const answerText = prompt('Enter answer text:');
-  if (!answerText) return;
+  const addAnswerToLastNode = () => {
+    if (nodes.length === 0) return;
+    const lastNode = nodes[nodes.length - 1];
+    const answerText = prompt("Enter answer text:");
+    if (!answerText) return;
 
-  const updatedNodes = nodes.map((node) => {
-    if (node.id === lastNode.id) {
-      const newAns = {
-        id: (node.data.answers?.length || 0) + 1,
-        label: answerText,
-      };
-      return {
-        ...node,
-        data: {
-          ...node.data,
-          answers: [...(node.data.answers || []), newAns],
-        },
-      };
-    }
-    return node;
-  });
+    const updatedNodes = nodes.map((node) => {
+      if (node.id === lastNode.id) {
+        const newAns = {
+          id: (node.data.answers?.length || 0) + 1,
+          label: answerText,
+        };
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            answers: [...(node.data.answers || []), newAns],
+          },
+        };
+      }
+      return node;
+    });
 
-  setNodes(updatedNodes);
-  setTimeout(logFullTree, 0); // log after updating answers
-};
-;
-
+    setNodes(updatedNodes);
+    setTimeout(logFullTree, 0); // log after updating answers
+  };
   const sendTreeToAnalytics = () => {
-   const payload = {
-  timestamp: new Date().toISOString(),
-  nodes: nodes.map((n) => ({
-    id: n.id,
-    label: n.data.label,
-    answers: n.data.answers || [],
-    settings: n.data.settings || nodeSettings[n.id] || {}, // either from node.data or fallback
-  })),
-  edges: edges.map((e) => ({
-    id: e.id,
-    source: e.source,
-    target: e.target,
-    label: e.label,
-  })),
-};
+    const payload = {
+      timestamp: new Date().toISOString(),
+      nodes: nodes.map((n) => ({
+        id: n.id,
+        label: n.data.label,
+        answers: n.data.answers || [],
+        settings: n.data.settings || nodeSettings[n.id] || {}, // either from node.data or fallback
+      })),
+      edges: edges.map((e) => ({
+        id: e.id,
+        source: e.source,
+        target: e.target,
+        label: e.label,
+      })),
+    };
 
-
-    console.log('Decision tree to analytics:', payload);
-    alert('Decision tree sent to analytics!');
+    console.log("Decision tree to analytics:", payload);
+    alert("Decision tree sent to analytics!");
   };
   const submitTreeToBackend = async () => {
-  const fullData = {
-    nodes: nodes.map(n => ({
-      id: n.id,
-      label: n.data.label,
-      answers: n.data.answers || [],
-      settings: n.data.settings || nodeSettings[n.id] || {},
-    })),
-    edges: edges.map(e => ({
-      id: e.id,
-      source: e.source,
-      target: e.target,
-      label: e.label,
-    })),
+    const fullData = {
+      nodes: nodes.map((n) => ({
+        id: n.id,
+        label: n.data.label,
+        answers: n.data.answers || [],
+        settings: n.data.settings || nodeSettings[n.id] || {},
+      })),
+      edges: edges.map((e) => ({
+        id: e.id,
+        source: e.source,
+        target: e.target,
+        label: e.label,
+      })),
+    };
+
+    console.log("📦 Sending data to backend:", fullData);
   };
 
-  console.log("📦 Sending data to backend:", fullData);
-
-
-};
-
-
   return (
-      <Navigation>
-          <div
-            className="flex flex-col min-h-screen font-inter"
-            // style={{
-            //   background: "linear-gradient(90deg,rgba(235, 233, 254, 1) 0%, rgba(253, 253, 253, 1) 50%, rgba(254, 246, 232, 1) 100%)",
-            // }}
-          >
-            <div className="sticky top-0 z-[999] p-4 md:px-6 md:py-3 backdrop-blur-sm md:ml-4">
-              <TopBar />
-    <div className="w-full h-screen flex">
-      {/* Left controls */}
-      {/* <div className="w-1/4 p-4 border-r bg-gray-100 space-y-4">
+    <Navigation>
+      <div
+        className="flex flex-col min-h-screen font-inter"
+        // style={{
+        //   background: "linear-gradient(90deg,rgba(235, 233, 254, 1) 0%, rgba(253, 253, 253, 1) 50%, rgba(254, 246, 232, 1) 100%)",
+        // }}
+      >
+        <div className="sticky top-0 z-[999] p-4 md:px-6 md:py-3 backdrop-blur-sm md:ml-4">
+          <TopBar />
+          <div className="w-full h-screen flex">
+            {/* Left controls */}
+            {/* <div className="w-1/4 p-4 border-r bg-gray-100 space-y-4">
         <button
           onClick={addNewNode}
           className="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
@@ -394,86 +396,88 @@ const saveSettings = () => {
         )}
       </div> */}
 
-      {/* Right graph view */}
-      <div className="w-3/4 h-full relative">
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          nodeTypes={nodeTypes}
-          fitView
-        >
-          <Background gap={12} />
-          <MiniMap />
-          <Controls />
-        </ReactFlow>
-
-        {/* Settings Modal */}
-        {activeNodeId && (
-          <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-40 flex justify-center items-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-              <h2 className="text-lg font-semibold mb-4">Settings for Node {activeNodeId}</h2>
-
-              <label className="block text-sm">Music</label>
-              <input
-                name="music"
-                value={nodeSettings[activeNodeId]?.music || ''}
-                onChange={handleSettingsChange}
-                className="w-full mb-3 p-1 border rounded"
-              />
-
-              <label className="block text-sm">Username</label>
-              <input
-                name="username"
-                value={nodeSettings[activeNodeId]?.username || ''}
-                onChange={handleSettingsChange}
-                className="w-full mb-3 p-1 border rounded"
-              />
-
-              <label className="block text-sm">Patient Name</label>
-              <input
-                name="patientName"
-                value={nodeSettings[activeNodeId]?.patientName || ''}
-                onChange={handleSettingsChange}
-                className="w-full mb-3 p-1 border rounded"
-              />
-
-              <label className="block text-sm">Therapy Status</label>
-              <select
-                name="therapyStatus"
-                value={nodeSettings[activeNodeId]?.therapyStatus || ''}
-                onChange={handleSettingsChange}
-                className="w-full mb-3 p-1 border rounded"
+            {/* Right graph view */}
+            <div className="w-3/4 h-full relative">
+              <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+                nodeTypes={nodeTypes}
+                fitView
               >
-                <option value="">Select</option>
-                <option value="active">Active</option>
-                <option value="aborted">Aborted</option>
-                <option value="completed">Completed</option>
-              </select>
+                <Background gap={12} />
+                <MiniMap />
+                <Controls />
+              </ReactFlow>
 
-              <div className="flex justify-end space-x-2 mt-4">
-                <button
-                  onClick={closeModal}
-                  className="px-3 py-1 border rounded hover:bg-gray-100"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={saveSettings}
-                  className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  Save
-                </button>
-              </div>
+              {/* Settings Modal */}
+              {activeNodeId && (
+                <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-40 flex justify-center items-center z-50">
+                  <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+                    <h2 className="text-lg font-semibold mb-4">
+                      Settings for Node {activeNodeId}
+                    </h2>
+
+                    <label className="block text-sm">Music</label>
+                    <input
+                      name="music"
+                      value={nodeSettings[activeNodeId]?.music || ""}
+                      onChange={handleSettingsChange}
+                      className="w-full mb-3 p-1 border rounded"
+                    />
+
+                    <label className="block text-sm">Username</label>
+                    <input
+                      name="username"
+                      value={nodeSettings[activeNodeId]?.username || ""}
+                      onChange={handleSettingsChange}
+                      className="w-full mb-3 p-1 border rounded"
+                    />
+
+                    <label className="block text-sm">Patient Name</label>
+                    <input
+                      name="patientName"
+                      value={nodeSettings[activeNodeId]?.patientName || ""}
+                      onChange={handleSettingsChange}
+                      className="w-full mb-3 p-1 border rounded"
+                    />
+
+                    <label className="block text-sm">Therapy Status</label>
+                    <select
+                      name="therapyStatus"
+                      value={nodeSettings[activeNodeId]?.therapyStatus || ""}
+                      onChange={handleSettingsChange}
+                      className="w-full mb-3 p-1 border rounded"
+                    >
+                      <option value="">Select</option>
+                      <option value="active">Active</option>
+                      <option value="aborted">Aborted</option>
+                      <option value="completed">Completed</option>
+                    </select>
+
+                    <div className="flex justify-end space-x-2 mt-4">
+                      <button
+                        onClick={closeModal}
+                        className="px-3 py-1 border rounded hover:bg-gray-100"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={saveSettings}
+                        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        )}
+        </div>
       </div>
-    </div>
-    </div>
-            </div>
-        </Navigation>
+    </Navigation>
   );
 }

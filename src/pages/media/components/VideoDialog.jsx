@@ -20,12 +20,12 @@ const VideoDialog = ({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl p-0 bg-transparent border-none shadow-2xl backdrop-blur-sm">
-        <DialogHeader className="absolute top-4 left-6 text-white z-10">
+        <DialogHeader className="absolute top-8 left-8 text-white z-10">
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <DialogClose
           onClick={onClose}
-          className="absolute top-4 right-4 z-10 text-white hover:text-red-500"
+          className="absolute top-8 right-8 z-10 text-white hover:text-red-500"
         >
           <X className="w-6 h-6" />
         </DialogClose>
