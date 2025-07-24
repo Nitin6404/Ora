@@ -26,7 +26,7 @@ const TopBar = () => {
   };
 
   return (
-    <div className="sticky top-0 z-50 backdrop-blur-md border-gray-200 ">
+    <div className="sticky top-0 z-50 backdrop-blur-md border-gray-200 px-6 py-3">
       <div className="flex justify-between items-center space-x-4">
         <div>
           <h1 className="text-sm lg:text-2xl font-medium text-gray-800">

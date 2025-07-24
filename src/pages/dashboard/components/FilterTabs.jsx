@@ -1,11 +1,13 @@
 import { CalendarDays, Plus, Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const FilterTabs = ({ activeTab, setActiveTab }) => {
   const tabs = ["All", "Active", "Completed", "In Progress", "Flagged"];
 
+  const navigate = useNavigate();
+
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full bg-white rounded-[30px] p-1 shadow-sm border border-gray-100 gap-4">
-      
       {/* Tabs: Horizontal scroll on small screens */}
       <div className="flex gap-2 overflow-x-auto no-scrollbar w-full md:w-auto">
         {tabs.map((tab) => {
@@ -36,6 +38,7 @@ const FilterTabs = ({ activeTab, setActiveTab }) => {
         </div>
 
         <button
+          onClick={() => navigate("/programs/addprogram")}
           className="text-white px-3 py-2 rounded-full flex items-center gap-2 transition-all duration-300 shadow-md hover:brightness-110 bg-gradient-to-b from-[#7367F0] to-[#453E90]"
         >
           <Plus className="w-4 h-4" />

@@ -12,140 +12,19 @@ import { useQuery } from "@tanstack/react-query";
 import getDashboardStats from "./helpers/getDashboardStats";
 import { isObjectWithValues } from "../../utils/isObjectWithValues";
 
-const programsData = [
-  {
-    id: "ORA-00148",
-    name: "Emily Sanchez",
-    program: "Mindful Coping Starter",
-    mood: "Calm",
-    status: "Active",
-    session: "2 of 3",
-    exits: "1 Exits",
-    flagged: false,
-    lastSession: "May 1, 2023",
-  },
-  {
-    id: "ORA-00148",
-    name: "Emily Sanchez",
-    program: "Mindful Coping Starter",
-    mood: "Calm",
-    status: "Completed",
-    session: "2 of 3",
-    exits: "1 Exits",
-    flagged: false,
-    lastSession: "May 1, 2023",
-  },
-  {
-    id: "ORA-00125",
-    name: "John Mitchell",
-    program: "Chemo Recovery Series A",
-    mood: "Tired",
-    status: "In Progress",
-    session: "2 of 5",
-    exits: "2 Exits",
-    flagged: false,
-    lastSession: "May 1, 2023",
-  },
-  {
-    id: "ORA-00148",
-    name: "Emily Sanchez",
-    program: "Mindful Coping Starter",
-    mood: "Calm",
-    status: "Active",
-    session: "2 of 3",
-    exits: "1 Exits",
-    flagged: false,
-    lastSession: "May 1, 2023",
-  },
-  {
-    id: "ORA-00125",
-    name: "John Mitchell",
-    program: "Chemo Recovery Series A",
-    mood: "Tired",
-    status: "Flagged",
-    session: "2 of 5",
-    exits: "2 Exits",
-    flagged: true,
-    lastSession: "May 1, 2023",
-  },
-  {
-    id: "ORA-00148",
-    name: "Emily Sanchez",
-    program: "Mindful Coping Starter",
-    mood: "Calm",
-    status: "Active",
-    session: "2 of 3",
-    exits: "1 Exit",
-    flagged: false,
-    lastSession: "May 1, 2023",
-  },
-  {
-    id: "ORA-00125",
-    name: "John Mitchell",
-    program: "Chemo Recovery Series A",
-    mood: "Tired",
-    status: "In Progress",
-    session: "2 of 5",
-    exits: "2 Exits",
-    flagged: false,
-    lastSession: "May 1, 2023",
-  },
-  {
-    id: "ORA-00148",
-    name: "Emily Sanchez",
-    program: "Mindful Coping Starter",
-    mood: "Calm",
-    status: "Active",
-    session: "2 of 3",
-    exits: "1 Exits",
-    flagged: false,
-    lastSession: "May 1, 2023",
-  },
-  {
-    id: "ORA-00148",
-    name: "Emily Sanchez",
-    program: "Mindful Coping Starter",
-    mood: "Calm",
-    status: "Active",
-    session: "2 of 3",
-    exits: "1 Exits",
-    flagged: false,
-    lastSession: "May 1, 2023",
-  },
-  {
-    id: "ORA-00125",
-    name: "John Mitchell",
-    program: "Chemo Recovery Series A",
-    mood: "Tired",
-    status: "Flagged",
-    session: "2 of 5",
-    exits: "2 Exits",
-    flagged: true,
-    lastSession: "May 1, 2023",
-  },
-  {
-    id: "ORA-00148",
-    name: "Emily Sanchez",
-    program: "Mindful Coping Starter",
-    mood: "Calm",
-    status: "Active",
-    session: "2 of 3",
-    exits: "1 Exit",
-    flagged: false,
-    lastSession: "May 1, 2023",
-  },
-];
-
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("All");
+  const param = {
+    status: activeTab === "All" ? "" : activeTab,
+  };
 
   const {
     data: stats,
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["dashboard-stats"],
-    queryFn: getDashboardStats,
+    queryKey: ["dashboard-stats", param],
+    queryFn: () => getDashboardStats(param),
   });
 
   const sessionDuration = isObjectWithValues(stats?.duration_buckets)
@@ -155,46 +34,13 @@ const Dashboard = () => {
       }))
     : [];
 
-  /**
-   *  {
-    id: "ORA-00148",
-    name: "Emily Sanchez",
-    program: "Mindful Coping Starter",
-    mood: "Calm",
-    status: "Active",
-    session: "2 of 3",
-    exits: "1 Exits",
-    flagged: false,
-    lastSession: "May 1, 2023",
-  },
-   */
+  const filteredPrograms = isLoading ? [] : stats?.patient_programs?.results;
 
-  const filteredPrograms = isLoading
-    ? []
-    : stats?.patient_programs?.results?.filter((program) => {
-        if (activeTab === "All") return true;
-        if (activeTab === "Flagged") return program.status === "Flagged";
-        if (activeTab === "In Progress")
-          return program.status === "In Progress";
-        if (activeTab === "Active") return program.status === "Active";
-        if (activeTab === "Completed") return program.status === "Completed";
-        return true;
-      });
-
-  console.log(stats);
   return (
     <Navigation>
-      <div
-        className="flex flex-col min-h-screen font-inter"
-        // style={{
-        //   background: "linear-gradient(90deg,rgba(235, 233, 254, 1) 0%, rgba(253, 253, 253, 1) 50%, rgba(254, 246, 232, 1) 100%)",
-        // }}
-      >
-        <div className="sticky top-0 z-[999] p-4 md:px-6 md:py-3 backdrop-blur-sm md:ml-4">
-          <TopBar />
-        </div>
+      <TopBar />
+      <div className="h-full flex flex-col p-2">
         <div className="flex-1 p-4 md:px-6 md:py-3 overflow-auto">
-          {/* Main Dashboard Grid */}
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-6 mb-6 md:mb-8 w-full">
             <div className="col-span-1">
               <ActiveProgramsCard noOfPrograms={stats?.active_programs} />
@@ -217,7 +63,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Program List */}
           <div className="bg-[#ebeafd]/40 p-4 md:p-2 rounded-[30px]">
             <div className="flex flex-wrap items-center justify-between gap-2 mb-4 md:mb-2">
               <FilterTabs activeTab={activeTab} setActiveTab={setActiveTab} />
