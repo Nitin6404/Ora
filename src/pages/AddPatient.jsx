@@ -71,7 +71,7 @@ export default function AddPatient() {
       navigate("/patients");
     } catch (err) {
       console.error("❌ Error:", err.response?.data || err.message);
-      toast.error("Failed to add patient.");
+      toast.error(err.response?.data?.message || "Failed to add patient.");
     } finally {
       setLoading(false);
     }

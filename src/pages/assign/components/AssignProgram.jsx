@@ -96,7 +96,7 @@ export default function AssignProgram() {
       }
     } catch (err) {
       console.error("❌ Error:", err.response?.data || err.message);
-      toast.error(err.response?.data.message || "Failed to assign program.");
+      toast.error(err.response?.data?.message || "Failed to assign program.");
     } finally {
       setLoading(false);
     }
@@ -108,7 +108,7 @@ export default function AssignProgram() {
       return res.data;
     } catch (err) {
       console.error("❌ Error:", err.response?.data || err.message);
-      toast.error("Failed to fetch data.");
+      toast.error(err.response?.data?.message || "Failed to fetch data.");
     }
   };
 
@@ -169,12 +169,11 @@ const BreadCrumb = ({ formData, navigate, BREADCRUMBS, patientList }) => {
         <button
           key={index}
           className={`px-6 py-3 text-xs lg:text-sm font-medium rounded-full flex items-center gap-2
-                                            ${
-                                              item.current
-                                                ? "bg-gradient-to-b from-[#7367F0] to-[#453E90] text-white shadow-md "
-                                                : "bg-white text-[#252B37] hover:text-[#574EB6] hover:bg-[#E3E1FC]"
-                                            }
-                                            }`}
+          ${
+            item.current
+              ? "bg-gradient-to-b from-[#7367F0] to-[#453E90] text-white shadow-md "
+              : "bg-white text-[#252B37] hover:text-[#574EB6] hover:bg-[#E3E1FC]"
+          }`}
           onClick={() => {
             if (
               !formData.program_id ||

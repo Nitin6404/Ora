@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown, XCircle } from "lucide-react";
 import "../pages/patient.css";
 
 const CustomDropdown = ({
@@ -9,6 +9,7 @@ const CustomDropdown = ({
   onSelect,
   disabled,
   placeholder,
+  onRemove = () => {},
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -117,7 +118,7 @@ const CustomDropdown = ({
               filtered.map((item, index) => (
                 <div
                   key={index}
-                  className="lg:p-3 md:p-2 p-1 hover:bg-purple-50 cursor-pointer"
+                  className="lg:p-3 md:p-2 p-1 hover:bg-purple-50 cursor-pointer relative"
                   onClick={() => handleSelect(item)}
                 >
                   <div className="text-sm font-medium text-gray-900">
@@ -126,6 +127,16 @@ const CustomDropdown = ({
                   <div className="text-xs text-gray-500">
                     {item.subtitle || item.email}
                   </div>
+                  {selected === (item.name || item.full_name) && (
+                    <XCircle
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onRemove();
+                        setIsOpen(false);
+                      }}
+                      className="absolute top-1/2 -translate-y-1/2 right-2 w-4 h-4 text-gray-400 hover:text-red-500"
+                    />
+                  )}
                 </div>
               ))
             ) : (

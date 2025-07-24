@@ -12,6 +12,6 @@ export default async function getVideos(params) {
     return { count, next, previous, results };
   } catch (error) {
     console.error("Error fetching videos:", error);
-    throw error;
+    throw error?.response?.data?.error || "Failed to fetch videos.";
   }
 }

@@ -6,6 +6,6 @@ export default async function deleteAudio(id) {
     const response = await axiosInstance.delete(DELETE_AUDIO_ENDPOINT + id);
   } catch (error) {
     console.error("Error deleting audio:", error);
-    throw error;
+    throw error?.response?.data?.error || "Failed to delete audio.";
   }
 }

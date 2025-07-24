@@ -25,8 +25,6 @@ export default function Assign() {
   const [endDate, setEndDate] = useState("");
   const [showDateRange, setShowDateRange] = useState(false);
   const [filterOptions, setFilterOptions] = useState(ASSIGNMENT_FILTER_OPTIONS);
-  const [nextPage, setNextPage] = useState(null);
-  const [prevPage, setPrevPage] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
@@ -144,33 +142,33 @@ export default function Assign() {
         />
         <div className="backdrop-blur-sm bg-white/10 flex-1 overflow-hidden w-full h-full">
           <div className="h-full w-full overflow-y-auto px-4 pt-4 no-scrollbar">
-            <div
-              className="grid gap-4 w-full h-auto 
-             grid-cols-1 
-             sm:grid-cols-2 
-             md:grid-cols-3 
-             lg:grid-cols-4 
-             xl:grid-cols-6"
-            >
-              {loading ? (
-                <div className="flex justify-center items-center py-10 w-full col-span-full row-span-full">
-                  <PrimaryLoader />
-                </div>
-              ) : Array.isArray(assign) && assign.length > 0 ? (
-                assign.map((item, index) => (
+            {loading ? (
+              <div className="flex justify-center items-center py-10 w-full h-full">
+                <PrimaryLoader />
+              </div>
+            ) : Array.isArray(assign) && assign.length > 0 ? (
+              <div
+                className="grid gap-4 w-full h-auto 
+                 grid-cols-1 
+                 sm:grid-cols-2 
+                 md:grid-cols-3 
+                 lg:grid-cols-4 
+                 xl:grid-cols-6"
+              >
+                {assign.map((item, index) => (
                   <div
                     key={item.id || index}
                     className="col-span-1 sm:col-span-1 md:col-span-3 lg:col-span-2 xl:col-span-2"
                   >
                     <AssignCard assign={item} />
                   </div>
-                ))
-              ) : (
-                <div className="flex justify-center items-center py-10 w-full h-full col-span-full row-span-full">
-                  <p className="text-gray-600">No Assignments Found</p>
-                </div>
-              )}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex justify-center items-center py-10 w-full h-full">
+                <p className="text-gray-600">No Assignments Found</p>
+              </div>
+            )}
           </div>
         </div>
         <div className="h-16 flex-shrink-0  z-10 bg-white/10 rounded-b-[1.875rem]">

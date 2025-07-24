@@ -12,6 +12,6 @@ export default async function getAudios(params) {
     return { count, next, previous, results };
   } catch (error) {
     console.error("Error fetching audios:", error);
-    throw error;
+    throw error?.response?.data?.error || "Failed to fetch audios.";
   }
 }

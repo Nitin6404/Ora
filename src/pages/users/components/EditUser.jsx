@@ -43,7 +43,7 @@ export default function EditUser() {
       navigate("/users");
     },
     onError: (error) => {
-      toast.error(error?.error || "Failed to update user.");
+      toast.error(error || "Failed to update user.");
     },
   });
 

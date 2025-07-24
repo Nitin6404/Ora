@@ -7,6 +7,6 @@ export default async function uploadAudio(formData) {
     return response.data;
   } catch (error) {
     console.error("Error uploading audio:", error);
-    throw error;
+    throw error?.response?.data?.error || "Failed to upload audio.";
   }
 }

@@ -27,7 +27,7 @@ export default function AddMedia() {
       navigate("/media");
     },
     onError: (error) => {
-      toast.error(error?.error || "Failed to upload audio.");
+      toast.error(error || "Failed to upload audio.");
     },
   });
 
@@ -38,7 +38,7 @@ export default function AddMedia() {
       navigate("/media");
     },
     onError: (error) => {
-      toast.error(error?.error || "Failed to upload video.");
+      toast.error(error || "Failed to upload video.");
     },
   });
 

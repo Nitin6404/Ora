@@ -20,6 +20,6 @@ export default async function uploadVideo(formData) {
     return registerResponse.data;
   } catch (error) {
     console.error("Error uploading video:", error);
-    throw error;
+    throw error?.response?.data?.error || "Failed to upload video.";
   }
 }

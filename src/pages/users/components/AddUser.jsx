@@ -28,7 +28,7 @@ export default function AddUser() {
       navigate("/users");
     },
     onError: (error) => {
-      toast.error(error?.error || "Failed to create user.");
+      toast.error(error || "Failed to create user.");
     },
   });
 

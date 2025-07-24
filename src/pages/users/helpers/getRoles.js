@@ -7,6 +7,6 @@ export default async function getRoles() {
     return response?.data;
   } catch (error) {
     console.error("Error fetching roles:", error);
-    throw error;
+    throw error?.response?.data?.error || "Failed to fetch roles.";
   }
 }

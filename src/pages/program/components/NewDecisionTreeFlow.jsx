@@ -606,7 +606,9 @@ export default function NewDecisionTreeFlow() {
       navigate("/programs");
     } catch (error) {
       console.error("❌ API error:", error.response?.data || error.message);
-      toast.error("Failed to send data to backend.");
+      toast.error(
+        error.response?.data?.message || "Failed to send data to backend."
+      );
     } finally {
       setLoading(false);
     }

@@ -117,7 +117,7 @@ export default function AddProgram() {
       }
     } catch (err) {
       console.error("❌ Error:", err.response?.data || err.message);
-      toast.error("Failed to add program.");
+      toast.error(err.response?.data?.message || "Failed to add program.");
     } finally {
       setLoading(false);
     }
@@ -133,7 +133,7 @@ export default function AddProgram() {
       return res.data;
     } catch (err) {
       console.error("❌ Error:", err.response?.data || err.message);
-      toast.error("Failed to fetch data.");
+      toast.error(err.response?.data?.message || "Failed to fetch data.");
     }
   };
 

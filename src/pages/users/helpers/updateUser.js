@@ -11,6 +11,6 @@ export default async function updateUser(id, formData) {
     return response.data;
   } catch (error) {
     console.error("Error updating user:", error);
-    throw error;
+    throw error?.response?.data?.error || "Failed to update user.";
   }
 }

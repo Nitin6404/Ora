@@ -9,6 +9,6 @@ export default async function deleteVideo(id) {
     return response.data;
   } catch (error) {
     console.error("Error deleting video:", error);
-    throw error;
+    throw error?.response?.data?.error || "Failed to delete video.";
   }
 }

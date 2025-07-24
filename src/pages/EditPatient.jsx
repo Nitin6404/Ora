@@ -5,7 +5,11 @@ import Navigation from "../pages/admin/Navigation";
 import UniversalTopBar from "../components/UniversalTopBar";
 import PrimaryLoader from "../components/PrimaryLoader";
 import PatientForm from "./patient/components/PatientForm";
-import { API_BASE_URL, PATIENT_INFO, PATIENT_ENDPOINT } from "../config/apiConfig";
+import {
+  API_BASE_URL,
+  PATIENT_INFO,
+  PATIENT_ENDPOINT,
+} from "../config/apiConfig";
 import axiosInstance from "../services/apiService";
 
 const API_URL = API_BASE_URL + PATIENT_INFO;
@@ -40,7 +44,10 @@ export default function EditPatient() {
         });
         setFormData(res.data);
       } catch (err) {
-        console.error("❌ Failed to load patient:", err.response?.data || err.message);
+        console.error(
+          "❌ Failed to load patient:",
+          err.response?.data || err.message
+        );
         toast.error("Error loading patient data.");
       } finally {
         setLoading(false);
@@ -67,14 +74,20 @@ export default function EditPatient() {
       });
 
       console.log(multipartData);
-      const response = await axiosInstance.put(`${API_URL_PUT}${id}/`, multipartData);
+      const response = await axiosInstance.put(
+        `${API_URL_PUT}${id}/`,
+        multipartData
+      );
       console.log(response);
 
       toast.success("Patient updated successfully!");
       navigate("/patients");
     } catch (err) {
-      console.error("❌ Error updating patient:", err.response?.data || err.message);
-      toast.error("Failed to update patient.");
+      console.error(
+        "❌ Error updating patient:",
+        err.response?.data || err.message
+      );
+      toast.error(err.response?.data?.message || "Failed to update patient.");
     } finally {
       setSaving(false);
     }
@@ -111,12 +124,11 @@ export default function EditPatient() {
   );
 }
 
-
-
 const BreadCrumb = () => (
   <div className="flex gap-2 overflow-x-auto no-scrollbar w-full md:w-auto rounded-full px-1 py-1 bg-white backdrop-blur-md border border-white/30 shadow-sm mb-2">
-    <button 
-    className={`px-6 py-3 text-xs lg:text-sm font-medium rounded-full flex items-center gap-2 bg-gradient-to-b from-[#7367F0] to-[#453E90] text-white shadow-md`}>
+    <button
+      className={`px-6 py-3 text-xs lg:text-sm font-medium rounded-full flex items-center gap-2 bg-gradient-to-b from-[#7367F0] to-[#453E90] text-white shadow-md`}
+    >
       Patient Details
     </button>
   </div>
