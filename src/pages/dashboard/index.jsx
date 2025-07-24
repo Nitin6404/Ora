@@ -10,6 +10,7 @@ import ProgramCard from "./components/ProgramCard";
 import ScrollWrapper from "../../components/ScrollWrapper";
 import { useQuery } from "@tanstack/react-query";
 import getDashboardStats from "./helpers/getDashboardStats";
+import { isObjectWithValues } from "../../utils/isObjectWithValues";
 
 const programsData = [
   {
@@ -147,15 +148,38 @@ const Dashboard = () => {
     queryFn: getDashboardStats,
   });
 
-  const filteredPrograms = programsData.filter((program) => {
-    if (activeTab === "All") return true;
-    if (activeTab === "Flagged") return program.flagged;
-    if (activeTab === "In Progress") return program.status === "In Progress";
-    if (activeTab === "Active")
-      return program.status === "Active" && !program.flagged;
-    if (activeTab === "Completed") return program.status === "Completed";
-    return true;
-  });
+  const sessionDuration = isObjectWithValues(stats?.duration_buckets)
+    ? Object.entries(stats?.duration_buckets).map(([key, value]) => ({
+        name: key,
+        value,
+      }))
+    : [];
+
+  /**
+   *  {
+    id: "ORA-00148",
+    name: "Emily Sanchez",
+    program: "Mindful Coping Starter",
+    mood: "Calm",
+    status: "Active",
+    session: "2 of 3",
+    exits: "1 Exits",
+    flagged: false,
+    lastSession: "May 1, 2023",
+  },
+   */
+
+  const filteredPrograms = isLoading
+    ? []
+    : stats?.patient_programs?.results?.filter((program) => {
+        if (activeTab === "All") return true;
+        if (activeTab === "Flagged") return program.status === "Flagged";
+        if (activeTab === "In Progress")
+          return program.status === "In Progress";
+        if (activeTab === "Active") return program.status === "Active";
+        if (activeTab === "Completed") return program.status === "Completed";
+        return true;
+      });
 
   console.log(stats);
   return (
@@ -173,15 +197,19 @@ const Dashboard = () => {
           {/* Main Dashboard Grid */}
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-6 mb-6 md:mb-8 w-full">
             <div className="col-span-1">
-              <ActiveProgramsCard />
+              <ActiveProgramsCard noOfPrograms={stats?.active_programs} />
             </div>
 
             <div className="col-span-1 md:col-span-2 min-w-0">
-              <SessionPerformanceChart />
+              <SessionPerformanceChart
+                totalSessions={stats?.total_sessions}
+                sessionCompleted={stats?.completed_sessions}
+                distressRaised={stats?.distress_flagged_sessions}
+              />
             </div>
 
             <div className="col-span-1 min-w-0">
-              <SessionDurationChart />
+              <SessionDurationChart sessionDuration={sessionDuration || []} />
             </div>
 
             <div className="col-span-1">
