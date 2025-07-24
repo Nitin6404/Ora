@@ -1,21 +1,26 @@
 import { Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const PrimarySearchInput = ({ showSearchInput, setShowSearchInput, searchTerm, setSearchTerm }) => (
-    <div className="relative flex items-center">
-        <AnimatePresence>
-            {showSearchInput && (
-                <motion.input
-                    key="search-input"
-                    initial={{ width: 0, opacity: 0 }}
-                    animate={{ width: 180, opacity: 1 }}
-                    exit={{ width: 0, opacity: 0 }}
-                    transition={{ duration: 0.5, ease: "easeInOut" }}
-                    type="text"
-                    placeholder="Search"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className={`
+const PrimarySearchInput = ({
+  showSearchInput,
+  setShowSearchInput,
+  searchTerm,
+  setSearchTerm,
+}) => (
+  <div className="relative flex items-center">
+    <AnimatePresence>
+      {showSearchInput && (
+        <motion.input
+          key="search-input"
+          initial={{ width: 0, opacity: 0 }}
+          animate={{ width: 180, opacity: 1 }}
+          exit={{ width: 0, opacity: 0 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+          type="text"
+          placeholder="Search"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className={`
                             absolute right-0
                             lg:h-[2.625rem] lg:w-[12.5rem]
                             md:h-[2rem] md:w-[12rem]
@@ -35,17 +40,17 @@ const PrimarySearchInput = ({ showSearchInput, setShowSearchInput, searchTerm, s
                             placeholder:text-[0.875rem]
                             placeholder:font-normal
                             `}
-                />
-            )}
-        </AnimatePresence>
+        />
+      )}
+    </AnimatePresence>
 
-        <div
-            className="absolute right-1 p-1 md:p-2 lg:p-3 hover:bg-[#f1f0fd] transition-all duration-500 ease-in-out rounded-full text-[#42464E] cursor-pointer"
-            onClick={() => setShowSearchInput(!showSearchInput)}
-        >
-            <Search className="w-3 md:w-3 lg:w-[1.125rem] h-3 md:h-3 lg:h-[1.125rem]" />
-        </div>
+    <div
+      className="absolute right-1 p-1 md:p-2 lg:p-3 hover:bg-[#f1f0fd] transition-all duration-500 ease-in-out rounded-full text-[#42464E] cursor-pointer"
+      onClick={() => setShowSearchInput(!showSearchInput)}
+    >
+      <Search className="w-3 md:w-3 lg:w-[1.125rem] h-3 md:h-3 lg:h-[1.125rem]" />
     </div>
-)
+  </div>
+);
 
 export default PrimarySearchInput;

@@ -11,11 +11,17 @@ import ScrollWrapper from "../../components/ScrollWrapper";
 import { useQuery } from "@tanstack/react-query";
 import getDashboardStats from "./helpers/getDashboardStats";
 import { isObjectWithValues } from "../../utils/isObjectWithValues";
+import { isArrayWithValues } from "../../utils/isArrayWithValues";
+import PrimaryLoader from "../../components/PrimaryLoader";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("All");
+  const [showSearchInput, setShowSearchInput] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+
   const param = {
     status: activeTab === "All" ? "" : activeTab,
+    // search: searchTerm || "",
   };
 
   const {
@@ -39,14 +45,14 @@ const Dashboard = () => {
   return (
     <Navigation>
       <TopBar />
-      <div className="h-full flex flex-col p-2">
-        <div className="flex-1 p-4 md:px-6 md:py-3 overflow-auto">
+      <div className="h-full flex flex-col p-2 overflow-x-hidden no-scrollbar">
+        <div className="flex-1 p-4 md:px-6 md:py-3 overflow-auto no-scrollbar">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-6 mb-6 md:mb-8 w-full">
-            <div className="col-span-1">
+            <div className="col-span-1 md:col-span-2 lg:col-span-1">
               <ActiveProgramsCard noOfPrograms={stats?.active_programs} />
             </div>
 
-            <div className="col-span-1 md:col-span-2 min-w-0">
+            <div className="col-span-1 md:col-span-3 lg:col-span-2 min-w-0">
               <SessionPerformanceChart
                 totalSessions={stats?.total_sessions}
                 sessionCompleted={stats?.completed_sessions}
@@ -54,29 +60,46 @@ const Dashboard = () => {
               />
             </div>
 
-            <div className="col-span-1 min-w-0">
+            <div className="col-span-1 md:col-span-3 lg:col-span-1">
               <SessionDurationChart sessionDuration={sessionDuration || []} />
             </div>
 
-            <div className="col-span-1">
+            <div className="col-span-1 md:col-span-2 lg:col-span-1">
               <MoodTrends />
             </div>
           </div>
 
           <div className="bg-[#ebeafd]/40 p-4 md:p-2 rounded-[30px]">
             <div className="flex flex-wrap items-center justify-between gap-2 mb-4 md:mb-2">
-              <FilterTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+              <FilterTabs
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                showSearchInput={showSearchInput}
+                setShowSearchInput={setShowSearchInput}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+              />
             </div>
 
             <ScrollWrapper>
-              {filteredPrograms.map((program, index) => (
-                <div
-                  key={index}
-                  className="flex-shrink-0 w-[260px] md:w-[315px] overflow-hidden rounded-3xl"
-                >
-                  <ProgramCard program={program} />
+              {isLoading ? (
+                <div className="flex flex-1 items-center justify-center w-full min-h-64">
+                  <PrimaryLoader />
                 </div>
-              ))}
+              ) : isArrayWithValues(filteredPrograms) ? (
+                filteredPrograms.map((program, index) => (
+                  <div
+                    key={index}
+                    className="flex-shrink-0 w-[260px] md:w-[315px] overflow-hidden rounded-3xl"
+                  >
+                    <ProgramCard program={program} />
+                  </div>
+                ))
+              ) : (
+                <div className="flex flex-1 items-center justify-center w-full min-h-64">
+                  <p className="text-gray-600 text-sm">No programs found</p>
+                </div>
+              )}
             </ScrollWrapper>
           </div>
         </div>

@@ -1,15 +1,22 @@
 import { CalendarDays, Plus, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import PrimarySearchInput from "../../../components/PrimarySearchInput";
 
-const FilterTabs = ({ activeTab, setActiveTab }) => {
+const FilterTabs = ({
+  activeTab,
+  setActiveTab,
+  showSearchInput,
+  setShowSearchInput,
+  searchTerm,
+  setSearchTerm,
+}) => {
+  const navigate = useNavigate();
   const tabs = ["All", "Active", "Completed", "In Progress", "Flagged"];
 
-  const navigate = useNavigate();
-
   return (
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full bg-white rounded-[30px] p-1 shadow-sm border border-gray-100 gap-4">
+    <div className="flex flex-row justify-between items-center md:items-center w-full bg-white rounded-[30px] p-1 shadow-sm border border-gray-100 gap-4 overflow-auto no-scrollbar gap-x-20">
       {/* Tabs: Horizontal scroll on small screens */}
-      <div className="flex gap-2 overflow-x-auto no-scrollbar w-full md:w-auto">
+      <div className="flex items-center gap-2 w-auto md:w-auto h-full">
         {tabs.map((tab) => {
           const isActive = activeTab === tab;
           return (
@@ -29,12 +36,19 @@ const FilterTabs = ({ activeTab, setActiveTab }) => {
       </div>
 
       {/* Tools: Wrap or stack on mobile */}
-      <div className="flex flex-wrap md:flex-nowrap items-center justify-start md:justify-end gap-4 w-full md:w-auto">
-        <Search className="w-5 h-5 text-gray-600 hover:text-gray-800 cursor-pointer" />
+      <div className="flex items-center justify-end md:justify-end gap-4 w-full md:w-auto">
+        <div className="flex h-full w-full">
+          <PrimarySearchInput
+            showSearchInput={showSearchInput}
+            setShowSearchInput={setShowSearchInput}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+          />
+        </div>
 
         <div className="flex items-center gap-2 text-sm text-gray-500">
-          <span className="font-semibold">29 May, 2025</span>
           <CalendarDays className="w-5 h-5 text-gray-600" />
+          <span className="font-semibold text-nowrap">29 May, 2025</span>
         </div>
 
         <button
