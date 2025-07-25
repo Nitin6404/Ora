@@ -1,8 +1,9 @@
 import axiosInstance from "../../../services/apiService";
 import { UPDATE_USER_ENDPOINT } from "../../../config/apiConfig";
 
-export default async function updateUser(id, formData) {
-  console.log(id, formData);
+export default async function updateUser({ id, formData }) {
+  console.log("ID:", id);
+  console.log("FormData:", formData);
   try {
     const response = await axiosInstance.put(
       `${UPDATE_USER_ENDPOINT}${id}/`,

@@ -13,9 +13,13 @@ import { ASSIGNMENT_FILTER_OPTIONS } from "../../constants";
 import { API_BASE_URL, ASSIGNMENT_ENDPOINT } from "../../config/apiConfig";
 import FilterTopBar from "../../components/FilterTopBar";
 import DateRangeModal from "../../components/DateRangeModal";
+import { useQuery } from "@tanstack/react-query";
+import { getAssignDetail } from "./helpers/getAssignDetail";
+import AssignModal from "./components/AssignModal";
 
 export default function Assign() {
   const [assign, setAssign] = useState([]);
+  const [assignId, setAssignId] = useState(null);
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
@@ -35,6 +39,12 @@ export default function Assign() {
       key: "selection",
     },
   ]);
+
+  const { data: assignDetail, isLoading } = useQuery({
+    queryKey: ["assignDetail", assignId],
+    queryFn: () => getAssignDetail(assignId),
+    enabled: !!assignId,
+  });
 
   // Debounce useEffect: updates debouncedSearchTerm after user stops typing
   useEffect(() => {
@@ -160,7 +170,10 @@ export default function Assign() {
                     key={item.id || index}
                     className="col-span-1 sm:col-span-1 md:col-span-3 lg:col-span-2 xl:col-span-2"
                   >
-                    <AssignCard assign={item} />
+                    <AssignCard
+                      assign={item}
+                      onAssignClick={(id) => setAssignId(id)}
+                    />
                   </div>
                 ))}
               </div>
@@ -193,6 +206,23 @@ export default function Assign() {
           </div>
         </div>
       </div>
+
+      {assignId &&
+        (isLoading ? (
+          <div className="absolute inset-0 flex items-center justify-center backdrop-blur-2xl bg-white/20 w-full h-full z-[70]">
+            <PrimaryLoader />
+          </div>
+        ) : (
+          <>
+            <AssignModal
+              isOpen={assignId}
+              onClose={() => setAssignId(null)}
+              assignDetail={assignDetail}
+            />
+
+            <div className="absolute inset-0 backdrop-blur-2xl bg-white/20 w-full h-full z-[70]" />
+          </>
+        ))}
 
       {showDateRange && (
         <DateRangeModal

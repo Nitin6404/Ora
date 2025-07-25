@@ -86,7 +86,7 @@ export default function EditUser() {
       multipartData.append("password", formData.password);
       multipartData.append("gender", formData.gender);
       multipartData.append("role_ids", formData.role_ids);
-      updateUserMutation.mutate(id, multipartData);
+      updateUserMutation.mutate({ id, formData: multipartData });
     } catch (err) {
       console.error("❌ Upload error:", err.response?.data || err.message);
       toast.error("Failed to update user.");
