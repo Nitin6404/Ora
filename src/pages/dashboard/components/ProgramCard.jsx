@@ -22,8 +22,6 @@ const ProgramCard = ({ program, onprogramClick }) => {
     return "bg-gray-100 text-gray-700";
   };
 
-  console.log(program);
-
   return (
     <div className="rounded-2xl p-[1rem] shadow-md border bg-white w-full hover:bg-[#f1f1fd] transition-all duration-300 ease-in-out">
       {/* Top: ORA ID + Status */}
@@ -54,7 +52,12 @@ const ProgramCard = ({ program, onprogramClick }) => {
 
       {/* Progress Bar */}
       <div className="flex items-center justify-between gap-[0.5rem] py-[0.5rem]">
-        <span>{status === "Completed" ? "100%" : "82%"}</span>
+        <span>
+          {status === "Completed"
+            ? "100%"
+            : ((program.number_of_sessions / 3) * 100).toFixed(0)}
+          %
+        </span>
         <div className="w-full flex items-center justify-between bg-gray-100 h-[0.5rem] rounded-full">
           <div
             className={` h-full rounded-full
@@ -64,7 +67,10 @@ const ProgramCard = ({ program, onprogramClick }) => {
             ${status === "Flagged" && "bg-red-400"}
             `}
             style={{
-              width: status === "Completed" ? "100%" : "82%",
+              width:
+                status === "Completed"
+                  ? "100%"
+                  : `${((program.number_of_sessions / 3) * 100).toFixed(0)}%`,
             }}
           />
         </div>

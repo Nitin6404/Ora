@@ -45,7 +45,11 @@ const Dashboard = () => {
   ]);
 
   const [dropdownId, setDropdownId] = useState(null);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  // make the position centerd of the page
+  const [dropdownPosition, setDropdownPosition] = useState({
+    top: "50%",
+    left: "50%",
+  });
 
   const param = useMemo(() => {
     return {
@@ -97,6 +101,16 @@ const Dashboard = () => {
     setDebouncedSearch("");
   };
 
+  const handleReset = () => {
+    setActiveTab("All");
+    setFilterOptions(DASHBOARD_FILTER_OPTIONS);
+    setPage(1);
+    setSearch("");
+    setDebouncedSearch("");
+    setStartDate("");
+    setEndDate("");
+  };
+
   const sessionDuration = isObjectWithValues(stats?.duration_buckets)
     ? Object.entries(stats?.duration_buckets).map(([key, value]) => ({
         name: key,
@@ -105,10 +119,15 @@ const Dashboard = () => {
     : [];
 
   const filteredPrograms = isLoading ? [] : stats?.patient_programs?.results;
+  const userObj = localStorage.getItem("user");
+  let name = "Olivia Grant";
+  if (userObj?.first_name) {
+    name = userObj?.first_name + " " + userObj?.last_name;
+  }
 
   return (
     <Navigation>
-      <TopBar name={stats?.dr_name} />
+      <TopBar name={name} />
       <div className="h-full flex flex-col p-2 overflow-x-hidden no-scrollbar font-inter">
         <div className="flex-1 p-4 md:px-6 md:py-3 overflow-auto no-scrollbar">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-6 mb-6 md:mb-8 w-full">
@@ -143,10 +162,11 @@ const Dashboard = () => {
                   filterOptions.find((option) => option.isActive).id
                 }...`}
                 onAddClick={() => navigate("/programs/addprogram")}
-                addButtonText="Add New Program"
+                addButtonText="Assign Program"
                 startDate={startDate}
                 endDate={endDate}
                 onDateSelect={() => setShowDateRange(true)} // Open modal
+                handleReset={handleReset}
               />
             </div>
 

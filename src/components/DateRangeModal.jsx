@@ -13,7 +13,9 @@ export default function DateRangeModal({
   const handleApply = () => {
     const formatDate = (date, time) => {
       const pad = (n) => n.toString().padStart(2, "0");
-      return `${pad(date.getMonth() + 1)}/${pad(date.getDate())}/${date.getFullYear()} ${time}`;
+      return `${pad(date.getMonth() + 1)}/${pad(
+        date.getDate()
+      )}/${date.getFullYear()} ${time}`;
     };
 
     const start = formatDate(dateRange[0].startDate, "00:00");
@@ -24,11 +26,11 @@ export default function DateRangeModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/30 z-[9998] flex items-center justify-center md:justify-end md:items-start md:pt-28 md:pr-14"
+      className="fixed inset-0 bg-black/30 z-[9998] flex items-center justify-center"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-md shadow-md p-3 w-[90vw] max-w-[22rem] md:w-auto z-[9999]"
+        className="bg-white rounded-md shadow-md p-3 w-[90vw] max-w-[24rem] md:w-auto z-[9999]"
         onClick={(e) => e.stopPropagation()}
       >
         <DateRange
