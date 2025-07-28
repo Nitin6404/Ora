@@ -2,35 +2,35 @@ import { Settings, User, Bell } from "lucide-react";
 import { useState } from "react";
 import api from "../../../services/apiService";
 import { LOGOUT } from "../../../config/apiConfig";
-import axios from "axios";
-const TopBar = () => {
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
+
+const TopBar = ({ name }) => {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const handleLogout = async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("No auth token found");
-
-      await api.post(
-        LOGOUT,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      console.log("✅ Logged out successfully");
+      setLoading(true);
+      await api.post(LOGOUT, {});
+      toast.success("Logout successful");
     } catch (error) {
-      console.error("❌ Logout error:", error.response?.data || error.message);
+      toast.error("Logout failed");
+      throw error;
+    } finally {
+      setLoading(false);
     }
     localStorage.clear();
-    window.location.href = "/login";
+    navigate("/login");
   };
 
   return (
-    <div className="sticky top-0 z-50 backdrop-blur-md border-gray-200 px-6 py-3">
+    <div className="sticky top-0 z-50 border-gray-200 px-6 py-3">
       <div className="flex justify-between items-center space-x-4">
         <div>
           <h1 className="text-sm lg:text-2xl font-medium text-gray-800">
-            Welcome Back Dr. Olivia Grant
+            Welcome Back Dr. {name ? name : "Olivia Grant"}
           </h1>
           <p className="text-xs lg:text-base text-gray-600 mt-1">
             Let's review today's therapy progress
@@ -61,7 +61,13 @@ const TopBar = () => {
                   className="flex items-center space-x-2 p-1 text-sm w-full text-left"
                   onClick={handleLogout}
                 >
-                  <span>Logout</span>
+                  <span className="flex justify-center items-center space-x-2 w-full">
+                    {loading ? (
+                      <Loader2 className="animate-spin w-4 h-4" />
+                    ) : (
+                      "Logout"
+                    )}
+                  </span>
                 </button>
               </div>
             )}
@@ -94,7 +100,13 @@ const TopBar = () => {
                 className="flex items-center space-x-2 p-1 text-sm w-full text-left"
                 onClick={handleLogout}
               >
-                <span>Logout</span>
+                <span className="flex justify-center items-center space-x-2 w-full">
+                  {loading ? (
+                    <Loader2 className="animate-spin w-4 h-4" />
+                  ) : (
+                    "Logout"
+                  )}
+                </span>
               </button>
             </div>
           )}

@@ -1,7 +1,7 @@
 const ActiveProgramsCard = ({ noOfPrograms }) => {
   return (
     <div
-      className="rounded-3xl p-6 text-white relative overflow-visible w-full h-full border-t-2 border-b-2 border-t-white border-b-white "
+      className="rounded-3xl p-6 text-white relative overflow-visible w-full h-full border-t-2 border-b-2 border-t-white border-b-white font-inter"
       // style={{
       //   backgroundImage: `url("/active-program-bg.jpeg")`,
       //   backgroundSize: 'cover',
@@ -20,10 +20,8 @@ const ActiveProgramsCard = ({ noOfPrograms }) => {
         />
       </div>
       <div className="relative z-10">
-        <h3 className="text-lg text-black font-semibold mb-2">
-          Active Programs
-        </h3>
-        <div className="text-[60px] text-[#7267ec] font-bold">
+        <h3 className="text-lg text-black font-bold">Active Programs</h3>
+        <div className="text-[3.75rem] text-[#7267ec] font-bold leading-[1]">
           {noOfPrograms || 0}
         </div>
       </div>

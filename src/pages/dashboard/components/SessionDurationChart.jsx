@@ -16,7 +16,7 @@ const sessionDurationData = [
 const SessionDurationChart = ({ sessionDuration = [] }) => {
   return (
     <div className="bg-[#fff] rounded-3xl shadow-sm px-5 py-4 flex flex-col justify-between w-[100%]">
-      <h3 className="text-base lg:text-lg font-semibold text-gray-800 mb-4 w-full">
+      <h3 className="text-base lg:text-lg font-bold text-gray-800 mb-4 w-full">
         Session Duration
       </h3>
 

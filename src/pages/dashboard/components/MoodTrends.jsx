@@ -7,7 +7,7 @@ const MoodTrends = () => {
 
   return (
     <div className="rounded-3xl px-5 py-4 bg-[#ebeafd]/40">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">Mood Trends</h3>
+      <h3 className="text-lg font-bold text-gray-800 mb-4">Mood Trends</h3>
 
       <div className="space-y-5">
         {moodData.map((mood, index) => (

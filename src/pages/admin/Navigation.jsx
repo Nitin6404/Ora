@@ -26,7 +26,7 @@ const modules = [
     name: "assign",
     label: "Assign",
     path: "/assign",
-    icon: "/assign-icon.png",
+    icon: "/assi.svg",
   },
   {
     name: "programs",
@@ -44,7 +44,7 @@ const modules = [
     name: "media",
     label: "Media",
     path: "/media",
-    icon: "/media-icon.svg",
+    icon: "/media.svg",
   },
   // {
   //   name: "tickets",

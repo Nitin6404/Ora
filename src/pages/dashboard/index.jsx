@@ -44,8 +44,8 @@ const Dashboard = () => {
 
   return (
     <Navigation>
-      <TopBar />
-      <div className="h-full flex flex-col p-2 overflow-x-hidden no-scrollbar">
+      <TopBar name={stats?.dr_name} />
+      <div className="h-full flex flex-col p-2 overflow-x-hidden no-scrollbar font-inter">
         <div className="flex-1 p-4 md:px-6 md:py-3 overflow-auto no-scrollbar">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-6 mb-6 md:mb-8 w-full">
             <div className="col-span-1 md:col-span-2 lg:col-span-1">

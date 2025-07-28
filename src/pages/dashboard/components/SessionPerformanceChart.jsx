@@ -34,7 +34,7 @@ const SessionPerformanceChart = ({
   return (
     <div className="bg-[#f8f7fd] rounded-3xl shadow-sm py-2 lg:py-4 px-4 lg:px-5 border border-t-2 border-r-2 border-b-transparent border-l-transparent">
       <div className="flex justify-between items-center mb-1 lg:mb-4">
-        <h3 className="text-base lg:text-lg font-semibold text-gray-800">
+        <h3 className="text-base lg:text-lg font-bold text-gray-800">
           Session Performance
         </h3>
         {isMobile ? (
@@ -44,13 +44,13 @@ const SessionPerformanceChart = ({
             </button>
           </div>
         ) : (
-          <div className="text-sm text-[#c6c4e6] hover:underline hover:cursor-pointer">
+          <div className="text-sm text-[#9994e6] hover:underline hover:cursor-pointer">
             See more
           </div>
         )}
       </div>
 
-      <div className="flex lg:flex-row flex-col items-center">
+      <div className="flex md:flex-row flex-col items-center">
         <div className="h-48 w-full lg:w-[50%] relative">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
