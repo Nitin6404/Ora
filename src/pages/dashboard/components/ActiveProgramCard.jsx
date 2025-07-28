@@ -25,7 +25,7 @@ const ActiveProgramsCard = ({ noOfPrograms }) => {
           {noOfPrograms || 0}
         </div>
       </div>
-      <div className="absolute -right-5 bottom-0 z-10">
+      <div className="hidden md:block absolute -right-5 bottom-0 z-10">
         <div className="w-48 h-48 rounded-full flex items-center justify-center">
           <img src="/chasma.png" alt="Chasma" />
         </div>

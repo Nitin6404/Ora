@@ -32,7 +32,7 @@ const SessionPerformanceChart = ({
   }, []);
 
   return (
-    <div className="bg-[#f8f7fd] rounded-3xl shadow-sm py-2 lg:py-4 px-4 lg:px-5 border border-t-2 border-r-2 border-b-transparent border-l-transparent">
+    <div className="bg-[#f8f7fd] rounded-3xl shadow-sm py-4 px-4 lg:px-5 border border-t-2 border-r-2 border-b-transparent border-l-transparent">
       <div className="flex justify-between items-center mb-1 lg:mb-4">
         <h3 className="text-base lg:text-lg font-bold text-gray-800">
           Session Performance
@@ -98,7 +98,7 @@ const SessionPerformanceChart = ({
           </ResponsiveContainer>
         </div>
 
-        <div className="grid grid-rows-3 gap-4 mt-2 lg:mt-4">
+        <div className="grid grid-rows-3 md:gap-2 gap-4 mt-2 lg:mt-4">
           <div className="text-start flex justify-between items-center space-x-5">
             <div className="w-2 h-full bg-[#938cf1] rounded-md" />
             <div className="text-sm text-gray-600">

@@ -56,6 +56,13 @@ const NO_OF_SESSIONS = [
 
 const TOP_BAR_COMPONENT = [];
 
+const DASHBOARD_FILTER_OPTIONS = [
+  { id: "All", label: "All", isActive: true },
+  { id: "Active", label: "Active", isActive: false },
+  { id: "Completed", label: "Completed", isActive: false },
+  { id: "Flagged", label: "Flagged", isActive: false },
+];
+
 const ASSIGNMENT_FILTER_OPTIONS = [
   { id: "All", label: "All", isActive: true },
   { id: "Active", label: "Active", isActive: false },
@@ -250,4 +257,5 @@ export {
   USER_COLUMN,
   USER_FORM_FIELD,
   USERS_FILTER_OPTIONS,
+  DASHBOARD_FILTER_OPTIONS,
 };
