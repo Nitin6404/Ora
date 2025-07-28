@@ -101,13 +101,23 @@ const ProgramCard = ({ program, onprogramClick }) => {
 
       <div className="bg-[#f5f5f5] w-full flex flex-col items-start justify-between px-2 py-4 rounded-2xl">
         {/* Advisors */}
+
         <div className="text-xs space-y-2 w-full">
           <div className="flex gap-2 items-center justify-between">
+            <span className="bg-gray-100 font-semibold px-2 py-1 rounded-full">
+              {program.program.advisor?.advisor_type || "N/A"}
+            </span>
+            <span className="text-right bg-white font-medium px-5 py-1 rounded-full">
+              {program.program.advisor?.name || "N/A"}
+            </span>
+          </div>
+
+          {/* <div className="flex gap-2 items-center justify-between">
             <span className="bg-gray-100 font-semibold px-2 py-1 rounded-full">
               VMA
             </span>
             <span className="text-right bg-white font-medium px-5 py-1 rounded-full">
-              {program.vma_detail?.name || "N/A"}
+              {program.vma || "N/A"}
             </span>
           </div>
           <div className="flex gap-2 items-center justify-between">
@@ -115,9 +125,9 @@ const ProgramCard = ({ program, onprogramClick }) => {
               VSA
             </span>
             <span className="text-right bg-white font-medium px-5 py-1 rounded-full">
-              {program.vsa_detail?.name || "N/A"}
+              {program.vsa || "N/A"}
             </span>
-          </div>
+          </div> */}
           {/* Environment & Frequency */}
           <div className="flex gap-2 items-center justify-between w-full">
             <span className="font-medium text-[#41abbb] bg-[#f3fcf9] px-5 py-1 rounded-full text-sm">
