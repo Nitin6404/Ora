@@ -206,8 +206,17 @@ const MediaPage = () => {
     },
   });
 
-  const handleAddMedia = () => navigate("/media/add");
-  const handleEditMedia = (id) => navigate(`/media/edit/${id}`);
+  const handleAddMedia = () => {
+    navigate("/media/add");
+  };
+  const handleEditMedia = (id) => {
+    console.log(filterOptions.find((option) => option.isActive).id);
+    navigate(`/media/edit/${id}`, {
+      state: {
+        type: filterOptions.find((option) => option.isActive).id,
+      },
+    });
+  };
   const handleDeleteMedia = (id) => {
     setDropdownId(null);
     setDeleteId(id);

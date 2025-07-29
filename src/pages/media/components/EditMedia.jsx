@@ -1,53 +1,60 @@
 import React, { useEffect, useState, useRef } from "react";
 import Navigation from "../../../pages/admin/Navigation";
 import { ToastContainer, toast } from "react-toastify";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import CustomFileUploader from "../../../components/CustomFileUploader";
 import { ChevronLeft } from "lucide-react";
 import CustomDropdown from "../../../components/CustomDropDown";
 import { MEDIA_TYPE } from "../../../constants";
 import UniversalTopBar from "../../../components/UniversalTopBar";
 import { useMutation, useQuery } from "@tanstack/react-query";
-// import { getMediaById, updateMedia } from "../helpers/mediaApi";
+// import { updateMedia } from "../helpers/mediaApi";
+import getMediaById from "../helpers/getMediaById";
 
 export default function EditMedia() {
+  // state from navigation
+  const location = useLocation();
   const [formData, setFormData] = useState({
     title: "",
-    type: "mp3",
-    file: null,
+    type: location.state.type,
+    file: null, // could be File or URL string
+    isFileChanged: false, // NEW: to track if user uploaded new file
   });
+
   const uploaderRef = useRef(null);
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
-  //   const { data: media, isLoading: fetching } = useQuery({
-  //     queryKey: ["media", id],
-  //     queryFn: () => getMediaById(id),
-  //     enabled: !!id,
-  //     onError: () => toast.error("Failed to fetch media details."),
-  //   });
+  const { data: media, isLoading: fetching } = useQuery({
+    queryKey: ["media", id],
+    queryFn: () => getMediaById(id, formData.type),
+    enabled: !!id,
+    onError: () => toast.error("Failed to fetch media details."),
+  });
 
-  //   useEffect(() => {
-  //     if (media) {
-  //       setFormData({
-  //         title: media.title,
-  //         type: media.type,
-  //         file: null,
-  //       });
-  //     }
-  //   }, [media]);
+  useEffect(() => {
+    if (media) {
+      setFormData((prev) => ({
+        ...prev,
+        title: media.title,
+        type: media.type,
+        file: media.type === "mp3" ? media.audio_s3_url : media.video_s3_url,
+        isFileChanged: false, // reset to false when loading existing
+      }));
+    }
+  }, [media]);
 
-  //   const updateMediaMutation = useMutation({
-  //     mutationFn: updateMedia,
-  //     onSuccess: () => {
-  //       toast.success("Media updated successfully!");
-  //       navigate("/media");
-  //     },
-  //     onError: (err) => {
-  //       toast.error(err?.message || "Failed to update media.");
-  //     },
-  //   });
+  const updateMediaMutation = useMutation({
+    mutationFn: updateMedia,
+    onSuccess: () => {
+      toast.success("Media updated successfully!");
+      navigate("/media");
+    },
+    onError: (err) => {
+      toast.error(err?.message || "Failed to update media.");
+    },
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -60,7 +67,9 @@ export default function EditMedia() {
       return;
     }
 
+    // Only check file type if file is changed
     if (
+      formData.isFileChanged &&
       formData.file &&
       !["audio/mp3", "audio/mpeg", "video/mp4"].includes(formData.file.type)
     ) {
@@ -73,9 +82,14 @@ export default function EditMedia() {
       const multipartData = new FormData();
       multipartData.append("title", formData.title);
       multipartData.append("type", formData.type);
-      if (formData.file) multipartData.append("file", formData.file);
 
-      updateMediaMutation.mutate({ id, data: multipartData });
+      // Only include file if it's changed
+      if (formData.isFileChanged && formData.file instanceof File) {
+        multipartData.append("file", formData.file);
+      }
+
+      // Send update
+      // updateMediaMutation.mutate({ id, data: multipartData });
     } catch (err) {
       toast.error("Something went wrong.");
     } finally {
@@ -83,6 +97,7 @@ export default function EditMedia() {
     }
   };
 
+  console.log(formData, "formData");
   return (
     <Navigation>
       <ToastContainer />
@@ -169,7 +184,10 @@ const EditMediaForm = ({
           <CustomFileUploader
             ref={uploaderRef}
             defaultTitle="Upload Media File"
-            onFileSelect={(file) => setFormData({ ...formData, file })}
+            initialImage={formData.file}
+            onFileSelect={(file) =>
+              setFormData({ ...formData, file, isFileChanged: true })
+            }
           />
         </div>
       </div>

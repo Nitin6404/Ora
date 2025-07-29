@@ -19,7 +19,9 @@ const CustomFileUploader = forwardRef(
     const [remainingTime, setRemainingTime] = useState(null);
 
     useEffect(() => {
+      console.log(initialImage, "initialImage");
       if (initialImage) {
+        console.log(initialImage);
         setPreview(initialImage);
       }
     }, [initialImage]);
