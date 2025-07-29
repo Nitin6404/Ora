@@ -3,6 +3,7 @@ import { GENDER_DROPDOWN } from "../../../constants";
 import CustomDropdown from "../../../components/CustomDropDown";
 import getRoles from "../helpers/getRoles";
 import { useQuery } from "@tanstack/react-query";
+import PasswordEye from "../../../components/PasswordEye";
 
 const UserForm = ({
   formData,
@@ -111,10 +112,10 @@ const UserForm = ({
           <button
             type="button"
             onClick={handlePasswordVisibility}
-            className="absolute right-3 top-9 text-xs"
+            className="absolute right-3 top-[50%]  text-xs"
             tabIndex={-1}
           >
-            {showPassword ? "Hide" : "Show"}
+            <PasswordEye showPassword={showPassword} />
           </button>
         )}
       </div>
@@ -122,7 +123,7 @@ const UserForm = ({
   };
 
   return (
-    <div className="bg-white/30 mx-2 lg:px-4 rounded-xl h-[92%] flex flex-col justify-between">
+    <div className="bg-white/30 mx-2 lg:px-4 rounded-2xl h-[89%] flex flex-col justify-between">
       <div className="flex flex-row flex-wrap gap-4 px-4 py-2">
         {inputFields.map((field) => (
           <div

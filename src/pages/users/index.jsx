@@ -88,6 +88,23 @@ export default function Users() {
 
   const handleAddUser = () => navigate("/users/add");
 
+  const handleReset = () => {
+    setActiveFilter("patient");
+    setFilterOptions((prev) =>
+      prev.map((option) => ({
+        ...option,
+        isActive: option.id === "patient",
+      }))
+    );
+    setCurrentPage(1);
+    setSearchTerm("");
+    setDebouncedSearchTerm("");
+    setStartDate(null);
+    setEndDate(null);
+    setDateRange([{ startDate: null, endDate: null, key: "selection" }]);
+    setShowDateRange(false);
+  };
+
   const handleFilterChange = (filterId) => {
     setActiveFilter(filterId);
     setFilterOptions((prev) =>
@@ -133,6 +150,7 @@ export default function Users() {
           endDate={endDate}
           onDateSelect={handleDateSelect}
           onAddClick={handleAddUser}
+          handleReset={handleReset}
           addButtonText="Add New User"
           searchPlaceholder="Search..."
         />

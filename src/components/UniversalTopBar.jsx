@@ -2,7 +2,8 @@ import { Settings, Bell, ArrowLeft, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../services/apiService";
-import { LOGOUT } from '../config/apiConfig';
+import { LOGOUT } from "../config/apiConfig";
+import { Loader2 } from "lucide-react";
 
 const UniversalTopBar = ({
   isAdd = false,
@@ -13,17 +14,20 @@ const UniversalTopBar = ({
   backPath = -1, // Can be -1 for history back or string path like '/programs'
 }) => {
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
+      setLoading(true);
       await axiosInstance.post(LOGOUT);
-      console.log("✅ Logged out successfully");
     } catch (error) {
       console.error("❌ Logout error:", error.response?.data || error.message);
+    } finally {
+      setLoading(false);
     }
     localStorage.clear();
-    window.location.href = '/login';
+    navigate("/login");
   };
 
   const pageTitle = isAdd ? addTitle : isEdit ? editTitle : defaultTitle;
@@ -36,20 +40,19 @@ const UniversalTopBar = ({
   useEffect(() => {
     // close the dropdown when clicked outside
     const handleClickOutside = (event) => {
-      if (open && !event.target.closest('.dropdown')) {
+      if (open && !event.target.closest(".dropdown")) {
         setOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [open]);
 
   return (
-    <div className="py-1 sticky inset-0 z-50 backdrop-blur-md border-gray-200">
+    <div className="py-1 sticky inset-0 z-50 border-gray-200">
       <div className="flex flex-col justify-center items-end">
-
         {/* Desktop Topbar */}
         <div className="hidden lg:flex items-center justify-between w-full">
           <div className="w-full">
@@ -59,7 +62,9 @@ const UniversalTopBar = ({
                 className="flex justify-center items-center space-x-0 pl-2 pr-3 py-1 bg-white rounded-full"
               >
                 <ArrowLeft color="#252B37" className="w-8 h-6" />
-                <span className="text-[#252B37] font-medium text-xs w-full">Back</span>
+                <span className="text-[#252B37] font-medium text-xs w-full">
+                  Back
+                </span>
               </button>
             )}
           </div>
@@ -75,7 +80,7 @@ const UniversalTopBar = ({
               <button
                 className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden border-2 border-gray-300"
                 onClick={() => setOpen(!open)}
-                style={{ aspectRatio: '1/1' }}
+                style={{ aspectRatio: "1/1" }}
               >
                 <img src="/pp.png" alt="Profile" className="w-full h-full" />
               </button>
@@ -85,8 +90,16 @@ const UniversalTopBar = ({
                     className="flex items-center space-x-2 p-1 text-sm w-full text-left"
                     onClick={handleLogout}
                   >
-                    <LogOut className="w-4 h-4" />
-                    <span>Logout</span>
+                    {loading ? (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      </div>
+                    ) : (
+                      <>
+                        <LogOut className="w-4 h-4" />
+                        <span>Logout</span>
+                      </>
+                    )}
                   </button>
                 </div>
               )}
@@ -103,11 +116,13 @@ const UniversalTopBar = ({
 
         {/* Mobile Topbar */}
         <div className="relative flex justify-between items-center w-full lg:hidden bg-transparent p-2">
-          <p className="text-sm lg:text-lg text-black">
-            {pageTitle}
-          </p>
+          <p className="text-sm lg:text-lg text-black">{pageTitle}</p>
           <button onClick={() => setOpen(!open)}>
-            <img src="/pp.png" alt="Profile" className="lg:w-8 md:w-6 w-8 lg:h-8 md:h-6 h-8 rounded-full bg-transparent" />
+            <img
+              src="/pp.png"
+              alt="Profile"
+              className="lg:w-8 md:w-6 w-8 lg:h-8 md:h-6 h-8 rounded-full bg-transparent"
+            />
           </button>
           {open && (
             <div className="absolute right-6 top-10 pt-2 rounded shadow p-2 w-32 z-10 bg-white dropdown">
