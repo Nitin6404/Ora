@@ -4,6 +4,9 @@ import CustomDropdown from "../../../components/CustomDropDown";
 import getRoles from "../helpers/getRoles";
 import { useQuery } from "@tanstack/react-query";
 import PasswordEye from "../../../components/PasswordEye";
+import { z } from "zod";
+import { useState } from "react";
+import toTitleCase from "../../../utils/to_title_case";
 
 const UserForm = ({
   formData,
@@ -16,14 +19,45 @@ const UserForm = ({
   navigate,
   formType,
 }) => {
+  const [errors, setErrors] = useState({});
   const { data: roles = [] } = useQuery({
     queryKey: ["roles"],
     queryFn: getRoles,
   });
 
+  const userSchema = z.object({
+    first_name: z.string().min(1, "First name is required"),
+    middle_name: z.string().min(1, "Middle name is required"),
+    last_name: z.string().min(1, "Last name is required"),
+    date_of_birth: z.string().min(1, "Date of birth is required"),
+    email: z.string().email("Invalid email address"),
+
+    // Coerce string to number safely for phone number
+    phone_no: z
+      .string()
+      .min(1, "Phone number is required")
+      .refine((val) => /^\d{10}$/.test(val), {
+        message: "Phone number must be 10 digits",
+      }),
+
+    password: z
+      .string({
+        required_error: "Password is required",
+      })
+      .min(3, "Password must be at least 3 characters long"),
+
+    gender: z.string().min(1, "Gender is required"),
+
+    // Coerce role ID to number and validate it
+    role_ids: z.preprocess((val) => {
+      const num = Number(val);
+      return isNaN(num) ? undefined : num;
+    }, z.number({ invalid_type_error: "Role must be a number" }).min(1, "Role is required")),
+  });
+
   const rolesColumn = roles.map((role) => ({
     value: role.id,
-    name: role.role_name,
+    name: toTitleCase(role.role_name),
   }));
 
   const inputFields = [
@@ -87,6 +121,9 @@ const UserForm = ({
             }
             onSelect={(item) => setFormData({ ...formData, [id]: item.value })}
           />
+          {errors[id] && (
+            <p className="text-red-500 text-xs mt-1">{errors[id]}</p>
+          )}
         </div>
       );
     }
@@ -108,6 +145,9 @@ const UserForm = ({
             className="input-field pr-10"
           />
         </div>
+        {errors[id] && (
+          <p className="text-red-500 text-xs mt-1">{errors[id]}</p>
+        )}
         {id === "password" && (
           <button
             type="button"
@@ -145,7 +185,19 @@ const UserForm = ({
           <span>Back</span>
         </button>
         <button
-          onClick={handleSubmit}
+          onClick={() => {
+            const result = userSchema.safeParse(formData);
+            console.log(result.error);
+            if (!result.success) {
+              const errors = {};
+              result.error.issues.forEach((error) => {
+                errors[error.path[0]] = error.message;
+              });
+              setErrors(errors);
+              return;
+            }
+            handleSubmit();
+          }}
           disabled={loading}
           className="patient-btn flex justify-center items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-b from-[#7367F0] to-[#453E90] rounded-full shadow-md gap-2"
         >
