@@ -7,6 +7,6 @@ export default async function createUser(formData) {
     return response.data;
   } catch (error) {
     console.error("Error creating user:", error);
-    throw error?.response?.data?.error || "Failed to create user.";
+    throw error?.response?.data || "Failed to create user.";
   }
 }

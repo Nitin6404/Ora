@@ -28,7 +28,8 @@ export default function AddUser() {
       navigate("/users");
     },
     onError: (error) => {
-      toast.error(error || "Failed to create user.");
+      const errorMessage = Object.values(error)[0];
+      toast.error(errorMessage[0] || "Failed to create user.");
     },
   });
 
@@ -73,8 +74,9 @@ export default function AddUser() {
       multipartData.append("role_ids", formData.role_ids);
       createUserMutation.mutate(multipartData);
     } catch (err) {
-      console.error("❌ Upload error:", err.response?.data || err.message);
-      toast.error("Failed to create user.");
+      const errorMessage = Object.values(err)[0];
+      console.error("❌ Upload error:", errorMessage || err.message);
+      toast.error(errorMessage[0] || "Failed to create user.");
     } finally {
       setLoading(false);
       setFormData({
