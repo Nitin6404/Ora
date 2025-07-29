@@ -210,7 +210,6 @@ const MediaPage = () => {
     navigate("/media/add");
   };
   const handleEditMedia = (id) => {
-    console.log(filterOptions.find((option) => option.isActive).id);
     navigate(`/media/edit/${id}`, {
       state: {
         type: filterOptions.find((option) => option.isActive).id,
@@ -221,6 +220,22 @@ const MediaPage = () => {
     setDropdownId(null);
     setDeleteId(id);
     setDeleteDialogOpen(true);
+  };
+  const handleReset = () => {
+    setPage(1);
+    setSearch("");
+    setDebouncedSearch("");
+    setStartDate("");
+    setEndDate("");
+    setShowDateRange(false);
+    setDateRange([
+      {
+        startDate: new Date(),
+        endDate: new Date(),
+        key: "selection",
+      },
+    ]);
+    setFilterOptions(MEDIA_FILTER_OPTIONS);
   };
 
   const columns =
@@ -254,6 +269,7 @@ const MediaPage = () => {
           startDate={startDate}
           endDate={endDate}
           onDateSelect={() => setShowDateRange(true)} // Open modal
+          handleReset={handleReset}
         />
 
         <div className="flex-1 overflow-y-auto no-scrollbar bg-white/10">

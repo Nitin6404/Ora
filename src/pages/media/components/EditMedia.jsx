@@ -8,7 +8,7 @@ import CustomDropdown from "../../../components/CustomDropDown";
 import { MEDIA_TYPE } from "../../../constants";
 import UniversalTopBar from "../../../components/UniversalTopBar";
 import { useMutation, useQuery } from "@tanstack/react-query";
-// import { updateMedia } from "../helpers/mediaApi";
+import updateMedia from "../helpers/updateMedia";
 import getMediaById from "../helpers/getMediaById";
 
 export default function EditMedia() {
@@ -24,7 +24,7 @@ export default function EditMedia() {
   const uploaderRef = useRef(null);
   const { id } = useParams();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const { data: media, isLoading: fetching } = useQuery({
     queryKey: ["media", id],
@@ -33,12 +33,13 @@ export default function EditMedia() {
     onError: () => toast.error("Failed to fetch media details."),
   });
 
+  console.log(media, "media");
   useEffect(() => {
     if (media) {
       setFormData((prev) => ({
         ...prev,
         title: media.title,
-        type: media.type,
+        type: media.type === "mp3" ? "mp3" : "mp4",
         file: media.type === "mp3" ? media.audio_s3_url : media.video_s3_url,
         isFileChanged: false, // reset to false when loading existing
       }));
@@ -88,8 +89,13 @@ export default function EditMedia() {
         multipartData.append("file", formData.file);
       }
 
+      console.log(multipartData, "multipartData");
       // Send update
-      // updateMediaMutation.mutate({ id, data: multipartData });
+      updateMediaMutation.mutate({
+        id,
+        type: formData.type,
+        data: multipartData,
+      });
     } catch (err) {
       toast.error("Something went wrong.");
     } finally {
@@ -97,7 +103,8 @@ export default function EditMedia() {
     }
   };
 
-  console.log(formData, "formData");
+  console.log(loading, "loading");
+  console.log(fetching, "fetching");
   return (
     <Navigation>
       <ToastContainer />
