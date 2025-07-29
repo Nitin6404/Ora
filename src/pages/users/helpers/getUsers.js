@@ -8,8 +8,8 @@ const getUsers = async ({ queryKey }) => {
     const [, { filter, page, startDate, endDate, search }] = queryKey;
 
     const params = new URLSearchParams();
-    if (filter === "patient") params.append("role_names", "patient");
-    if (filter === "admin") params.append("role_names", "admin");
+    if (filter === "patient") params.append("role", "patient");
+    if (filter === "admin") params.append("role", "admin");
     params.append("page", page);
     if (startDate) {
       params.append("start_date", startDate);
