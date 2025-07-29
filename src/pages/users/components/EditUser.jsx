@@ -9,6 +9,7 @@ import updateUser from "../helpers/updateUser";
 import UserForm from "./UserForm";
 import getUser from "../helpers/getUser";
 import { useParams } from "react-router-dom";
+import PrimaryLoader from "../../../components/PrimaryLoader";
 
 export default function EditUser() {
   const { id } = useParams();
@@ -24,7 +25,7 @@ export default function EditUser() {
     role_ids: [],
   });
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["user", id],
     queryFn: () => getUser(id),
   });
@@ -105,17 +106,23 @@ export default function EditUser() {
       <div className="h-full flex flex-col py-2 bg-white/30 m-2 p-2 rounded-2xl gap-2">
         <BreadCrumb />
 
-        <UserForm
-          formData={formData}
-          setFormData={setFormData}
-          handleChange={handleChange}
-          handleSubmit={handleSubmit}
-          loading={loading}
-          showPassword={showPassword}
-          handlePasswordVisibility={handlePasswordVisibility}
-          navigate={navigate}
-          formType="edit"
-        />
+        {isLoading ? (
+          <div className="flex justify-center items-center h-full">
+            <PrimaryLoader />
+          </div>
+        ) : (
+          <UserForm
+            formData={formData}
+            setFormData={setFormData}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+            loading={loading}
+            showPassword={showPassword}
+            handlePasswordVisibility={handlePasswordVisibility}
+            navigate={navigate}
+            formType="edit"
+          />
+        )}
       </div>
     </Navigation>
   );

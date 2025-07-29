@@ -187,7 +187,6 @@ const UserForm = ({
         <button
           onClick={() => {
             const result = userSchema.safeParse(formData);
-            console.log(result.error);
             if (!result.success) {
               const errors = {};
               result.error.issues.forEach((error) => {
