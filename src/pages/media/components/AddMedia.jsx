@@ -75,8 +75,9 @@ export default function AddMedia() {
       multipartData.append("type", formData.type);
       multipartData.append("file", formData.file);
       if (formData.type === "mp3") uploadAudioMutation.mutate(multipartData);
-      else if (formData.type === "mp4")
-        uploadVideoMutation.mutate(multipartData);
+      else if (formData.type === "mp4") {
+        uploadVideoMutation.mutate(formData);
+      }
       uploaderRef.current.reset();
     } catch (err) {
       console.error("❌ Upload error:", err.response?.data || err.message);
