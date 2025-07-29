@@ -10,6 +10,7 @@ import UniversalTopBar from "../../../components/UniversalTopBar";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import updateMedia from "../helpers/updateMedia";
 import getMediaById from "../helpers/getMediaById";
+import PrimaryLoader from "../../../components/PrimaryLoader";
 
 export default function EditMedia() {
   // state from navigation
@@ -24,7 +25,6 @@ export default function EditMedia() {
   const uploaderRef = useRef(null);
   const { id } = useParams();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
 
   const { data: media, isLoading: fetching } = useQuery({
     queryKey: ["media", id],
@@ -40,7 +40,7 @@ export default function EditMedia() {
         title: media.title,
         type: media.type === "mp3" ? "mp3" : "mp4",
         file: media.type === "mp3" ? media.audio_s3_url : media.video_s3_url,
-        isFileChanged: false, // reset to false when loading existing
+        isFileChanged: false,
       }));
     }
   }, [media]);
@@ -77,7 +77,6 @@ export default function EditMedia() {
       return;
     }
 
-    setLoading(true);
     try {
       const multipartData = new FormData();
       multipartData.append("title", formData.title);
@@ -95,8 +94,6 @@ export default function EditMedia() {
       });
     } catch (err) {
       toast.error("Something went wrong.");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -112,7 +109,8 @@ export default function EditMedia() {
           setFormData={setFormData}
           handleChange={handleChange}
           handleSubmit={handleSubmit}
-          loading={loading || fetching}
+          loading={updateMediaMutation.isPending}
+          fetching={fetching}
           uploaderRef={uploaderRef}
           navigate={navigate}
         />
@@ -135,6 +133,7 @@ const EditMediaForm = ({
   handleChange,
   handleSubmit,
   loading,
+  fetching,
   uploaderRef,
   navigate,
 }) => (
@@ -144,54 +143,63 @@ const EditMediaForm = ({
         Update Media Details
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="col-span-2 md:col-span-1">
-          <div className="col-span-2 md:col-span-1">
-            <label
-              htmlFor="title"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Title
-            </label>
-            <div className="input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8">
-              <input
-                id="title"
-                name="title"
-                type="text"
-                value={formData.title}
-                onChange={handleChange}
-                className="input-field w-full"
-                placeholder="Enter media title"
+        {fetching ? (
+          <div className="col-span-2 min-h-[20vh] flex justify-center items-center h-full w-full">
+            <PrimaryLoader />
+          </div>
+        ) : (
+          <>
+            <div className="col-span-2 md:col-span-1">
+              <div className="col-span-2 md:col-span-1">
+                <label
+                  htmlFor="title"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Title
+                </label>
+                <div className="input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8">
+                  <input
+                    id="title"
+                    name="title"
+                    type="text"
+                    value={formData.title}
+                    onChange={handleChange}
+                    className="input-field w-full"
+                    placeholder="Enter media title"
+                  />
+                </div>
+              </div>
+              <div className="col-span-2 md:col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Media Type
+                </label>
+                <CustomDropdown
+                  options={MEDIA_TYPE}
+                  selected={
+                    MEDIA_TYPE.find((item) => item.value === formData.type)
+                      ?.name
+                  }
+                  onSelect={(item) =>
+                    setFormData({ ...formData, type: item.value })
+                  }
+                />
+              </div>
+            </div>
+            <div className="col-span-2 md:col-span-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Replace File (optional)
+              </label>
+              <CustomFileUploader
+                ref={uploaderRef}
+                defaultTitle="Upload Media File"
+                initialImage={formData.file}
+                onFileSelect={(file) =>
+                  setFormData({ ...formData, file, isFileChanged: true })
+                }
               />
             </div>
-          </div>
-          <div className="col-span-2 md:col-span-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Media Type
-            </label>
-            <CustomDropdown
-              options={MEDIA_TYPE}
-              selected={
-                MEDIA_TYPE.find((item) => item.value === formData.type)?.name
-              }
-              onSelect={(item) =>
-                setFormData({ ...formData, type: item.value })
-              }
-            />
-          </div>
-        </div>
-        <div className="col-span-2 md:col-span-1">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Replace File (optional)
-          </label>
-          <CustomFileUploader
-            ref={uploaderRef}
-            defaultTitle="Upload Media File"
-            initialImage={formData.file}
-            onFileSelect={(file) =>
-              setFormData({ ...formData, file, isFileChanged: true })
-            }
-          />
-        </div>
+          </>
+        )}
       </div>
     </div>
     <div className="flex flex-col sm:flex-row justify-between py-3 px-2 border-t border-[#ABA4F6] gap-3">

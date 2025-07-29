@@ -42,7 +42,9 @@ export default function AddMedia() {
     },
   });
 
-  const [loading, setLoading] = useState(false);
+  const loading =
+    uploadAudioMutation.isPending || uploadVideoMutation.isPending;
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -68,7 +70,6 @@ export default function AddMedia() {
       return;
     }
 
-    setLoading(true);
     try {
       const multipartData = new FormData();
       multipartData.append("title", formData.title);
@@ -83,7 +84,6 @@ export default function AddMedia() {
       console.error("❌ Upload error:", err.response?.data || err.message);
       toast.error("Failed to add media.");
     } finally {
-      setLoading(false);
       setFormData({
         title: "",
         type: "mp3" || "mp4",
@@ -92,6 +92,7 @@ export default function AddMedia() {
     }
   };
 
+  console.log("loading", loading);
   return (
     <Navigation>
       <ToastContainer />
