@@ -7,8 +7,8 @@ import {
 export default async function updateMedia({ id, type, data }) {
   console.log(id, type, data, "updateMedia");
   const url = `${
-    type === "audio" ? UPDATE_AUDIO_ENDPOINT : UPDATE_VIDEO_ENDPOINT
-  }${id}`;
+    type === "mp3" ? UPDATE_AUDIO_ENDPOINT : UPDATE_VIDEO_ENDPOINT
+  }${id}/`;
   try {
     const response = await axiosInstance.put(url, data);
 

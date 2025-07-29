@@ -33,7 +33,6 @@ export default function EditMedia() {
     onError: () => toast.error("Failed to fetch media details."),
   });
 
-  console.log(media, "media");
   useEffect(() => {
     if (media) {
       setFormData((prev) => ({
@@ -88,8 +87,6 @@ export default function EditMedia() {
       if (formData.isFileChanged && formData.file instanceof File) {
         multipartData.append("file", formData.file);
       }
-
-      console.log(multipartData, "multipartData");
       // Send update
       updateMediaMutation.mutate({
         id,
@@ -103,8 +100,6 @@ export default function EditMedia() {
     }
   };
 
-  console.log(loading, "loading");
-  console.log(fetching, "fetching");
   return (
     <Navigation>
       <ToastContainer />
