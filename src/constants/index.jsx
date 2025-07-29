@@ -238,6 +238,15 @@ const USER_FORM_FIELD = [
   { key: "gender", label: "Gender", type: "select", options: GENDER_DROPDOWN },
 ];
 
+const EDIT_DECISION_FLOW_BREADCRUMBS = [
+  { name: "Programs Details", href: "/programs/editprogram", current: false },
+  {
+    name: "Questionnaire",
+    href: "/programs/edit-decision-tree-flow",
+    current: true,
+  },
+];
+
 export {
   CONDITION_OPTIONS,
   DURATION_OPTIONS,
@@ -258,4 +267,5 @@ export {
   USER_FORM_FIELD,
   USERS_FILTER_OPTIONS,
   DASHBOARD_FILTER_OPTIONS,
+  EDIT_DECISION_FLOW_BREADCRUMBS,
 };

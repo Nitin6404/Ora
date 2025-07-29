@@ -21,26 +21,14 @@ import { PROGRAM_ENDPOINT } from "../../../config/apiConfig";
 import Navigation from "../../admin/Navigation";
 import "../../patient.css";
 import { ToastContainer, toast } from "react-toastify";
-import ProgramTopBar from "./ProgramTopBar";
-import {
-  ChevronLeft,
-  PlusIcon,
-  XIcon,
-  Settings,
-  RefreshCcw,
-  Pencil,
-} from "lucide-react";
+import { ChevronLeft, PlusIcon, XIcon, Settings, Pencil } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import UniversalTopBar from "../../../components/UniversalTopBar";
-
-const BREADCRUMBS = [
-  { name: "Programs Details", href: "/programs/editprogram", current: false },
-  {
-    name: "Questionnaire",
-    href: "/programs/edit-decision-tree-flow",
-    current: true,
-  },
-];
+import { EDIT_DECISION_FLOW_BREADCRUMBS as BREADCRUMBS } from "../../../constants";
+import {
+  MEDIA_AUDIO_ENDPOINT,
+  MEDIA_VIDEO_ENDPOINT,
+} from "../../../config/apiConfig";
 
 // ⛳ Custom Node
 const QuestionNode = ({ data }) => {
@@ -365,30 +353,14 @@ export default function EditDecisionTreeFlow() {
 
     const fetchMedia = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.warn("No auth token found");
-          return;
-        }
-
         const [audioRes, videoRes] = await Promise.all([
-          fetch(
-            "https://a4do66e8y1.execute-api.us-east-1.amazonaws.com/dev/api/media/audio/",
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          ),
-          fetch(
-            "https://a4do66e8y1.execute-api.us-east-1.amazonaws.com/dev/api/media/video/",
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          ),
+          axiosInstance.get(MEDIA_AUDIO_ENDPOINT),
+          axiosInstance.get(MEDIA_VIDEO_ENDPOINT),
         ]);
 
         const [audioData, videoData] = await Promise.all([
-          audioRes.json(),
-          videoRes.json(),
+          audioRes.data,
+          videoRes.data,
         ]);
 
         setAudioList(audioData.results || []);
@@ -857,6 +829,9 @@ export default function EditDecisionTreeFlow() {
 
   const handleDeleteNode = (nodeId) => {
     setNodes((nds) => nds.filter((n) => n.id !== nodeId));
+    setEdges((eds) =>
+      eds.filter((e) => e.source !== nodeId && e.target !== nodeId)
+    );
     setTimeout(logFullTree, 0);
   };
 
