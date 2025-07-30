@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import axiosInstance from "../../../services/apiService";
 import Navigation from "../../admin/Navigation";
 import "../../patient.css";
@@ -31,8 +31,6 @@ const BREADCRUMBS = [
 
 export default function EditAssign() {
   const { id } = useParams();
-  const [isDataChanged, setIsDataChanged] = useState(false);
-  const initialFormRef = useRef(null);
 
   const { data: assignDetail, isLoading } = useQuery({
     queryKey: ["assignDetail", id],
@@ -42,30 +40,20 @@ export default function EditAssign() {
 
   useEffect(() => {
     if (assignDetail) {
-      setFormData({
-        program_id: assignDetail?.program?.id,
-        patient_id: assignDetail?.patient?.id,
-        environment_id: assignDetail?.environment?.id,
-        tone_preference: assignDetail?.tone_preference,
-        solfeggio_frequency: assignDetail?.solfeggio_frequency,
-        number_of_sessions: assignDetail?.number_of_sessions,
-      });
-    }
-  }, [assignDetail]);
-
-  useEffect(() => {
-    if (assignDetail) {
       const initial = {
         program_id: assignDetail?.program?.id,
         patient_id: assignDetail?.patient?.id,
         environment_id: assignDetail?.environment?.id,
-        tone_preference: assignDetail?.tone_preference,
-        solfeggio_frequency: assignDetail?.solfeggio_frequency,
+        tone_preference: TONE_PREFERENCE_CHOICES.find(
+          (item) => item.name === assignDetail?.tone_preference
+        ).id,
+        solfeggio_frequency: SOLFEGGIO_FREQUENCY.find(
+          (item) => item.value === assignDetail?.solfeggio_frequency
+        ).id,
         number_of_sessions: assignDetail?.number_of_sessions,
       };
 
       setFormData(initial);
-      initialFormRef.current = initial;
     }
   }, [assignDetail]);
 
@@ -77,16 +65,6 @@ export default function EditAssign() {
     solfeggio_frequency: "",
     number_of_sessions: "",
   });
-
-  useEffect(() => {
-    if (!initialFormRef.current) return;
-
-    const changed = Object.keys(formData).some(
-      (key) => formData[key] !== initialFormRef.current[key]
-    );
-
-    setIsDataChanged(changed);
-  }, [formData]);
 
   const [programList, setProgramList] = useState([]);
   const [patientList, setPatientList] = useState([]);
@@ -120,19 +98,13 @@ export default function EditAssign() {
         environment_id: formData.environment_id,
         started_at: new Date().toISOString(),
         number_of_sessions: formData.number_of_sessions,
-      };
-
-      if (isDataChanged) {
-        body.tone_preference = TONE_PREFERENCE_CHOICES.find(
+        tone_preference: TONE_PREFERENCE_CHOICES.find(
           (item) => item.id === formData.tone_preference
-        ).name;
-        body.solfeggio_frequency = SOLFEGGIO_FREQUENCY.find(
+        ).name,
+        solfeggio_frequency: SOLFEGGIO_FREQUENCY.find(
           (item) => item.id === formData.solfeggio_frequency
-        ).value;
-      } else {
-        body.tone_preference = formData.tone_preference;
-        body.solfeggio_frequency = formData.solfeggio_frequency;
-      }
+        ).value,
+      };
 
       const res = await updatePatientProgram({ data: body });
 
