@@ -9,6 +9,7 @@ import {
   Pencil,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { formatDate } from "../../../utils/format_date";
 
 const AssignCard = ({ assign, onAssignClick }) => {
   const navigate = useNavigate();
@@ -18,11 +19,12 @@ const AssignCard = ({ assign, onAssignClick }) => {
   const status = assign.status || "Inactive";
   const flagged = assign.flagged || false;
   const sessionCount = assign.number_of_sessions || 0;
-  const totalSession = assign.total_session || 0;
-  const currentSession = assign.current_session_number || 0;
+  const totalSession = assign.number_of_sessions || 0;
+  const currentSession = assign.current_session.session_number || 0;
   const progress = (currentSession / totalSession) * 100 || 0;
   const breaksTaken = assign?.program?.breaks_taken || 0;
   const isEditable = assign.is_editable || false;
+  const mood = assign?.current_session?.mood;
 
   const getStatusColor = (status, flagged) => {
     if (flagged) return "bg-red-100 text-red-700";
@@ -143,7 +145,7 @@ const AssignCard = ({ assign, onAssignClick }) => {
           )}
         </div>
         <div className="ml-auto text-sm bg-[#f8f7fd] px-3 py-1.5 rounded-full">
-          {assign.mood_status || "😐 Sad"}
+          {mood || "😐 Sad"}
         </div>{" "}
         {/* mood_status is null; fallback */}
       </div>
@@ -217,10 +219,16 @@ const AssignCard = ({ assign, onAssignClick }) => {
         </div>
         <div className="border-b-2 border-gray-200 mt-3"></div>
         <div className="py-2 text-xs font-semibold text-[#3a3c48] flex justify-between items-center">
-          <span>
-            Last Session:{" "}
-            {assign?.current_session?.last_session || "May 20, 2025"}
-          </span>
+          <div className="flex flex-col gap-1">
+            <span>
+              Last Session:{" "}
+              {formatDate(assign?.current_session?.last_session) ||
+                "May 20, 2025"}
+            </span>
+            <span>
+              Created At: {formatDate(assign?.created_at) || "May 20, 2025"}
+            </span>
+          </div>
           <img
             onClick={() => onAssignClick(assign.id)}
             className="cursor-pointer"
