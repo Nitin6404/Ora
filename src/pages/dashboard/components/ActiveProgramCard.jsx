@@ -1,13 +1,6 @@
 const ActiveProgramsCard = ({ noOfPrograms }) => {
   return (
-    <div
-      className="rounded-3xl p-6 text-white relative overflow-visible w-full h-full border-t-2 border-b-2 border-t-white border-b-white font-inter"
-      // style={{
-      //   backgroundImage: `url("/active-program-bg.jpeg")`,
-      //   backgroundSize: 'cover',
-      //   backgroundPosition: 'center',
-      // }}
-    >
+    <div className="rounded-3xl p-6 text-white relative overflow-visible w-full h-full border-t-2 border-b-2 border-t-white border-b-white font-inter">
       <div className="absolute top-0 left-0 z-[5] w-full h-full overflow-hidden rounded-3xl">
         <img
           src="/active-program-bg.jpeg"

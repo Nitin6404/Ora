@@ -1,17 +1,4 @@
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  Cell,
-} from "recharts";
-
-const sessionDurationData = [
-  { name: "<6 min", value: 5 },
-  { name: "6-10 min", value: 12 },
-  { name: ">10 min", value: 7 },
-];
+import { BarChart, Bar, XAxis, ResponsiveContainer, Cell } from "recharts";
 
 const SessionDurationChart = ({ sessionDuration = [] }) => {
   return (
@@ -27,7 +14,6 @@ const SessionDurationChart = ({ sessionDuration = [] }) => {
             margin={{ top: 20, right: 0, left: 0, bottom: 0 }}
           >
             <XAxis dataKey="name" axisLine={true} tickLine={false} />
-            {/* <YAxis axisLine={false} tickLine={false} /> */}
             <Bar
               dataKey="value"
               radius={[8, 8, 8, 8]}

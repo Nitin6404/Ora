@@ -44,13 +44,6 @@ const Dashboard = () => {
     },
   ]);
 
-  const [dropdownId, setDropdownId] = useState(null);
-  // make the position centerd of the page
-  const [dropdownPosition, setDropdownPosition] = useState({
-    top: "50%",
-    left: "50%",
-  });
-
   const param = useMemo(() => {
     return {
       status: activeTab === "All" || activeTab === "Flagged" ? "" : activeTab,
@@ -193,32 +186,6 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-
-      {dropdownId && (
-        <div
-          className="dropdown-menu absolute bg-white z-[100] rounded-md shadow-lg ring-1 ring-black ring-opacity-5 py-1"
-          style={{
-            top: `${dropdownPosition.top}px`,
-            left: `${dropdownPosition.left - 150}px`, //adjust left based on width
-            width: "160px",
-          }}
-        >
-          <button
-            onClick={() => handleEditMedia(dropdownId)}
-            className="w-full flex items-center gap-2 px-4 py-2 text-base text-gray-700 hover:bg-gray-100"
-          >
-            <Edit2 size={16} className="w-5 h-5 text-blue-600" />
-            Edit
-          </button>
-          <button
-            onClick={() => handleDeleteMedia(dropdownId)}
-            className="w-full flex items-center gap-2 px-4 py-2 text-base text-gray-700 hover:bg-gray-100"
-          >
-            <Trash2 size={16} className="w-5 h-5 text-red-600" />
-            Delete
-          </button>
-        </div>
-      )}
 
       {showDateRange && (
         <DateRangeModal
