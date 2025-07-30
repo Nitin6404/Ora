@@ -230,7 +230,10 @@ const AssignCard = ({ assign, onAssignClick }) => {
             </span>
           </div>
           <img
-            onClick={() => onAssignClick(assign.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onAssignClick(assign.id);
+            }}
             className="cursor-pointer"
             src="/tilde-icon.png"
             alt=""

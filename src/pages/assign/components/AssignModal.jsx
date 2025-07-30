@@ -1,8 +1,12 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { User, Zap, AlertTriangle, CircleCheckBig, Clock3 } from "lucide-react";
 import { formatDate } from "../../../utils/format_date";
 import ModalWrapper from "../../../components/ModalWrapper";
 import "../../patient.css";
+import { useQuery } from "@tanstack/react-query";
+import { getAssignDetail } from "../helpers/getAssignDetail";
+import { toast } from "react-toastify";
+import PrimaryLoader from "../../../components/PrimaryLoader";
 
 const MoodEmoji = ({ mood }) => {
   const getMoodEmoji = () => {
@@ -30,10 +34,42 @@ const getStatusColor = (status, flagged) => {
   return "bg-gray-100 text-gray-700";
 };
 
-const AssignModal = ({ isOpen, onClose, assignDetail }) => {
-  if (!isOpen) return null;
+const AssignModal = ({ isOpen, onClose, assignId }) => {
+  const hasShownToastRef = useRef(false);
+  const {
+    data: assignDetail,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["assignDetail", assignId],
+    queryFn: () => getAssignDetail(assignId),
+    enabled: !!assignId,
+    staleTime: 5 * 60 * 1000, // optional but improves UX
+    retry: false,
+  });
+  useEffect(() => {
+    if (isError && !hasShownToastRef.current) {
+      toast.error(
+        error?.response?.data?.error ||
+          "Something went wrong while fetching assignment"
+      );
+
+      hasShownToastRef.current = true;
+      onClose();
+    }
+  }, [isError, error]);
+
+  useEffect(() => {
+    if (isOpen) {
+      hasShownToastRef.current = false; // allow toast again on next error
+    }
+  }, [isOpen]);
+
+  if (isLoading) return <PrimaryLoader />;
+  if (isError) return null;
+
   const data = assignDetail;
-  console.log(data);
   return (
     <ModalWrapper
       isOpen={isOpen}

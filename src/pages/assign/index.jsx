@@ -16,6 +16,7 @@ import DateRangeModal from "../../components/DateRangeModal";
 import { useQuery } from "@tanstack/react-query";
 import { getAssignDetail } from "./helpers/getAssignDetail";
 import AssignModal from "./components/AssignModal";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function Assign() {
   const [assign, setAssign] = useState([]);
@@ -40,13 +41,6 @@ export default function Assign() {
     },
   ]);
 
-  const { data: assignDetail, isLoading } = useQuery({
-    queryKey: ["assignDetail", assignId],
-    queryFn: () => getAssignDetail(assignId),
-    enabled: !!assignId,
-  });
-
-  // Debounce useEffect: updates debouncedSearchTerm after user stops typing
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
@@ -122,14 +116,6 @@ export default function Assign() {
     setShowDateRange(!showDateRange);
   };
 
-  const applyDateFilter = () => {
-    const formatDate = (date) => date.toLocaleDateString("en-US"); // Simple format for example
-    setStartDate(formatDate(dateRange[0].startDate));
-    setEndDate(formatDate(dateRange[0].endDate));
-    setShowDateRange(false);
-    setCurrentPage(1);
-  };
-
   const handleReset = () => {
     setSearchTerm("");
     setDebouncedSearchTerm("");
@@ -148,6 +134,7 @@ export default function Assign() {
 
   return (
     <Navigation>
+      <ToastContainer />
       <div className="h-full flex flex-col p-2">
         <UniversalTopBar
           isAdd={false}
@@ -189,7 +176,11 @@ export default function Assign() {
                   >
                     <AssignCard
                       assign={item}
-                      onAssignClick={(id) => setAssignId(id)}
+                      onAssignClick={(id) => {
+                        if (assignId !== id) {
+                          setAssignId(id);
+                        }
+                      }}
                     />
                   </div>
                 ))}
@@ -224,22 +215,16 @@ export default function Assign() {
         </div>
       </div>
 
-      {assignId &&
-        (isLoading ? (
-          <div className="absolute inset-0 flex items-center justify-center backdrop-blur-2xl bg-white/20 w-full h-full z-[70]">
-            <PrimaryLoader />
-          </div>
-        ) : (
-          <>
-            <AssignModal
-              isOpen={assignId}
-              onClose={() => setAssignId(null)}
-              assignDetail={assignDetail}
-            />
-
-            <div className="absolute inset-0 backdrop-blur-2xl bg-white/20 w-full h-full z-[70]" />
-          </>
-        ))}
+      {assignId && (
+        <>
+          <AssignModal
+            isOpen={!!assignId}
+            onClose={() => setAssignId(null)}
+            assignId={assignId}
+          />
+          <div className="absolute inset-0 backdrop-blur-2xl bg-white/20 w-full h-full z-[70]" />
+        </>
+      )}
 
       {showDateRange && (
         <DateRangeModal
