@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../../services/apiService";
 import Navigation from "../admin/Navigation";
 import { useNavigate } from "react-router-dom";
-import { DateRange } from "react-date-range";
-import "react-date-range/dist/styles.css"; // main css
-import "react-date-range/dist/theme/default.css"; // theme css
 import AssignCard from "./components/AssignCard";
 import UniversalTopBar from "../../components/UniversalTopBar";
 import PrimaryLoader from "../../components/PrimaryLoader";
@@ -13,10 +10,8 @@ import { ASSIGNMENT_FILTER_OPTIONS } from "../../constants";
 import { API_BASE_URL, ASSIGNMENT_ENDPOINT } from "../../config/apiConfig";
 import FilterTopBar from "../../components/FilterTopBar";
 import DateRangeModal from "../../components/DateRangeModal";
-import { useQuery } from "@tanstack/react-query";
-import { getAssignDetail } from "./helpers/getAssignDetail";
 import AssignModal from "./components/AssignModal";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 
 export default function Assign() {
   const [assign, setAssign] = useState([]);
