@@ -130,6 +130,22 @@ export default function Assign() {
     setCurrentPage(1);
   };
 
+  const handleReset = () => {
+    setSearchTerm("");
+    setDebouncedSearchTerm("");
+    setStartDate("");
+    setEndDate("");
+    setShowDateRange(false);
+    setCurrentPage(1);
+    setActiveFilter("All");
+    setFilterOptions((prev) =>
+      prev.map((option) => ({
+        ...option,
+        isActive: option.id === "All",
+      }))
+    );
+  };
+
   return (
     <Navigation>
       <div className="h-full flex flex-col p-2">
@@ -147,6 +163,7 @@ export default function Assign() {
           endDate={endDate}
           onDateSelect={handleDateSelect}
           onAddClick={handleAddProgram}
+          handleReset={handleReset}
           addButtonText="Assign Program"
           searchPlaceholder="Search Assignments..."
         />

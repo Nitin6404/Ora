@@ -33,7 +33,7 @@ export default function AssignProgram() {
     environment_id: "",
     tone_preference: "",
     solfeggio_frequency: "",
-    no_of_sessions: "",
+    number_of_sessions: "",
   });
 
   const [programList, setProgramList] = useState([]);
@@ -50,7 +50,7 @@ export default function AssignProgram() {
       { name: "environment_id", label: "Environment" },
       { name: "tone_preference", label: "Tone Preference" },
       { name: "solfeggio_frequency", label: "Solfeggio Frequency" },
-      { name: "no_of_sessions", label: "No of Sessions" },
+      { name: "number_of_sessions", label: "No of Sessions" },
     ];
 
     for (const field of requiredFields) {
@@ -73,7 +73,7 @@ export default function AssignProgram() {
         solfeggio_frequency: SOLFEGGIO_FREQUENCY.find(
           (item) => item.id === formData.solfeggio_frequency
         ).value,
-        no_of_sessions: formData.no_of_sessions,
+        number_of_sessions: formData.number_of_sessions,
       };
 
       const res = await axiosInstance.post(ASSIGN_PATIENT_ENDPOINT, body);
@@ -240,12 +240,13 @@ const AssignForm = ({
         setFormData({ ...formData, solfeggio_frequency: value }),
     },
     {
-      label: "No of Sessions",
+      label: "Number of Sessions",
       options: NO_OF_SESSIONS || [],
       selected:
-        NO_OF_SESSIONS.find((item) => item.id === formData.no_of_sessions)
+        NO_OF_SESSIONS.find((item) => item.id === formData.number_of_sessions)
           ?.name || "",
-      onSelect: (value) => setFormData({ ...formData, no_of_sessions: value }),
+      onSelect: (value) =>
+        setFormData({ ...formData, number_of_sessions: value }),
     },
   ];
 
