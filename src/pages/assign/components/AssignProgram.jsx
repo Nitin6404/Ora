@@ -43,6 +43,7 @@ export default function AssignProgram() {
   const navigate = useNavigate();
 
   const handleSubmit = async (next) => {
+    setLoading(true);
     // Basic Validation
     const requiredFields = [
       { name: "program_id", label: "Program" },
@@ -60,7 +61,6 @@ export default function AssignProgram() {
       }
     }
 
-    setLoading(true);
     try {
       const body = {
         program_id: formData.program_id,
@@ -153,6 +153,7 @@ export default function AssignProgram() {
           patientList={patientList}
           programList={programList}
           environmentList={environmentList}
+          loading={loading}
         />
       </div>
     </Navigation>
@@ -187,6 +188,7 @@ const AssignForm = ({
   patientList,
   programList,
   environmentList,
+  loading,
 }) => {
   const dropDownListTwo = [
     {
@@ -306,9 +308,10 @@ const AssignForm = ({
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto max-w-full">
           <button
             onClick={() => handleSubmit("/assign/qrcode")}
+            disabled={loading}
             className="patient-btn flex justify-center items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-b from-[#7367F0] to-[#453E90] rounded-full shadow-md gap-2"
           >
-            <span>Submit</span>
+            <span>{loading ? "Submitting..." : "Submit"}</span>
           </button>
         </div>
       </div>
