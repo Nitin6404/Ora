@@ -77,22 +77,19 @@ export default function AssignProgram() {
       };
 
       const res = await axiosInstance.post(ASSIGN_PATIENT_ENDPOINT, body);
+      console.log(res);
 
-      if (res.status === 200 || res.status === 201) {
-        toast.success("Program assigned!");
-        if (next) {
-          navigate(next, {
-            state: {
-              patientData: patientList.find(
-                (item) => item.id === formData.patient_id
-              ),
-            },
-          });
-        } else {
-          navigate("/assign");
-        }
+      toast.success("Program assigned!");
+      if (next) {
+        navigate(next, {
+          state: {
+            patientData: patientList.find(
+              (item) => item.id === formData.patient_id
+            ),
+          },
+        });
       } else {
-        toast.error(res.data.message || "Failed to assign program.");
+        navigate("/assign");
       }
     } catch (err) {
       console.error("❌ Error:", err.response?.data || err.message);
@@ -140,7 +137,7 @@ export default function AssignProgram() {
         addTitle="Assign Program"
         backPath="/assign"
       />
-      <div className="h-full flex flex-col bg-white/10 p-2 rounded-2xl gap-2">
+      <div className="h-full flex flex-col bg-white/10 mb-2 p-4 rounded-2xl gap-2">
         <BreadCrumb
           BREADCRUMBS={BREADCRUMBS}
           formData={formData}
@@ -162,7 +159,7 @@ export default function AssignProgram() {
   );
 }
 
-const BreadCrumb = ({ formData, navigate, BREADCRUMBS, patientList }) => {
+const BreadCrumb = ({ BREADCRUMBS }) => {
   return (
     <div className="flex gap-2 overflow-x-auto no-scrollbar w-full md:w-auto rounded-full px-1 py-1 bg-white backdrop-blur-md border border-white/30 shadow-sm mb-2">
       {BREADCRUMBS.map((item, index) => (
@@ -174,26 +171,6 @@ const BreadCrumb = ({ formData, navigate, BREADCRUMBS, patientList }) => {
               ? "bg-gradient-to-b from-[#7367F0] to-[#453E90] text-white shadow-md "
               : "bg-white text-[#252B37] hover:text-[#574EB6] hover:bg-[#E3E1FC]"
           }`}
-          onClick={() => {
-            if (
-              !formData.program_id ||
-              !formData.patient_id ||
-              !formData.environment_id ||
-              !formData.tone_preference ||
-              !formData.solfeggio_frequency ||
-              !formData.no_of_sessions
-            ) {
-              toast.error("Please select all fields.");
-              return;
-            } else
-              navigate(item.href, {
-                state: {
-                  patientData: patientList.find(
-                    (item) => item.id === formData.patient_id
-                  ),
-                },
-              });
-          }}
         >
           {item.name}
         </button>
@@ -251,7 +228,7 @@ const AssignForm = ({
   ];
 
   return (
-    <div className="bg-white/30 mx-2 lg:px-8 lg:py-4 rounded-xl h-[92%] flex flex-col justify-between">
+    <div className="bg-white/30 mx-2 px-4 rounded-xl h-[92%] flex flex-col justify-between">
       <div className="flex flex-col md:flex-row flex-wrap gap-4 p-2">
         <div className="flex flex-col md:flex-row justify-start items-end gap-2 lg:gap-6 px-2 md:p-0 w-full">
           <div className="flex flex-col w-full lg:w-[20em]">

@@ -13,6 +13,7 @@ export const PROGRAM_META = "/api/program/meta";
 export const LOGOUT = "/api/auth/logout/";
 export const REFRESH_ENDPOINT = "/api/auth/token/refresh/";
 export const ASSIGNMENT_ENDPOINT = "/api/program/patient-programs/";
+export const PATIENT_PROGRAM_ENDPOINT = "/api/program/get-patient-program/";
 export const ASSIGNMENT_DETAIL = "/api/program/assign-details/";
 export const ASSIGN_PATIENT_ENDPOINT = "/api/program/assign-patient-program/";
 export const PROGRAM_DROPDOWN = "/api/program/programs/dropdown/";

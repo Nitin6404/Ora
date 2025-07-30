@@ -1,80 +1,112 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useState, useEffect, useRef } from "react";
+import axiosInstance from "../../../services/apiService";
 import Navigation from "../../admin/Navigation";
 import "../../patient.css";
 import { ToastContainer, toast } from "react-toastify";
-import { useNavigate, useParams } from "react-router-dom";
-import CustomFileUploader from "../../../components/CustomFileUploader";
-import ProgramTopBar from "./ProgramTopBar";
-import { ChevronLeft, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import UniversalTopBar from "../../../components/UniversalTopBar";
+import { ChevronLeft, Link } from "lucide-react";
 import CustomDropdown from "../../../components/CustomDropDown";
-
-const CONDITION_OPTIONS = [
-  { name: "Oncology", subtitle: "Cancer-related conditions" },
-  { name: "Anxiety", subtitle: "Mental health support" },
-  { name: "Pain", subtitle: "Chronic & acute pain" },
-];
-
-const DURATION_OPTIONS = [
-  { name: "0-5 Mins", subtitle: "Short-term programs" },
-  { name: "6-10 Mins", subtitle: "Standard therapy" },
-  { name: "10+ Mins", subtitle: "Extended care" },
-];
-
-const TARGET_GROUP_OPTIONS = [
-  { name: "Adults", subtitle: "18+ years", value: "adults" },
-  { name: "Children", subtitle: "13–17 years", value: "children" },
-  { name: "Seniors", subtitle: "60+ years", value: "seniors" },
-  { name: "All Age Groups", subtitle: "All age groups", value: "all" },
-];
+import {
+  TONE_PREFERENCE_CHOICES,
+  SOLFEGGIO_FREQUENCY,
+  NO_OF_SESSIONS,
+} from "../../../constants";
+import {
+  API_BASE_URL as API_URL,
+  PROGRAM_DROPDOWN,
+  PATIENT_DROPDOWN,
+  METADATA,
+} from "../../../config/apiConfig";
+import { useParams } from "react-router-dom";
+import { getPatientProgram } from "../helpers/getPatientProgram";
+import { useQuery } from "@tanstack/react-query";
+import updatePatientProgram from "../helpers/updatePatientProgram";
+import PrimaryLoader from "../../../components/PrimaryLoader";
 
 const BREADCRUMBS = [
-  { name: "Programs Details", href: "/editprogram", current: true },
-  { name: "Questionnaire", href: "/edit-decision-tree-flow", current: false },
+  { name: "Assign Programs", href: "/assign/assignprogram", current: true },
+  { name: "QR Code", href: "/assign/qrcode", current: false },
 ];
 
-const API_URL =
-  "https://a4do66e8y1.execute-api.us-east-1.amazonaws.com/dev/api/program/programs/";
-
-export default function EditProgram() {
+export default function EditAssign() {
   const { id } = useParams();
-  const [formData, setFormData] = useState({
-    name: "",
-    condition_type: "",
-    estimate_duration: "",
-    therapy_goal: "",
-    target_group: "",
-    program_description: "",
-    status: "",
-    is_active: true,
+  const [isDataChanged, setIsDataChanged] = useState(false);
+  const initialFormRef = useRef(null);
+
+  const { data: assignDetail, isLoading } = useQuery({
+    queryKey: ["assignDetail", id],
+    queryFn: () => getPatientProgram(id),
+    enabled: !!id,
   });
 
-  const [activeTab, setActiveTab] = useState("Patient Details");
+  useEffect(() => {
+    if (assignDetail) {
+      setFormData({
+        program_id: assignDetail?.program?.id,
+        patient_id: assignDetail?.patient?.id,
+        environment_id: assignDetail?.environment?.id,
+        tone_preference: assignDetail?.tone_preference,
+        solfeggio_frequency: assignDetail?.solfeggio_frequency,
+        number_of_sessions: assignDetail?.number_of_sessions,
+      });
+    }
+  }, [assignDetail]);
+
+  useEffect(() => {
+    if (assignDetail) {
+      const initial = {
+        program_id: assignDetail?.program?.id,
+        patient_id: assignDetail?.patient?.id,
+        environment_id: assignDetail?.environment?.id,
+        tone_preference: assignDetail?.tone_preference,
+        solfeggio_frequency: assignDetail?.solfeggio_frequency,
+        number_of_sessions: assignDetail?.number_of_sessions,
+      };
+
+      setFormData(initial);
+      initialFormRef.current = initial;
+    }
+  }, [assignDetail]);
+
+  const [formData, setFormData] = useState({
+    program_id: "",
+    patient_id: "",
+    environment_id: "",
+    tone_preference: "",
+    solfeggio_frequency: "",
+    number_of_sessions: "",
+  });
+
+  useEffect(() => {
+    if (!initialFormRef.current) return;
+
+    const changed = Object.keys(formData).some(
+      (key) => formData[key] !== initialFormRef.current[key]
+    );
+
+    setIsDataChanged(changed);
+  }, [formData]);
+
+  const [programList, setProgramList] = useState([]);
+  const [patientList, setPatientList] = useState([]);
+  const [environmentList, setEnvironmentList] = useState([]);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const tabs = ["Patient Details"];
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  const handleSubmit = async (isSaveAsDraft = false) => {
+  const handleSubmit = async (next) => {
     // Basic Validation
     const requiredFields = [
-      { name: "name", label: "Program Name" },
-      { name: "condition_type", label: "Condition Type" },
-      { name: "estimate_duration", label: "Estimate Duration" },
-      { name: "therapy_goal", label: "Therapy Goal" },
-      { name: "target_group", label: "Target Group" },
-      { name: "program_description", label: "Program Description" },
+      { name: "program_id", label: "Program" },
+      { name: "patient_id", label: "Patient" },
+      { name: "environment_id", label: "Environment" },
+      { name: "tone_preference", label: "Tone Preference" },
+      { name: "solfeggio_frequency", label: "Solfeggio Frequency" },
+      { name: "number_of_sessions", label: "No of Sessions" },
     ];
 
     for (const field of requiredFields) {
-      if (!formData[field.name]?.trim()) {
+      if (!formData[field.name]) {
         toast.error(`${field.label} is required.`);
         return;
       }
@@ -82,290 +114,271 @@ export default function EditProgram() {
 
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
+      const body = {
+        program_id: formData.program_id,
+        patient_id: formData.patient_id,
+        environment_id: formData.environment_id,
+        started_at: new Date().toISOString(),
+        number_of_sessions: formData.number_of_sessions,
+      };
 
-      const multipartData = new FormData();
-      multipartData.append("name", formData.name);
-      multipartData.append("condition_type", formData.condition_type);
-      multipartData.append("estimate_duration", formData.estimate_duration);
-      multipartData.append("therapy_goal", formData.therapy_goal);
-      multipartData.append("target_group", formData.target_group);
-      multipartData.append("program_description", formData.program_description);
-      multipartData.append("status", isSaveAsDraft ? "draft" : "");
-      multipartData.append("is_active", formData.is_active);
+      if (isDataChanged) {
+        body.tone_preference = TONE_PREFERENCE_CHOICES.find(
+          (item) => item.id === formData.tone_preference
+        ).name;
+        body.solfeggio_frequency = SOLFEGGIO_FREQUENCY.find(
+          (item) => item.id === formData.solfeggio_frequency
+        ).value;
+      } else {
+        body.tone_preference = formData.tone_preference;
+        body.solfeggio_frequency = formData.solfeggio_frequency;
+      }
 
-      if (isSaveAsDraft) {
-        console.log("Saving as draft");
-        // append programData as empty array if isSaveAsDraft is true
-        multipartData.append("programData", JSON.stringify([]));
-        const res = await axios.post(API_URL, multipartData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
+      const res = await updatePatientProgram({ data: body });
+
+      toast.success("Patient Program updated!");
+      if (next) {
+        navigate(next, {
+          state: {
+            patientData: patientList.find(
+              (item) => item.id === formData.patient_id
+            ),
           },
         });
-
-        toast.success("Program created!");
-        navigate("/programs");
       } else {
-        navigate("/edit-decision-tree-flow", {
-          state: { programDetails: formData },
-        });
+        navigate("/assign");
       }
     } catch (err) {
       console.error("❌ Error:", err.response?.data || err.message);
-      toast.error("Failed to add program.");
+      toast.error(
+        err.response?.data?.message || "Failed to update patient program."
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchProgramDetails = async () => {
-    setLoading(true);
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-      return;
-    }
+  const fetchData = async (endpoint) => {
     try {
-      const res = await axios.get(`${API_URL}${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setFormData(res.data);
+      const res = await axiosInstance.get(API_URL + endpoint);
+      return res.data;
     } catch (err) {
       console.error("❌ Error:", err.response?.data || err.message);
-      toast.error("Failed to fetch program details.");
-    } finally {
-      setLoading(false);
+      toast.error(err.response?.data?.message || "Failed to fetch data.");
     }
   };
 
-  const handleSaveAsDraft = () => {
-    handleSubmit(true);
-  };
-
-  const [showPassword, setShowPassword] = useState(false);
-  const handlePasswordVisibility = () => setShowPassword((prev) => !prev);
-
   useEffect(() => {
-    fetchProgramDetails();
-  }, [id]);
+    const fetchAllData = async () => {
+      try {
+        const [metaData, programDropdown, patientDropdown] = await Promise.all([
+          fetchData(METADATA),
+          fetchData(PROGRAM_DROPDOWN),
+          fetchData(PATIENT_DROPDOWN),
+        ]);
+
+        setEnvironmentList(metaData?.environments);
+        setProgramList(programDropdown);
+        setPatientList(patientDropdown);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchAllData();
+  }, []);
 
   return (
     <Navigation>
       <ToastContainer />
-      <div className="flex flex-col min-h-screen font-inter">
-        <div className="sticky top-0 z-[999] p-4 md:px-6 md:py-3 backdrop-blur-sm md:ml-4">
-          <div className=" flex flex-col gap-2">
-            <ProgramTopBar isEditProgram={true} />
-            <div
-              style={{ minHeight: "500px" }}
-              className="w-full backdrop-blur-sm bg-white/10 rounded-[15px] lg:rounded-[24px] px-2 py-2 md:px-4 lg:px-3 lg:pt-2 lg:pb-8"
-            >
-              <div className="flex gap-2 overflow-x-auto no-scrollbar w-full md:w-auto rounded-full px-1 py-1 bg-white backdrop-blur-md border border-white/30 shadow-sm mb-2">
-                {BREADCRUMBS.map((item, index) => (
-                  <button
-                    key={index}
-                    className={`px-6 py-3 text-xs lg:text-sm font-medium rounded-full flex items-center gap-2
-                                            ${
-                                              item.current
-                                                ? "bg-gradient-to-b from-[#7367F0] to-[#453E90] text-white shadow-md "
-                                                : "bg-white text-[#252B37] hover:text-[#574EB6] hover:bg-[#E3E1FC]"
-                                            }
-                                            }`}
-                    onClick={() => {
-                      if (item.href === "/edit-decision-tree-flow") {
-                        handleSubmit();
-                      } else {
-                        navigate(`${item.href}/${id}`);
-                      }
-                    }}
-                  >
-                    {item.name}
-                  </button>
-                ))}
-              </div>
-              <div className="bg-white/30 mx-2 md:mx-4 lg:px-8 lg:py-4 !rounded-[15px] lg:rounded-[16px] mt-6">
-                {loading ? (
-                  <div className="flex justify-center items-center py-10 w-full col-span-4">
-                    <svg
-                      className="animate-spin h-8 w-8 text-[#7367F0]"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                      ></path>
-                    </svg>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-2">
-                    <div className="lg:space-y-4 space-y-2">
-                      <div className="flex flex-col">
-                        <label
-                          htmlFor="name"
-                          className="text-sm font-medium text-gray-700 mb-1"
-                        >
-                          Program Name
-                        </label>
-                        <div className="input-wrapper !rounded-[6px] !px-3">
-                          <input
-                            id="name"
-                            name="name"
-                            type="text"
-                            value={formData.name}
-                            onChange={handleChange}
-                            className="input-field"
-                            placeholder="Enter name"
-                            autoComplete="off"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex flex-col">
-                        <label
-                          htmlFor="program_description"
-                          className="text-sm font-medium text-gray-700 mb-1"
-                        >
-                          Description
-                        </label>
-                        <div className="input-wrapper !rounded-[6px] !px-3">
-                          <input
-                            id="program_description"
-                            name="program_description"
-                            placeholder="Enter description"
-                            type="text"
-                            value={formData.program_description}
-                            onChange={handleChange}
-                            className="input-field"
-                            autoComplete="off"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex flex-col">
-                        {/* <label htmlFor="condition_type" className="text-sm font-medium text-gray-700 mb-1">Condition Type</label> */}
-                        <CustomDropdown
-                          label="Condition Type"
-                          options={CONDITION_OPTIONS}
-                          selected={formData.condition_type}
-                          onSelect={(item) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              condition_type: item.name,
-                            }))
-                          }
-                        />
-                      </div>
-                      <div className="flex flex-col lg:flex-row gap-4 pt-6">
-                        <label className="inline-flex items-center gap-3 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            name="is_active"
-                            checked={formData.is_active}
-                            onChange={handleChange}
-                            className="h-5 w-5 text-indigo-600 bg-white border-gray-300 rounded-md focus:ring-indigo-500 transition duration-200"
-                          />
-                          <span className="text-sm text-gray-700 font-medium">
-                            Active
-                          </span>
-                        </label>
-                      </div>
-                    </div>
-                    <div className="lg:space-y-4 space-y-2">
-                      <div className="flex flex-col">
-                        {/* <label htmlFor="estimate_duration" className="text-sm font-medium text-gray-700 mb-1">Estimate Duration</label> */}
-                        <CustomDropdown
-                          label="Estimate Duration"
-                          options={DURATION_OPTIONS}
-                          selected={formData.estimate_duration}
-                          onSelect={(item) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              estimate_duration: item.name,
-                            }))
-                          }
-                        />
-                      </div>
-                      <div className="flex flex-col relative">
-                        <label
-                          htmlFor="therapy_goal"
-                          className="text-sm font-medium text-gray-700 mb-1"
-                        >
-                          Therapy Goal
-                        </label>
-                        <div className="input-wrapper !rounded-[6px] !px-3">
-                          <input
-                            id="therapy_goal"
-                            name="therapy_goal"
-                            type="text"
-                            value={formData.therapy_goal}
-                            onChange={handleChange}
-                            className="input-field pr-10"
-                            placeholder="Enter therapy goal"
-                            autoComplete="off"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex flex-col">
-                        {/* <label htmlFor="estimate_duration" className="text-sm font-medium text-gray-700 mb-1">Estimate Duration</label> */}
-                        <CustomDropdown
-                          label="Target Group"
-                          options={TARGET_GROUP_OPTIONS}
-                          selected={
-                            TARGET_GROUP_OPTIONS.find(
-                              (option) => option.value === formData.target_group
-                            )?.name
-                          }
-                          onSelect={(item) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              target_group: item.value,
-                            }))
-                          }
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-                <div className="flex flex-col gap-4 sm:flex-row sm:justify-between pt-6 mt-16 border-t border-[#ABA4F6]">
-                  <button
-                    onClick={() => navigate(-1)}
-                    className="back-button flex items-center space-x-1 !px-3 !py-2 !w-fit"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                    <span>Back</span>
-                  </button>
-                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 !w-full sm:!w-auto">
-                    {/* <button
-                                        onClick={() => handleSaveAsDraft()}
-                                        className="back-button !w-full sm:!w-auto">
-                                        Save as draft
-                                        </button> */}
-                    <button
-                      onClick={() => handleSubmit(false)}
-                      disabled={loading}
-                      className="next-button !w-full sm:!w-auto"
-                    >
-                      {loading ? "Updating..." : "Next"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+      <UniversalTopBar
+        isAdd={true}
+        addTitle="Assign Program"
+        backPath="/assign"
+      />
+      <div className="h-full flex flex-col bg-white/10 mb-2 p-4 rounded-2xl gap-2">
+        <BreadCrumb
+          BREADCRUMBS={BREADCRUMBS}
+          formData={formData}
+          navigate={navigate}
+          handleSubmit={handleSubmit}
+          patientList={patientList}
+        />
+        {isLoading ? (
+          <div className="flex justify-center items-center h-full w-full">
+            <PrimaryLoader />
           </div>
-        </div>
+        ) : (
+          <AssignForm
+            formData={formData}
+            setFormData={setFormData}
+            navigate={navigate}
+            handleSubmit={handleSubmit}
+            patientList={patientList}
+            programList={programList}
+            environmentList={environmentList}
+          />
+        )}
       </div>
     </Navigation>
   );
 }
+
+const BreadCrumb = ({ BREADCRUMBS }) => {
+  return (
+    <div className="flex gap-2 overflow-x-auto no-scrollbar w-full md:w-auto rounded-full px-1 py-1 bg-white backdrop-blur-md border border-white/30 shadow-sm mb-2">
+      {BREADCRUMBS.map((item, index) => (
+        <button
+          key={index}
+          className={`px-6 py-3 text-xs lg:text-sm font-medium rounded-full flex items-center gap-2
+          ${
+            item.current
+              ? "bg-gradient-to-b from-[#7367F0] to-[#453E90] text-white shadow-md "
+              : "bg-white text-[#252B37] hover:text-[#574EB6] hover:bg-[#E3E1FC]"
+          }`}
+        >
+          {item.name}
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const AssignForm = ({
+  formData,
+  setFormData,
+  navigate,
+  handleSubmit,
+  patientList,
+  programList,
+  environmentList,
+}) => {
+  const dropDownListTwo = [
+    {
+      label: "Environment",
+      options: environmentList || [],
+      selected:
+        environmentList.find((item) => item.id === formData.environment_id)
+          ?.name || "",
+      onSelect: (value) => setFormData({ ...formData, environment_id: value }),
+    },
+    {
+      label: "Tone Preference",
+      options: TONE_PREFERENCE_CHOICES || [],
+      selected:
+        TONE_PREFERENCE_CHOICES.find(
+          (item) => item.id === formData.tone_preference
+        )?.name || "",
+      onSelect: (value) => setFormData({ ...formData, tone_preference: value }),
+    },
+    {
+      label: "Solfeggio Frequency",
+      options: SOLFEGGIO_FREQUENCY || [],
+      selected:
+        SOLFEGGIO_FREQUENCY.find(
+          (item) => item.id === formData.solfeggio_frequency
+        )?.value || "",
+      onSelect: (value) =>
+        setFormData({ ...formData, solfeggio_frequency: value }),
+    },
+    {
+      label: "Number of Sessions",
+      options: NO_OF_SESSIONS || [],
+      selected:
+        NO_OF_SESSIONS.find((item) => item.id === formData.number_of_sessions)
+          ?.name || "",
+      onSelect: (value) =>
+        setFormData({ ...formData, number_of_sessions: value }),
+    },
+  ];
+
+  return (
+    <div className="bg-white/30 mx-2 px-4 rounded-xl h-[92%] flex flex-col justify-between">
+      <div className="flex flex-col md:flex-row flex-wrap gap-4 p-2">
+        <div className="flex flex-col md:flex-row justify-start items-end gap-2 lg:gap-6 px-2 md:p-0 w-full">
+          <div className="flex flex-col w-full lg:w-[20em]">
+            <CustomDropdown
+              label="Program"
+              disabled
+              options={programList || []}
+              selected={
+                programList.find((item) => item.id === formData.program_id)
+                  ?.name || ""
+              }
+              onSelect={(value) =>
+                setFormData({ ...formData, program_id: value })
+              }
+            />
+          </div>
+
+          <div className="hidden md:flex h-full items-end">
+            <Link className="h-12 w-12 text-white bg-[#7367F0] rounded-lg flex items-center justify-center p-3" />
+          </div>
+
+          <div className="flex flex-col w-full lg:w-[20em]">
+            <CustomDropdown
+              label="Patient"
+              disabled
+              options={patientList || []}
+              selected={
+                patientList.find((item) => item.id === formData.patient_id)
+                  ?.full_name || ""
+              }
+              onSelect={(value) =>
+                setFormData({ ...formData, patient_id: value })
+              }
+            />
+          </div>
+        </div>
+
+        {formData.program_id && formData.patient_id && (
+          <>
+            <div className="w-full flex justify-center items-center gap-2">
+              <span className="text-[#252B37] text-nowrap">
+                Session Details
+              </span>
+              <div className="h-[1px] w-full bg-[#ABA4F6]" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {dropDownListTwo.map((item, index) => (
+                <div
+                  className="flex flex-col md:flex-row justify-start items-center gap-2 md:gap-10 px-2 md:p-0 "
+                  key={index}
+                >
+                  <div className="flex flex-col w-full md:w-[20em]">
+                    <CustomDropdown
+                      label={item.label}
+                      options={item.options}
+                      selected={item.selected}
+                      onSelect={(value) => item.onSelect(value)}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className="flex flex-col sm:flex-row justify-between py-3 px-2 border-t border-[#ABA4F6] gap-3">
+        <button
+          onClick={() => navigate(-1)}
+          className="custom-gradient-button flex justify-center items-center text-sm px-4 py-2"
+        >
+          <ChevronLeft className="w-5 h-5" />
+          <span>Back</span>
+        </button>
+
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto max-w-full">
+          <button
+            onClick={() => handleSubmit("/assign/qrcode")}
+            className="patient-btn flex justify-center items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-b from-[#7367F0] to-[#453E90] rounded-full shadow-md gap-2"
+          >
+            <span>Submit</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};

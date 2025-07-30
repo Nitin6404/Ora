@@ -35,6 +35,7 @@ import EditDecisionTreeFlow from "../pages/program/components/EditDecitionTreeFl
 import Assign from "../pages/assign";
 import AssignProgram from "../pages/assign/components/AssignProgram";
 import QrAssign from "../pages/assign/components/QrAssign";
+import EditAssign from "../pages/assign/components/EditAssign";
 import MediaPage from "../pages/media";
 import AddMedia from "../pages/media/components/AddMedia";
 import EditMedia from "../pages/media/components/EditMedia";
@@ -293,6 +294,17 @@ const AllRoutes = () => {
             <ProtectedRoute pageName="qrcode">
               <FadeWrapper>
                 <QrAssign />
+              </FadeWrapper>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/assign/edit/:id"
+          element={
+            <ProtectedRoute pageName="editassign">
+              <FadeWrapper>
+                <EditAssign />
               </FadeWrapper>
             </ProtectedRoute>
           }
