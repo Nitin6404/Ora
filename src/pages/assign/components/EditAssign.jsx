@@ -189,6 +189,7 @@ export default function EditAssign() {
             patientList={patientList}
             programList={programList}
             environmentList={environmentList}
+            loading={loading}
           />
         )}
       </div>
@@ -224,6 +225,7 @@ const AssignForm = ({
   patientList,
   programList,
   environmentList,
+  loading,
 }) => {
   const dropDownListTwo = [
     {
@@ -344,10 +346,11 @@ const AssignForm = ({
 
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto max-w-full">
           <button
+            disabled={loading}
             onClick={() => handleSubmit("/assign/qrcode")}
             className="patient-btn flex justify-center items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-b from-[#7367F0] to-[#453E90] rounded-full shadow-md gap-2"
           >
-            <span>Submit</span>
+            <span>{loading ? "Submitting..." : "Submit"}</span>
           </button>
         </div>
       </div>

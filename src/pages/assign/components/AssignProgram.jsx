@@ -57,6 +57,7 @@ export default function AssignProgram() {
     for (const field of requiredFields) {
       if (!formData[field.name]) {
         toast.error(`${field.label} is required.`);
+        setLoading(false);
         return;
       }
     }
@@ -98,6 +99,7 @@ export default function AssignProgram() {
       setLoading(false);
     }
   };
+  console.log(loading);
 
   const fetchData = async (endpoint) => {
     try {
