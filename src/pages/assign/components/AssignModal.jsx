@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { User, Zap, AlertTriangle, CircleCheckBig, Clock3 } from "lucide-react";
 import { formatDate } from "../../../utils/format_date";
 import ModalWrapper from "../../../components/ModalWrapper";
@@ -8,6 +8,13 @@ import { getAssignDetail } from "../helpers/getAssignDetail";
 import { toast } from "react-toastify";
 import PrimaryLoader from "../../../components/PrimaryLoader";
 import CustomDropDown from "../../../components/CustomDropDown";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import raiseFlag from "../helpers/raiseFlag";
+
+const formType = [
+  { id: 1, name: "Ok" },
+  { id: 2, name: "Not Ok" },
+];
 
 const MoodEmoji = ({ mood }) => {
   const getMoodEmoji = () => {
@@ -36,6 +43,12 @@ const getStatusColor = (status, flagged) => {
 };
 
 const AssignModal = ({ isOpen, onClose, assignId }) => {
+  const queryClient = useQueryClient();
+
+  const [formData, setFormData] = useState({
+    flag_type: "",
+    note: "",
+  });
   const hasShownToastRef = useRef(false);
   const {
     data: assignDetail,
@@ -49,6 +62,20 @@ const AssignModal = ({ isOpen, onClose, assignId }) => {
     staleTime: 5 * 60 * 1000, // optional but improves UX
     retry: false,
   });
+
+  const raiseFlagMutation = useMutation({
+    mutationFn: raiseFlag,
+    onSuccess: () => {
+      toast.success("Flag raised successfully");
+      queryClient.invalidateQueries({
+        queryKey: ["assignDetail", assignId],
+      });
+    },
+    onError: (error) => {
+      toast.error(error?.response?.data?.error || "Failed to raise flag");
+    },
+  });
+
   useEffect(() => {
     if (isError && !hasShownToastRef.current) {
       toast.error(
@@ -71,7 +98,6 @@ const AssignModal = ({ isOpen, onClose, assignId }) => {
   if (isError) return null;
 
   const data = assignDetail;
-  console.log(data);
   return (
     <ModalWrapper
       isOpen={isOpen}
@@ -88,8 +114,13 @@ const AssignModal = ({ isOpen, onClose, assignId }) => {
       }
     >
       <PatientInfoCard data={data} />
-      {/* <ProgramList data={data} /> */}
-      {/* <SessionLog data={data} /> */}
+      <SessionsList data={data} />
+      <SessionLog
+        data={data}
+        formData={formData}
+        setFormData={setFormData}
+        raiseFlagMutation={raiseFlagMutation}
+      />
     </ModalWrapper>
   );
 };
@@ -102,7 +133,6 @@ const PatientInfoCard = ({ data }) => {
   const currentSession = data?.sessions?.find(
     (session) => session.session_number === data?.program_info?.current_session
   );
-  console.log(currentSession);
   return (
     <div className="bg-white rounded-xl p-6 space-y-4 font-medium text-gray-500 lg:overflow-auto no-scrollbar">
       <div className="flex items-center justify-between w-full">
@@ -271,13 +301,13 @@ const PatientInfoCard = ({ data }) => {
   );
 };
 
-const ProgramList = ({ data }) => {
+const SessionsList = ({ data }) => {
+  const sessions = data?.sessions;
   return (
     <div className="bg-white rounded-xl p-6 space-y-4 h-full lg:overflow-y-auto no-scrollbar ">
-      {data.programs.length > 0 ? (
-        data.programs.map((session, index) => (
+      {sessions.length > 0 ? (
+        sessions.map((session, index) => (
           <ProgramCard session={session} index={index} />
-          // <div key={index}>{session.session_number}</div>
         ))
       ) : (
         <div className="flex items-center justify-center h-full bg-[#f1f1fd] uppercase font-bold rounded-xl">
@@ -328,8 +358,8 @@ const ProgramCard = ({ session, index }) => (
     <div className="space-y-2 mt-3 font-medium text-black">
       <PatientProgramInfo
         program={{
-          vsa: session.vsa,
-          vma: session.vma,
+          // vsa: session.vsa,
+          // vma: session.vma,
           program: session.program_name,
           environment: session.environment,
           frequency: session.frequency,
@@ -375,78 +405,166 @@ const ProgramCard = ({ session, index }) => (
   </div>
 );
 
-const SessionLog = ({ data }) => {
-  return (
-    <div className="bg-white rounded-xl p-6 space-y-4 h-full lg:overflow-y-auto no-scrollbar ">
-      {/* {data?.sessions?.length > 0 ? (
-        <>
-          <h3 className="font-medium text-gray-800 mb-2">
-            A timeline of all sessions from all programs
-          </h3>
-          {data?.sessions?.map((session, index) => (
-            // <SessionCard session={session} index={index} />
-            <div key={index}>{session?.session_number || "N/A"}</div>
-          ))}
-        </>
-      ) : (
-        <div className="flex items-center justify-center h-full bg-[#f1f1fd] uppercase font-bold rounded-xl">
-          No sessions found
-        </div>
-      )} */}
+const SessionLog = ({ data, formData, setFormData, raiseFlagMutation }) => {
+  const [activeTab, setActiveTab] = useState("flag");
+  const flags = data?.flags;
+  const sessions = data?.sessions;
+  const program = data?.program_info;
+  const currentSession = sessions?.find(
+    (session) => session.session_number === data.program_info.current_session
+  );
+  const totalSessions = data.program_info.total_sessions;
+  const handleRaiseFlag = () => {
+    if (!currentSession) return;
+    raiseFlagMutation.mutate({ id: currentSession.session_id, data: formData });
+  };
 
+  return (
+    <div className="bg-white rounded-xl p-6 space-y-2 h-full lg:overflow-y-auto no-scrollbar ">
       <BreadCrumb
         BREADCRUMBS={[
-          { name: "Raise Flag", current: true },
-          { name: "Session Overview", current: false },
+          { id: "flag", name: "Raise Flag", current: true },
+          { id: "session", name: "Session Overview", current: false },
         ]}
+        onSelect={(id) => setActiveTab(id)}
+        activeTab={activeTab}
       />
 
       <Divider />
 
-      <div className="p-2 space-y-2">
-        <CustomDropDown
-          label="Flag Type"
-          options={[
-            { id: 1, name: "Flagged" },
-            { id: 2, name: "Not Flagged" },
-          ]}
-          onSelect={(id) => console.log(id)}
-        />
-        <div>
-          <label htmlFor={id} className="text-sm font-medium text-gray-700">
-            Note/Reason
-          </label>
-          <div className="input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8">
-            <input
-              id={id}
-              name={id}
-              type="text"
-              value={""}
-              onChange={(e) => console.log(e.target.value)}
-              placeholder={"Enter note/reason"}
-              autoComplete="off"
-              className="input-field pr-10"
+      {activeTab === "flag" ? (
+        <>
+          <div className="p-6 space-y-2 bg-gray-100 rounded-lg">
+            <CustomDropDown
+              label="Flag Type"
+              // placeholder="Select Program"
+              options={formType}
+              selected={
+                formType.find((item) => item.id === formData.flag_type)?.name
+              }
+              onSelect={(id) => setFormData({ ...formData, flag_type: id })}
             />
+            <div>
+              <label className="text-sm font-medium text-gray-700">
+                Note/Reason
+              </label>
+              <div className="input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8">
+                <input
+                  type="text"
+                  value={formData.note}
+                  onChange={(e) =>
+                    setFormData({ ...formData, note: e.target.value })
+                  }
+                  placeholder={"Enter note/reason"}
+                  autoComplete="off"
+                  className="input-field pr-10"
+                />
+              </div>
+            </div>
+            <Divider />
+            <button
+              onClick={handleRaiseFlag}
+              className="patient-btn flex justify-center items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-b from-[#7367F0] to-[#453E90] rounded-full shadow-md gap-2"
+            >
+              Raise Flag
+            </button>
+          </div>
+
+          <Divider />
+
+          {/* Flag List */}
+          <div className="font-bold font-inter space-y-2">
+            <h1>Flag List</h1>
+            {flags.map((flag, index) => (
+              <div key={index} className="bg-[#f1f1fd] rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <span>{formatDate(flag?.date)}</span>
+                  <span>{"Session " + flag?.session}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-red-500">{flag?.type || "N/A"}</span>
+                  <span>{"Raised By: " + flag?.raised_by}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Program</span>
+                  <span className="text-[#7367F0]">{program?.name}</span>
+                </div>
+                <Divider />
+                <div className="flex items-center justify-start">
+                  <span>{flag?.note || "N/A"}</span>
+                  {/* <span>Flagged By</span> */}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-col space-y-2 font-inter font-semibold">
+          <div className="space-y-2">
+            <h1> Session Progress Tracker</h1>
+            <div className="bg-[#f1f1fd] rounded-lg p-4 space-y-2">
+              <div className="flex items-center justify-between font-bold">
+                <span>Metric</span>
+                <span>Response</span>
+              </div>
+              <Divider />
+              <div className="flex items-center justify-between">
+                <span>Session Completed</span>
+                <span>
+                  {currentSession?.session_number + " of " + totalSessions}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Total Time Spent</span>
+                <span>{currentSession?.total_time_spent || "N/A"}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Avg. Session Duration</span>
+                <span>{currentSession?.avg_session_duration || "N/A"}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Breaks Taken</span>
+                <span>{currentSession?.break_taken ? "Yes" : "No"}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Distress Flag</span>
+                <span>{currentSession?.distress_flag ? "Yes" : "No"}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h1>Mood Trends Per Session</h1>
+            <div className="bg-[#f1f1fd] rounded-lg p-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <span>Session</span>
+                <span>Mood</span>
+              </div>
+              <Divider />
+              {sessions?.map((session, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <span>{"Session " + session?.session_number || "N/A"}</span>
+                  <span>{session?.mood_after || "N/A"}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-        <Divider />
-        <button className="black-gradient-btn px-[1em] py-[0.25em]">
-          Raise Flag
-        </button>
-      </div>
+      )}
     </div>
   );
 };
 
-const BreadCrumb = ({ BREADCRUMBS }) => {
+const BreadCrumb = ({ BREADCRUMBS, onSelect, activeTab }) => {
   return (
     <div className="flex gap-2 overflow-x-auto no-scrollbar w-full md:w-auto rounded-full px-1 py-1 bg-white">
       {BREADCRUMBS.map((item, index) => (
         <button
           key={index}
-          className={`px-6 py-3 text-xs lg:text-sm font-medium rounded-full flex items-center gap-2
+          onClick={() => onSelect(item.id)}
+          className={`px-6 py-2 text-xs lg:text-sm font-medium rounded-full flex items-center gap-2
           ${
-            item.current
+            item.id === activeTab
               ? "bg-gradient-to-b from-[#7367F0] to-[#453E90] text-white shadow-md "
               : "bg-white text-[#252B37] hover:text-[#574EB6] hover:bg-[#E3E1FC]"
           }`}
@@ -562,7 +680,7 @@ const PatientProgramInfo = ({ program, duration }) => {
         className="bg-[#7367f0]/20"
         textClassName="text-[#7367f0]"
       />
-      <InfoRow
+      {/* <InfoRow
         label="VMA"
         value={program?.vma}
         className="bg-gray-50"
@@ -573,7 +691,7 @@ const PatientProgramInfo = ({ program, duration }) => {
         value={program?.vsa}
         className="bg-gray-50"
         textClassName="text-gray-500"
-      />
+      /> */}
       <InfoRow
         label="Environment"
         value={program?.environment}
@@ -620,6 +738,6 @@ const MoodTrend = ({ label, moodTrend }) => {
     </div>
   );
 };
-const Divider = () => <div className="h-[2px] bg-gray-200" />;
+const Divider = () => <div className="h-[1.5px] bg-gray-200" />;
 
 export default AssignModal;

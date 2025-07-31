@@ -32,3 +32,4 @@ export const GET_VIDEO_ENDPOINT = "/api/media/get-video/";
 export const UPDATE_VIDEO_ENDPOINT = "/api/media/videos/";
 // export const DELETE_VIDEO_ENDPOINT = "/api/media/delete-video/";
 export const VIDEO_PRESIGNED_URL_ENDPOINT = "/api/media/videos/presigned-url/";
+export const RAISE_FLAG_ENDPOINT = "/api/program/raise-flag/";
