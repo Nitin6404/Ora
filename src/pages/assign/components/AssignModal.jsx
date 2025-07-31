@@ -475,27 +475,33 @@ const SessionLog = ({ data, formData, setFormData, raiseFlagMutation }) => {
           {/* Flag List */}
           <div className="font-bold font-inter space-y-2">
             <h1>Flag List</h1>
-            {flags.map((flag, index) => (
-              <div key={index} className="bg-[#f1f1fd] rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <span>{formatDate(flag?.date)}</span>
-                  <span>{"Session " + flag?.session}</span>
+            {flags.length > 0 ? (
+              flags.map((flag, index) => (
+                <div key={index} className="bg-[#f1f1fd] rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <span>{formatDate(flag?.date)}</span>
+                    <span>{"Session " + flag?.session}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-red-500">{flag?.type || "N/A"}</span>
+                    <span>{"Raised By: " + flag?.raised_by}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Program</span>
+                    <span className="text-[#7367F0]">{program?.name}</span>
+                  </div>
+                  <Divider />
+                  <div className="flex items-center justify-start">
+                    <span>{flag?.note || "N/A"}</span>
+                    {/* <span>Flagged By</span> */}
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-red-500">{flag?.type || "N/A"}</span>
-                  <span>{"Raised By: " + flag?.raised_by}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Program</span>
-                  <span className="text-[#7367F0]">{program?.name}</span>
-                </div>
-                <Divider />
-                <div className="flex items-center justify-start">
-                  <span>{flag?.note || "N/A"}</span>
-                  {/* <span>Flagged By</span> */}
-                </div>
+              ))
+            ) : (
+              <div className="flex items-center justify-center bg-[#f1f1fd] uppercase font-bold rounded-lg min-h-[10rem]">
+                No flags found
               </div>
-            ))}
+            )}
           </div>
         </>
       ) : (
