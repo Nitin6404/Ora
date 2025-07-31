@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getAssignDetail } from "../helpers/getAssignDetail";
 import { toast } from "react-toastify";
 import PrimaryLoader from "../../../components/PrimaryLoader";
+import CustomDropDown from "../../../components/CustomDropDown";
 
 const MoodEmoji = ({ mood }) => {
   const getMoodEmoji = () => {
@@ -70,6 +71,7 @@ const AssignModal = ({ isOpen, onClose, assignId }) => {
   if (isError) return null;
 
   const data = assignDetail;
+  console.log(data);
   return (
     <ModalWrapper
       isOpen={isOpen}
@@ -86,13 +88,21 @@ const AssignModal = ({ isOpen, onClose, assignId }) => {
       }
     >
       <PatientInfoCard data={data} />
-      <ProgramList data={data} />
-      <SessionLog data={data} />
+      {/* <ProgramList data={data} /> */}
+      {/* <SessionLog data={data} /> */}
     </ModalWrapper>
   );
 };
 
 const PatientInfoCard = ({ data }) => {
+  const completionPercentage = data?.program_info?.completion_percentage;
+  const status = data?.program_info?.status;
+  const patientInfo = data?.patient_info;
+  const programInfo = data?.program_info;
+  const currentSession = data?.sessions?.find(
+    (session) => session.session_number === data?.program_info?.current_session
+  );
+  console.log(currentSession);
   return (
     <div className="bg-white rounded-xl p-6 space-y-4 font-medium text-gray-500 lg:overflow-auto no-scrollbar">
       <div className="flex items-center justify-between w-full">
@@ -100,60 +110,53 @@ const PatientInfoCard = ({ data }) => {
           <div className="flex flex-col gap-y-1 divide-y text-sm text-gray-600">
             <div className="flex items-center gap-x-2">
               <span>Assigned On: </span>
-              <span>
-                {" "}
-                {formatDate(data?.program_info?.assigned_on) || "N/A"}
-              </span>
+              <span> {formatDate(programInfo?.assigned_on) || "N/A"}</span>
             </div>
             <div className="flex items-center gap-x-2">
               <span>Last Session: </span>
-              <span>
-                {" "}
-                {formatDate(data?.program_info?.last_session) || "N/A"}
-              </span>
+              <span> {formatDate(programInfo?.last_session) || "N/A"}</span>
             </div>
           </div>
         </div>
         <span
           className={`px-1 py-1 rounded-full text-xs font-medium flex justify-center items-center  ${getStatusColor(
-            data?.status,
+            status,
             data?.flagged
           )}`}
         >
           <div className="mr-1 bg-white rounded-full w-6 h-6 flex items-center justify-center">
             {data.flagged && <AlertTriangle className="w-4 h-4" />}
-            {data.status === "published" && (
-              <CircleCheckBig className="w-4 h-4" />
-            )}
-            {data.status === "draft" && <Zap className="w-4 h-4" />}
-            {data.status === "In Progress" && <Clock3 className="w-4 h-4" />}
+            {status === "published" && <CircleCheckBig className="w-4 h-4" />}
+            {status === "draft" && <Zap className="w-4 h-4" />}
+            {status === "In Progress" && <Clock3 className="w-4 h-4" />}
+            {status === "Completed" && <CircleCheckBig className="w-4 h-4" />}
           </div>
-          <span className="pr-3 pl-1 uppercase">{data.status}</span>
+          <span className="pr-3 pl-1 uppercase">{status}</span>
         </span>
       </div>
 
       <div className="flex items-center justify-between gap-[0.5rem] py-[0.5rem]">
-        <span>{data.status === "Completed" ? "100%" : "82%"}</span>
+        <span>{completionPercentage + "%"}</span>
         <div className="w-full flex items-center justify-between bg-gray-100 h-[0.5rem] rounded-full">
           <div
             className={` h-full rounded-full
-            ${data.status === "Completed" && "bg-[#70eba8]"}
-            ${data.status === "Active" && "bg-[#8057db]"}
-            ${data.status === "In Progress" && "bg-yellow-400"}
-            ${data.status === "Flagged" && "bg-red-400"}
+            ${status === "Completed" && "bg-[#70eba8]"}
+            ${status === "Active" && "bg-[#8057db]"}
+            ${status === "In Progress" && "bg-yellow-400"}
+            ${status === "Flagged" && "bg-red-400"}
             `}
             style={{
-              width: data.status === "Completed" ? "100%" : "82%",
+              width: completionPercentage + "%",
             }}
           />
         </div>
       </div>
 
       <div className="flex items-center gap-4">
-        {data?.patient_info?.profile_image ? (
+        {patientInfo?.profile_image ? (
           <img
-            src={data?.patient_info?.profile_image}
-            alt={data.name}
+            src={patientInfo?.profile_image}
+            alt={patientInfo?.full_name}
             className="w-16 h-16 rounded-full mr-4"
           />
         ) : (
@@ -170,10 +173,10 @@ const PatientInfoCard = ({ data }) => {
           </div> */}
           <div className="flex flex-col items-start mb-2">
             <h3 className="text-xl font-semibold mr-3 text-black">
-              {data?.patient_info?.full_name || "N/A"}
+              {patientInfo?.full_name || "N/A"}
             </h3>
             <p className="text-gray-600 text-start text-base">
-              ORA-00{data.id || "N/A"}
+              ORA-00{patientInfo?.patient_id || "N/A"}
             </p>
           </div>
         </div>
@@ -182,7 +185,7 @@ const PatientInfoCard = ({ data }) => {
       <div className="flex items-center gap-4 text-sm">
         <p>Program</p>
         <p className="bg-[#f1f1fd] px-[0.75em] py-[0.25em] rounded-full text-[#7367f0]">
-          {data?.program_info?.name || "N/A"}
+          {programInfo?.name || "N/A"}
         </p>
       </div>
 
@@ -190,33 +193,29 @@ const PatientInfoCard = ({ data }) => {
 
       <div className="space-y-4 bg-[#f1f1fd] rounded-xl py-4 px-2 text-sm">
         <div className="flex justify-between">
-          <span className="text-gray-600 font-medium">VMA</span>
-          <span className="font-medium px-[0.75em] py-[0.25em] rounded-full bg-white">
-            {data?.program_info?.vma || "N/A"}
+          <span className="text-gray-600 font-medium">
+            {programInfo.advisor_type || "N/A"}
           </span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-gray-600 font-medium">VSA</span>
           <span className="font-medium px-[0.75em] py-[0.25em] rounded-full bg-white">
-            {data?.program_info?.vsa || "N/A"}
+            {programInfo.advisor || "N/A"}
           </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-gray-600 font-medium">Environment</span>
           <span className="font-medium text-cyan-500 px-[0.75em] py-[0.25em] rounded-full bg-cyan-50">
-            {data?.program_info?.environment || "N/A"}
+            {programInfo.environment || "N/A"}
           </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-gray-600 font-medium">Frequency</span>
           <span className="font-medium text-cyan-500 px-[0.75em] py-[0.25em] rounded-full bg-cyan-50">
-            {data?.program_info?.frequency || "N/A"}
+            {programInfo.frequency || "N/A"}
           </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-gray-600 font-medium">Tone Preference</span>
           <span className="font-medium px-[0.75em] py-[0.25em] rounded-full bg-white">
-            {data?.program_info?.tone_preference || "N/A"}
+            {programInfo.tone_preference || "N/A"}
           </span>
         </div>
       </div>
@@ -228,23 +227,23 @@ const PatientInfoCard = ({ data }) => {
           <div className="flex flex-col justify-between font-medium">
             <span>Current Session</span>
             <span className="px-4 py-1.5 rounded-full bg-[#f2f0fd] text-center mt-2 text-[#7670b8]">
-              {data?.program_info?.current_session +
+              {programInfo?.current_session +
                 " of " +
-                data?.program_info?.total_sessions || "N/A"}
+                programInfo?.total_sessions || "N/A"}
             </span>
           </div>
           <div className="w-[1.5px] h-12 bg-gray-200" />
           <div className="flex flex-col justify-between font-medium">
             <span>Break Taken</span>
             <span className="px-4 py-1.5 rounded-full bg-[#eff8ff] text-center mt-2 text-[#5d84a3]">
-              {data?.program_info?.breaks_taken + " Breaks"}
+              {programInfo?.breaks_taken + " Breaks"}
             </span>
           </div>
           <div className="w-[1.5px] h-12 bg-gray-200" />
           <div className="flex flex-col justify-between font-medium">
             <span>Flag Raised</span>
             <span className="px-4 py-1.5 rounded-full bg-green-100 text-center mt-2 text-green-700">
-              {data?.program_info?.flag_raised ? "Yes" : "No"}
+              {programInfo?.flag_raised ? "Yes" : "No"}
             </span>
           </div>
         </div>
@@ -256,15 +255,15 @@ const PatientInfoCard = ({ data }) => {
         <div className="flex flex-col justify-center items-center space-y-1">
           <span>Mood Before Session</span>
           <span className="px-8 py-1 rounded-full bg-gray-100 flex items-center gap-2">
-            <p>{MoodEmoji(data?.program_info?.mood_before || "") || "N/A"}</p>
-            <p>{data?.program_info?.mood_before || "N/A"}</p>
+            <p>{MoodEmoji(currentSession?.mood_before || "") || "N/A"}</p>
+            <p>{currentSession?.mood_before || "N/A"}</p>
           </span>
         </div>
         <div className="flex flex-col justify-center items-center space-y-1">
           <span>Mood After Session</span>
           <span className="px-8 py-1 rounded-full bg-gray-100 flex items-center gap-2">
-            <p>{MoodEmoji(data?.program_info?.mood_after || "") || "N/A"}</p>
-            <p>{data?.program_info?.mood_after || "N/A"}</p>
+            <p>{MoodEmoji(currentSession?.mood_after || "") || "N/A"}</p>
+            <p>{currentSession?.mood_after || "N/A"}</p>
           </span>
         </div>
       </div>
@@ -275,8 +274,8 @@ const PatientInfoCard = ({ data }) => {
 const ProgramList = ({ data }) => {
   return (
     <div className="bg-white rounded-xl p-6 space-y-4 h-full lg:overflow-y-auto no-scrollbar ">
-      {data.sessions.length > 0 ? (
-        data.sessions.map((session, index) => (
+      {data.programs.length > 0 ? (
+        data.programs.map((session, index) => (
           <ProgramCard session={session} index={index} />
           // <div key={index}>{session.session_number}</div>
         ))
@@ -379,7 +378,7 @@ const ProgramCard = ({ session, index }) => (
 const SessionLog = ({ data }) => {
   return (
     <div className="bg-white rounded-xl p-6 space-y-4 h-full lg:overflow-y-auto no-scrollbar ">
-      {data?.sessions?.length > 0 ? (
+      {/* {data?.sessions?.length > 0 ? (
         <>
           <h3 className="font-medium text-gray-800 mb-2">
             A timeline of all sessions from all programs
@@ -393,7 +392,68 @@ const SessionLog = ({ data }) => {
         <div className="flex items-center justify-center h-full bg-[#f1f1fd] uppercase font-bold rounded-xl">
           No sessions found
         </div>
-      )}
+      )} */}
+
+      <BreadCrumb
+        BREADCRUMBS={[
+          { name: "Raise Flag", current: true },
+          { name: "Session Overview", current: false },
+        ]}
+      />
+
+      <Divider />
+
+      <div className="p-2 space-y-2">
+        <CustomDropDown
+          label="Flag Type"
+          options={[
+            { id: 1, name: "Flagged" },
+            { id: 2, name: "Not Flagged" },
+          ]}
+          onSelect={(id) => console.log(id)}
+        />
+        <div>
+          <label htmlFor={id} className="text-sm font-medium text-gray-700">
+            Note/Reason
+          </label>
+          <div className="input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8">
+            <input
+              id={id}
+              name={id}
+              type="text"
+              value={""}
+              onChange={(e) => console.log(e.target.value)}
+              placeholder={"Enter note/reason"}
+              autoComplete="off"
+              className="input-field pr-10"
+            />
+          </div>
+        </div>
+        <Divider />
+        <button className="black-gradient-btn px-[1em] py-[0.25em]">
+          Raise Flag
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const BreadCrumb = ({ BREADCRUMBS }) => {
+  return (
+    <div className="flex gap-2 overflow-x-auto no-scrollbar w-full md:w-auto rounded-full px-1 py-1 bg-white">
+      {BREADCRUMBS.map((item, index) => (
+        <button
+          key={index}
+          className={`px-6 py-3 text-xs lg:text-sm font-medium rounded-full flex items-center gap-2
+          ${
+            item.current
+              ? "bg-gradient-to-b from-[#7367F0] to-[#453E90] text-white shadow-md "
+              : "bg-white text-[#252B37] hover:text-[#574EB6] hover:bg-[#E3E1FC]"
+          }`}
+        >
+          {item.name}
+        </button>
+      ))}
     </div>
   );
 };

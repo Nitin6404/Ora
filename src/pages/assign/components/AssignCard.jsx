@@ -232,7 +232,7 @@ const AssignCard = ({ assign, onAssignClick }) => {
           <img
             onClick={(e) => {
               e.stopPropagation();
-              onAssignClick(assign.id);
+              onAssignClick(`${assign.patient.id}/${assign.program.id}`);
             }}
             className="cursor-pointer"
             src="/tilde-icon.png"
