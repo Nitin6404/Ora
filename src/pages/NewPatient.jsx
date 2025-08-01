@@ -1,25 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../services/apiService";
 import Navigation from "../pages/admin/Navigation";
-import PatientTopBar from "../components/PatientTopBar";
 import { useNavigate } from "react-router-dom";
-import {
-  Edit2,
-  Plus,
-  Calendar,
-  EllipsisVertical,
-  User,
-  RotateCcw,
-} from "lucide-react";
-import { DateRange } from "react-date-range";
+import { Edit2, Trash2, EllipsisVertical, User } from "lucide-react";
 import "react-date-range/dist/styles.css"; // main css
 import "react-date-range/dist/theme/default.css"; // theme css
-import DataTable from "../components/DataTable";
 import { formatDate } from "../utils/format_date";
 import PatientDashboardModal from "./patient/components/PatientModal";
 import PrimaryLoader from "../components/PrimaryLoader";
-import PrimarySearchInput from "../components/PrimarySearchInput";
-import FilterButtons from "../components/FilterButtons";
 import UniversalTopBar from "../components/UniversalTopBar";
 import { API_BASE_URL, PATIENT_ENDPOINT } from "../config/apiConfig";
 import { PATIENT_FILTER_OPTIONS as FILTER_OPTIONS } from "../constants";
@@ -75,11 +63,7 @@ export default function NewPatient() {
       label: "DOB",
       render: (p) => {
         const date = new Date(p.date_of_birth);
-        return date.toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-        });
+        return formatDate(p.date_of_birth);
       },
     },
     {
@@ -137,7 +121,7 @@ export default function NewPatient() {
     {
       key: "created_date",
       label: "Created At",
-      render: (p) => new Date(p.created_date).toLocaleDateString(),
+      render: (p) => formatDate(p.created_date),
     },
     {
       key: "actions",
@@ -241,6 +225,15 @@ export default function NewPatient() {
     navigate(`/patients/editpatient/${id}`);
   };
 
+  const handleDelete = (id) => {
+    console.log("delete patient", id);
+
+    // delete patient api call
+
+    // close dropdown
+    setDropdownPatientId(null);
+  };
+
   const handleAddPatient = () => {
     navigate("/patients/addpatient");
   };
@@ -279,6 +272,17 @@ export default function NewPatient() {
     }, 400);
 
     setDebounceTimer(timer);
+  };
+
+  const handleReset = () => {
+    // reset all states to default
+    setSearchTerm("");
+    setDebouncedSearchTerm("");
+    setStartDate(null);
+    setEndDate(null);
+    setActiveFilter("all");
+    setFilterOptions(FILTER_OPTIONS);
+    fetchPatients(API_URL, "all", 1);
   };
 
   const handleDateSelect = () => {
@@ -329,6 +333,7 @@ export default function NewPatient() {
           onAddClick={handleAddPatient}
           addButtonText="Add New Patient"
           searchPlaceholder="Search..."
+          handleReset={handleReset}
         />
         {/* </div> */}
         <div className="flex-1 overflow-y-auto no-scrollbar bg-white/10">
@@ -474,6 +479,13 @@ export default function NewPatient() {
           >
             <Edit2 size={16} />
             Edit
+          </button>
+          <button
+            onClick={() => handleDelete(dropdownPatientId)}
+            className="w-full flex items-center gap-2 px-4 py-2 text-base text-gray-700 hover:bg-gray-100"
+          >
+            <Trash2 size={16} />
+            Delete
           </button>
         </div>
       )}

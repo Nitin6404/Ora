@@ -336,7 +336,7 @@ const SessionCard = ({ session, index }) => (
 
         <PatientProgramInfo program={{
           environment: session.environment_name || "Home",
-          duration: session.duration_minutes || "10 Min",
+          duration: session.duration_minutes + " Min" || "10 Min",
           program: session.program_name || "The Mindful Coping Starter",
         }} duration={true} />
 

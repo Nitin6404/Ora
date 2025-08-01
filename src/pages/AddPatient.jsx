@@ -63,15 +63,25 @@ export default function AddPatient() {
         if (value !== null) multipartData.append(key, value);
       });
 
-      await axiosInstance.post(API_URL, multipartData, {
+      const res = await axiosInstance.post(API_URL, multipartData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       toast.success("Patient created!");
       navigate("/patients");
     } catch (err) {
-      console.error("❌ Error:", err.response?.data || err.message);
-      toast.error(err.response?.data?.message || "Failed to add patient.");
+      const error = err.response?.data;
+      let errorMessage = "";
+      // error is an object which contains a field of unknown value
+      console.error("❌ Error:", error);
+      for (const key in error) {
+        console.log(key, error[key][0]);
+        errorMessage = error[key][0] + "\n";
+        
+        // Capatelise the error message sentence
+        errorMessage = error[key][0].charAt(0).toUpperCase() + error[key][0].slice(1) + "\n";
+      }
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

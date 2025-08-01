@@ -94,7 +94,6 @@ const AssignModal = ({ isOpen, onClose, assignId }) => {
     }
   }, [isOpen]);
 
-  if (isLoading) return <PrimaryLoader />;
   if (isError) return null;
 
   const data = assignDetail;
@@ -113,14 +112,22 @@ const AssignModal = ({ isOpen, onClose, assignId }) => {
         </>
       }
     >
-      <PatientInfoCard data={data} />
-      <SessionsList data={data} />
-      <SessionLog
-        data={data}
-        formData={formData}
-        setFormData={setFormData}
-        raiseFlagMutation={raiseFlagMutation}
-      />
+      {isLoading ? (
+        <div className="flex items-center justify-center h-full w-screen">
+          <PrimaryLoader />
+        </div>
+      ) : (
+        <>
+          <PatientInfoCard data={data} />
+          <SessionsList data={data} />
+          <SessionLog
+            data={data}
+            formData={formData}
+            setFormData={setFormData}
+            raiseFlagMutation={raiseFlagMutation}
+          />
+        </>
+      )}
     </ModalWrapper>
   );
 };
