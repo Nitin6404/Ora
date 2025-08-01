@@ -10,6 +10,7 @@ import UserForm from "./UserForm";
 import getUser from "../helpers/getUser";
 import { useParams } from "react-router-dom";
 import PrimaryLoader from "../../../components/PrimaryLoader";
+import getRoles from "../helpers/getRoles";
 
 export default function EditUser() {
   const { id } = useParams();
@@ -29,11 +30,19 @@ export default function EditUser() {
     queryKey: ["user", id],
     queryFn: () => getUser(id),
   });
+  const { data: roles = [] } = useQuery({
+    queryKey: ["roles"],
+    queryFn: getRoles,
+  });
 
   useEffect(() => {
     if (data) {
-      console.log(data);
-      setFormData(data);
+      setFormData((prev) => ({
+        ...prev,
+        ...data,
+        role_ids:
+          roles.find((role) => role.role_name === data.role_names[0])?.id || [],
+      }));
     }
   }, [data]);
 
