@@ -604,7 +604,7 @@ export default function EditDecisionTreeFlow() {
     const newNode = {
       id: String(id),
       type: "questionNode",
-      position: { x: 300, y: 150 + nodes.length * 200 },
+      position: { x: 150, y: 150 + nodes.length * 10 },
       data: {
         label: newQuestionText,
         nodeId: String(id),
@@ -810,7 +810,7 @@ export default function EditDecisionTreeFlow() {
     const newNode = {
       id: String(newId),
       type: "musicVideoNode",
-      position: { x: 450, y: 100 + nodes.length * 150 },
+      position: { x: 150, y: 150 + nodes.length * 10 },
       data: {
         label: `Music Video ${newId}`,
         identifier: `${Date.now()}_${Math.floor(Math.random() * 1000)}`,

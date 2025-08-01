@@ -16,7 +16,7 @@ import Navigation from "../../admin/Navigation";
 import "../../patient.css";
 import { ToastContainer, toast } from "react-toastify";
 import ProgramTopBar from "./ProgramTopBar";
-import { ChevronLeft, PlusIcon } from "lucide-react";
+import { ChevronLeft, PlusIcon, Settings, XIcon } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useMemo } from "react";
 import {
@@ -51,6 +51,10 @@ const QuestionNode = ({ data }) => {
     setNewAnswerText("");
   };
 
+  const handleDeleteNode = () => {
+    data.onDeleteNode(data.nodeId);
+  };
+
   return (
     <div className="border border-purple-400 rounded-xl p-3 bg-white w-80 shadow relative">
       <Handle
@@ -60,13 +64,25 @@ const QuestionNode = ({ data }) => {
       />
       <div className="mb-2 flex justify-between items-center">
         <div className="text-xs text-gray-500">Question</div>
-        <button
-          onClick={() => data.onOpenSettings(data.nodeId)}
-          className="text-sm text-gray-400 hover:text-black"
-          title="Settings"
-        >
-          ⚙️
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => data.onOpenSettings(data.nodeId)}
+            className="text-sm text-gray-400 hover:text-black"
+            title="Settings"
+          >
+            <Settings className="w-4 h-4 cursor-pointer" />
+          </button>
+          <button
+            onClick={handleDeleteNode}
+            className="text-sm text-gray-400 hover:text-black"
+            title="Delete"
+          >
+            <XIcon
+              onClick={handleDeleteNode}
+              className="w-4 h-4 cursor-pointer text-red-500 hover:text-red-600"
+            />
+          </button>
+        </div>
       </div>
       <input
         className="w-full border rounded p-1 text-sm"
@@ -155,6 +171,10 @@ const MusicVideoNode = ({ data, audioList, videoList }) => {
     handleUpdate({ forceTimer: updated });
   };
 
+  const handleDeleteNode = () => {
+    data.onDeleteNode(data.nodeId);
+  };
+
   const options = type === "music" ? audioList : videoList;
   const selectedItem = options.find((item) => item.id === selectedId);
 
@@ -162,8 +182,20 @@ const MusicVideoNode = ({ data, audioList, videoList }) => {
     <div className="border border-green-400 rounded-xl p-3 bg-white w-80 shadow relative">
       <Handle type="target" position={Position.Top} />
 
-      <div className="mb-2 text-xs text-gray-500">
-        {type.toUpperCase()} : {selectedItem ? selectedItem.name : "Select"}
+      <div className="mb-2 text-xs text-gray-500 flex items-center justify-between">
+        <div>
+          {type.toUpperCase()} : {selectedItem ? selectedItem.name : "Select"}
+        </div>
+        <button
+          onClick={handleDeleteNode}
+          className="text-sm text-gray-400 hover:text-black"
+          title="Delete"
+        >
+          <XIcon
+            onClick={handleDeleteNode}
+            className="w-4 h-4 cursor-pointer text-red-500 hover:text-red-600"
+          />
+        </button>
       </div>
 
       <select
@@ -433,7 +465,8 @@ export default function NewDecisionTreeFlow() {
     const newNode = {
       id: String(newId),
       type: "questionNode",
-      position: { x: 300, y: 150 + nodes.length * 200 },
+      // position new question into center of canvas
+      position: { x: 150, y: 150 + nodes.length * 10 },
       data: {
         label: newQuestionText,
         identifier: `${Date.now()}_${Math.floor(Math.random() * 1000)}`,
@@ -442,7 +475,7 @@ export default function NewDecisionTreeFlow() {
         onSelectAnswer: handleSelectAnswer,
         onUpdateLabel: updateNodeLabel,
         onAddAnswer: addAnswerToNode,
-
+        onDeleteNode: handleDeleteNode,
         onOpenSettings: handleOpenSettings,
       },
     };
@@ -459,26 +492,6 @@ export default function NewDecisionTreeFlow() {
         type: n.type === "musicVideoNode" ? "musicVideoType" : "questionType",
         identifier: n.data.identifier || null,
         position: n.position,
-        // ...(n.type === "musicVideoNode"
-        //   ? {
-        //     musicVideo: {
-        //       type: n.data.typeOption,
-        //       itemId: n.data.selectedId,
-        //       timer: Number(n.data.timer) || 0,
-        //       forceTimer: !!n.data.forceTimer,
-        //       url: (() => {
-        //         const isMusic = n.data.typeOption === 'music';
-        //         const list = isMusic ? audioList : videoList;
-        //         const item = list.find((i) => String(i.id) === String(n.data.selectedId));
-        //         if (!item) return "";
-
-        //         return isMusic
-        //           ? item.audio_s3_url || item.url || ""
-        //           : item.video_s3_url || item.url || "";
-        //       })(),
-        //     }
-        //   }
-        //   : {
         label: n.data.label,
         settings: {
           ...(n.data.settings || nodeSettings[n.id] || {}),
@@ -503,7 +516,6 @@ export default function NewDecisionTreeFlow() {
           id: ans.id,
           label: ans.label,
           identifier: ans.identifier || null,
-          // })),
         })),
       })),
       edges: edges.map((e) => ({
@@ -518,7 +530,7 @@ export default function NewDecisionTreeFlow() {
     console.log("Full Decision Tree:", fullData);
   };
 
-  const submitTreeToBackend = async () => {
+  const submitTreeToBackend = async (newStatus = null) => {
     setLoading(true);
 
     const fullData = {
@@ -527,26 +539,6 @@ export default function NewDecisionTreeFlow() {
         type: n.type === "musicVideoNode" ? "musicVideoType" : "questionType",
         identifier: n.data.identifier || null,
         position: n.position,
-        // ...(n.type === "musicVideoNode"
-        //   ? {
-        //     musicVideo: {
-        //       type: n.data.typeOption,
-        //       itemId: n.data.selectedId,
-        //       timer: Number(n.data.timer) || 0,
-        //       forceTimer: !!n.data.forceTimer,
-        //       url: (() => {
-        //         const isMusic = n.data.typeOption === 'music';
-        //         const list = isMusic ? audioList : videoList;
-        //         const item = list.find((i) => String(i.id) === String(n.data.selectedId));
-        //         if (!item) return "";
-
-        //         return isMusic
-        //           ? item.audio_s3_url || item.url || ""
-        //           : item.video_s3_url || item.url || "";
-        //       })(),
-        //     }
-        //   }
-        //   : {
         label: n.data.label,
         settings: {
           ...(n.data.settings || nodeSettings[n.id] || {}),
@@ -571,7 +563,6 @@ export default function NewDecisionTreeFlow() {
           id: ans.id,
           label: ans.label,
           identifier: ans.identifier || null,
-          // })),
         })),
       })),
       edges: edges.map((e) => ({
@@ -583,32 +574,26 @@ export default function NewDecisionTreeFlow() {
       })),
     };
 
+    console.log("status", status);
     console.log("📦 Sending data to backend:", fullData);
 
     try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("No auth token found");
-
-      const response = await axiosInstance.post(
-        PROGRAM_ENDPOINT,
-        {
-          ...programDetails,
-          status,
-          program_data: fullData,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axiosInstance.post(PROGRAM_ENDPOINT, {
+        ...programDetails,
+        status: newStatus ? newStatus : status,
+        program_data: fullData,
+      });
 
       console.log("✅ Backend response:", response.data);
       toast.success("Decision tree sent to backend!");
       navigate("/programs");
     } catch (error) {
-      console.error("❌ API error:", error.response?.data || error.message);
-      toast.error(
-        error.response?.data?.message || "Failed to send data to backend."
-      );
+      const errorbj = error.response?.data;
+      for (const key in errorbj) {
+        console.error("API ERROR: ", errorbj[key][0]);
+        toast.error(key.toLocaleUpperCase() + ": " + errorbj[key][0]);
+      }
+      navigate("/programs/addprogram");
     } finally {
       setLoading(false);
     }
@@ -619,17 +604,26 @@ export default function NewDecisionTreeFlow() {
     const newNode = {
       id: String(newId),
       type: "musicVideoNode",
-      position: { x: 450, y: 100 + nodes.length * 150 },
+      position: { x: 150, y: 150 + nodes.length * 10 },
       data: {
         identifier: `${Date.now()}_${Math.floor(Math.random() * 1000)}`,
         typeOption: "music",
         selectedId: "",
         nodeId: String(newId),
         onUpdateLabel: updateNodeLabel,
-        onSelectAnswer: handleSelectAnswer, // ✅ still there!
+        onSelectAnswer: handleSelectAnswer,
+        onDeleteNode: handleDeleteNode,
       },
     };
     setNodes((nds) => [...nds, newNode]);
+  };
+
+  const handleDeleteNode = (nodeId) => {
+    setNodes((nds) => nds.filter((n) => n.id !== nodeId));
+    setEdges((eds) =>
+      eds.filter((e) => e.source !== nodeId && e.target !== nodeId)
+    );
+    setTimeout(logFullTree, 0);
   };
 
   return (
@@ -665,7 +659,7 @@ export default function NewDecisionTreeFlow() {
           submitTreeToBackend={submitTreeToBackend}
           loading={loading}
           connectToNode={connectToNode}
-          navigate={navigate}
+          setStatus={setStatus}
         />
       </div>
     </Navigation>
@@ -718,7 +712,7 @@ const Canvas = ({
   submitTreeToBackend,
   loading,
   connectToNode,
-  navigate,
+  setStatus,
 }) => {
   return (
     <div className="bg-white/30 mx-2 lg:px-8 lg:py-4 rounded-xl h-[92%] flex flex-col justify-between">
@@ -895,7 +889,10 @@ const Canvas = ({
 
       <div className="flex flex-col sm:flex-row justify-between mt-6 py-3 px-2 border-t border-[#ABA4F6] gap-3">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            setStatus("draft");
+            submitTreeToBackend("draft");
+          }}
           className="custom-gradient-button flex justify-center items-center text-sm px-4 py-2"
         >
           <ChevronLeft className="w-5 h-5" />
@@ -905,7 +902,7 @@ const Canvas = ({
         {/* <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 !w-full sm:!w-auto"> */}
 
         <button
-          onClick={submitTreeToBackend}
+          onClick={() => submitTreeToBackend("published")}
           disabled={loading}
           className="patient-btn flex justify-center items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-b from-[#7367F0] to-[#453E90] rounded-full shadow-md gap-2"
         >
