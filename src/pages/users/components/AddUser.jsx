@@ -25,7 +25,9 @@ export default function AddUser() {
     mutationFn: createUser,
     onSuccess: () => {
       toast.success("User created successfully!");
-      navigate("/users");
+      setTimeout(() => {
+        navigate("/users");
+      }, 1500); // wait for 1.5 seconds so toast can be seen
     },
     onError: (error) => {
       const errorMessage = Object.values(error)[0];
@@ -79,17 +81,6 @@ export default function AddUser() {
       toast.error(errorMessage[0] || "Failed to create user.");
     } finally {
       setLoading(false);
-      setFormData({
-        first_name: "",
-        middle_name: "",
-        last_name: "",
-        date_of_birth: "",
-        email: "",
-        phone_no: "",
-        password: "",
-        gender: "",
-        role_ids: [],
-      });
     }
   };
 
