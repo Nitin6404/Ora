@@ -28,7 +28,7 @@ const VideoDialog = ({
       >
         <X className="w-6 h-6" />
       </DialogClose> */}
-      <DialogContent className="max-w-4xl p-0 bg-black border-none shadow-2xl">
+      <DialogContent className="max-w-4xl p-0 bg-black border-none shadow-2xl text-white text-xl">
         <div
           className={`w-full ${aspectRatio} bg-black rounded-xl overflow-hidden`}
         >

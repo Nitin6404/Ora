@@ -24,7 +24,9 @@ export default function AddMedia() {
     mutationFn: uploadAudio,
     onSuccess: () => {
       toast.success("Audio uploaded successfully!");
-      navigate("/media");
+      setTimeout(() => {
+        navigate("/media");
+      }, 1500);
     },
     onError: (error) => {
       toast.error(error || "Failed to upload audio.");
@@ -34,8 +36,11 @@ export default function AddMedia() {
   const uploadVideoMutation = useMutation({
     mutationFn: uploadVideo,
     onSuccess: () => {
+      console.log("Video uploaded successfully!");
       toast.success("Video uploaded successfully!");
-      navigate("/media");
+      setTimeout(() => {
+        navigate("/media");
+      }, 1500);
     },
     onError: (error) => {
       toast.error(error || "Failed to upload video.");

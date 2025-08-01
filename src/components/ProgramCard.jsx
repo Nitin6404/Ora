@@ -112,7 +112,7 @@ const ProgramCard = ({ program, onClick }) => {
           Patients Assigned
         </span>
         <span className="bg-[#535862] text-white text-sm font-medium px-2.5 py-1.5 rounded-[1em]">
-          {program.patients_assigned || 0}
+          {program.assigned_patient_count || 0}
         </span>
       </div>
 

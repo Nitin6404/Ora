@@ -718,7 +718,7 @@ export default function EditDecisionTreeFlow() {
     alert("Decision tree sent to analytics!");
   };
 
-  const submitTreeToBackend = async () => {
+  const submitTreeToBackend = async (newStatus = null) => {
     setLoading(true);
     const fullData = {
       nodes: nodes.map((n) => ({
@@ -726,26 +726,6 @@ export default function EditDecisionTreeFlow() {
         type: n.type === "musicVideoNode" ? "musicVideoType" : "questionType",
         identifier: n.data.identifier || null,
         position: n.position,
-        // ...(n.type === "musicVideoNode"
-        //   ? {
-        //     musicVideo: {
-        //       type: n.data.typeOption,
-        //       itemId: n.data.selectedId,
-        //       timer: Number(n.data.timer) || 0,
-        //       forceTimer: !!n.data.forceTimer,
-        //       url: (() => {
-        //         const isMusic = n.data.typeOption === 'music';
-        //         const list = isMusic ? audioList : videoList;
-        //         const item = list.find((i) => String(i.id) === String(n.data.selectedId));
-        //         if (!item) return "";
-
-        //         return isMusic
-        //           ? item.audio_s3_url || item.url || ""
-        //           : item.video_s3_url || item.url || "";
-        //       })(),
-        //     }
-        //   }
-        //   : {
         label: n.data.label,
         settings: {
           ...(n.data.settings || nodeSettings[n.id] || {}),
@@ -787,7 +767,7 @@ export default function EditDecisionTreeFlow() {
         PROGRAM_ENDPOINT + programDetails.id + "/",
         {
           ...programDetails,
-          status,
+          status: newStatus ? newStatus : status,
           program_data: fullData,
         }
       );
@@ -1157,7 +1137,9 @@ const Canvas = ({
 
       <div className="flex flex-col sm:flex-row justify-between py-3 px-2 border-t border-[#ABA4F6] gap-3">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => {
+            submitTreeToBackend("draft");
+          }}
           className="custom-gradient-button flex justify-center items-center text-sm px-4 py-2"
         >
           <ChevronLeft className="w-5 h-5" />
@@ -1166,7 +1148,7 @@ const Canvas = ({
 
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 !w-full sm:!w-auto">
           <button
-            onClick={submitTreeToBackend}
+            onClick={() => submitTreeToBackend("published")}
             disabled={loading}
             className="patient-btn flex justify-center items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-b from-[#7367F0] to-[#453E90] rounded-full shadow-md gap-2"
           >

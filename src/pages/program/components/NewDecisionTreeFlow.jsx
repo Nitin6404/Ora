@@ -712,7 +712,6 @@ const Canvas = ({
   submitTreeToBackend,
   loading,
   connectToNode,
-  setStatus,
 }) => {
   return (
     <div className="bg-white/30 mx-2 lg:px-8 lg:py-4 rounded-xl h-[92%] flex flex-col justify-between">
@@ -890,7 +889,6 @@ const Canvas = ({
       <div className="flex flex-col sm:flex-row justify-between mt-6 py-3 px-2 border-t border-[#ABA4F6] gap-3">
         <button
           onClick={() => {
-            setStatus("draft");
             submitTreeToBackend("draft");
           }}
           className="custom-gradient-button flex justify-center items-center text-sm px-4 py-2"

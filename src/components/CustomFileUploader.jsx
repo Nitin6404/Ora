@@ -6,9 +6,13 @@ import React, {
   useImperativeHandle,
 } from "react";
 import { FileIcon, Upload, Pause, X } from "lucide-react";
+import { toast } from "react-toastify";
 
 const CustomFileUploader = forwardRef(
-  ({ onFileSelect, initialImage, onFileRemove, defaultTitle }, ref) => {
+  (
+    { onFileSelect, initialImage, onFileRemove, defaultTitle, sizeLimit = 5 },
+    ref
+  ) => {
     const inputRef = useRef(null);
     const [file, setFile] = useState(null);
     const [progress, setProgress] = useState(null);
@@ -58,6 +62,12 @@ const CustomFileUploader = forwardRef(
     };
 
     const startUpload = (file) => {
+      if (file.size > sizeLimit * 1024 * 1024) {
+        toast.error("File size exceeds the limit of 5MB");
+        reset();
+        return;
+      }
+
       setFile(file);
       setProgress(0);
       setUploading(true);
@@ -137,7 +147,10 @@ const CustomFileUploader = forwardRef(
               </div>
               <div className="flex flex-col">
                 <p className="mt-2 lg:text-sm md:text-[0.6rem] text-[0.5rem] text-gray-700 font-medium">
-                  Drag your file here
+                  Drag your file here{" "}
+                  <span className="text-red-400 text-xs">
+                    (Limit - {sizeLimit}MB)
+                  </span>
                 </p>
                 <button
                   disabled={uploading || uploaded}

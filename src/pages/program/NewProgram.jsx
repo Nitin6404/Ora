@@ -72,14 +72,17 @@ export default function NewProgram() {
 
     try {
       const res = await axiosInstance.get(
-        `${API_URL}${PROGRAM_ENDPOINT}?${params.toString()}`,
+        `${API_URL}${PROGRAM_ENDPOINT}?${params.toString()}`
       );
 
       setPrograms(res.data.results);
       const pageSize = res.data.results.length || 10;
       setPageCount(Math.ceil(res.data.count / pageSize));
     } catch (err) {
-      console.error("❌ Failed to fetch programs:", err.response?.data || err.message);
+      console.error(
+        "❌ Failed to fetch programs:",
+        err.response?.data || err.message
+      );
     } finally {
       setLoading(false);
     }
@@ -87,12 +90,13 @@ export default function NewProgram() {
 
   const fetchProgramDetails = async (id) => {
     try {
-      const res = await axiosInstance.get(
-        `${API_URL}${PROGRAM_DETAILS}${id}`,
-      );
+      const res = await axiosInstance.get(`${API_URL}${PROGRAM_DETAILS}${id}`);
       setProgramData(res.data);
     } catch (err) {
-      console.error("❌ Failed to fetch program details:", err.response?.data || err.message);
+      console.error(
+        "❌ Failed to fetch program details:",
+        err.response?.data || err.message
+      );
     }
   };
 
@@ -108,6 +112,21 @@ export default function NewProgram() {
   const handleAddProgram = () => navigate("/programs/addprogram");
 
   const handleDateSelect = () => setIsDatePickerVisible((prev) => !prev);
+
+  const handleReset = () => {
+    // Reset all states to default
+    setCurrentPage(1);
+    setActiveFilter("all");
+    setSearchTerm("");
+    setDebouncedSearchTerm("");
+    setStartDate("");
+    setEndDate("");
+    setDateRange([
+      { startDate: new Date(), endDate: new Date(), key: "selection" },
+    ]);
+    setIsDatePickerVisible(false);
+    fetchPrograms();
+  };
 
   const applyDateFilter = () => {
     setStartDate(formatDate(dateRange[0].startDate));
@@ -138,6 +157,7 @@ export default function NewProgram() {
           onAddClick={handleAddProgram}
           addButtonText="Add New Program"
           searchPlaceholder="Search..."
+          handleReset={handleReset}
         />
 
         <div className="backdrop-blur-sm bg-white/10 flex-1 overflow-hidden w-full">
@@ -169,7 +189,11 @@ export default function NewProgram() {
           <div className="p-2 w-full flex h-full">
             <div className="w-full h-full bg-white/10 rounded-[1.875rem] flex justify-between items-center gap-2">
               {pageCount > 0 ? (
-                <Pagination pageCount={pageCount} currentPage={currentPage} handlePageChange={handlePageChange} />
+                <Pagination
+                  pageCount={pageCount}
+                  currentPage={currentPage}
+                  handlePageChange={handlePageChange}
+                />
               ) : (
                 <div className="flex justify-center items-center w-full gap-2">
                   {Array.isArray(programs) && programs.length > 0 ? (
@@ -186,20 +210,20 @@ export default function NewProgram() {
 
       {isDatePickerVisible && (
         <DateRangeModal
-        show={isDatePickerVisible}
-        onClose={() => setIsDatePickerVisible(false)}
-        dateRange={dateRange}
-        setDateRange={setDateRange}
-        onApply={(start, end) => {
-          setStartDate(start);
-          setEndDate(end);
-          fetchPrograms();
-        }}
-      />
+          show={isDatePickerVisible}
+          onClose={() => setIsDatePickerVisible(false)}
+          dateRange={dateRange}
+          setDateRange={setDateRange}
+          onApply={(start, end) => {
+            setStartDate(start);
+            setEndDate(end);
+            fetchPrograms();
+          }}
+        />
       )}
 
-      {isModalOpen && (
-        programData ? (
+      {isModalOpen &&
+        (programData ? (
           <>
             <ProgramModal
               isOpen={isModalOpen}
@@ -215,8 +239,7 @@ export default function NewProgram() {
           <div className="absolute inset-0 flex items-center justify-center backdrop-blur-2xl bg-white/20 w-full h-full z-[100]">
             <PrimaryLoader />
           </div>
-        )
-      )}
+        ))}
     </Navigation>
   );
 }
