@@ -200,7 +200,8 @@ const USER_COLUMN = [
     label: "Created At",
     render: (p) => new Date(p.created_date).toLocaleDateString() || "NA",
   },
-  {
+
+  localStorage.getItem("role_name") === "admin" && {
     key: "actions",
     label: "Actions",
     render: (p) => {
