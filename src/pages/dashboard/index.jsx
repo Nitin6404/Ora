@@ -21,6 +21,7 @@ import DateRangeModal from "../../components/DateRangeModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { Trash2, Edit2 } from "lucide-react";
 import { formatDateForAPI } from "../../utils/format_date_for_api";
+import getMoveTrends from "./helpers/getMoveTrends";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -62,6 +63,16 @@ const Dashboard = () => {
     queryKey: ["dashboard-stats", param],
     queryFn: () => getDashboardStats(param),
   });
+
+  const {
+    data: moodTrends,
+    isLoading: moodTrendsLoading,
+    error: moodTrendsError,
+  } = useQuery({
+    queryKey: ["mood-trends"],
+    queryFn: () => getMoveTrends(),
+  });
+  console.log(moodTrends);
 
   const debounced = useMemo(
     () =>
@@ -112,7 +123,7 @@ const Dashboard = () => {
     : [];
 
   const filteredPrograms = isLoading ? [] : stats?.patient_programs?.results;
-  const userObj = localStorage.getItem("user");
+  const userObj = JSON.parse(localStorage.getItem("user"));
   let name = "Olivia Grant";
   if (userObj?.first_name) {
     name = userObj?.first_name + " " + userObj?.last_name;
@@ -141,7 +152,10 @@ const Dashboard = () => {
             </div>
 
             <div className="col-span-1 md:col-span-2 lg:col-span-1">
-              <MoodTrends />
+              <MoodTrends
+                moodTrends={moodTrends || []}
+                isLoading={moodTrendsLoading}
+              />
             </div>
           </div>
 

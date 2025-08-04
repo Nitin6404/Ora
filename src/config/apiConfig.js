@@ -7,6 +7,7 @@ export const USER_ENDPOINT = "/api/auth/users/";
 export const USER_ROLES_ENDPOINT = "/api/auth/roles/";
 export const UPDATE_USER_ENDPOINT = "/api/auth/update/";
 export const DASHBOARD_STATS = "/api/program/dashboard-stats/";
+export const MOOD_TRENDS = "/api/program/dashboard/mood-trends/";
 export const PROGRAM_ENDPOINT = "/api/program/programs/";
 export const PROGRAM_DETAILS = "/api/program/details/";
 export const PROGRAM_META = "/api/program/meta";
