@@ -39,6 +39,7 @@ const getStatusColor = (status, flagged) => {
   if (status === "Completed") return "bg-[#70eba8] text-green-700";
   if (status === "Active") return "bg-[#d6d7db] text-[#333]";
   if (status === "In Progress") return "bg-yellow-100 text-yellow-700";
+  if (status === "Flagged") return "bg-red-100 text-red-700";
   return "bg-gray-100 text-gray-700";
 };
 
@@ -165,8 +166,10 @@ const PatientInfoCard = ({ data }) => {
             {data.flagged && <AlertTriangle className="w-4 h-4" />}
             {status === "published" && <CircleCheckBig className="w-4 h-4" />}
             {status === "draft" && <Zap className="w-4 h-4" />}
+            {status === "Active" && <Zap className="w-4 h-4" />}
             {status === "In Progress" && <Clock3 className="w-4 h-4" />}
             {status === "Completed" && <CircleCheckBig className="w-4 h-4" />}
+            {status === "Flagged" && <AlertTriangle className="w-4 h-4" />}
           </div>
           <span className="pr-3 pl-1 uppercase">{status}</span>
         </span>
@@ -228,7 +231,7 @@ const PatientInfoCard = ({ data }) => {
 
       <div className="h-[2px] bg-gray-200 font-medium" />
 
-      <div className="space-y-4 bg-[#f1f1fd] rounded-xl py-4 px-2 text-sm">
+      <div className="space-y-2 bg-[#f1f1fd] rounded-xl py-4 px-2 text-md">
         <div className="flex justify-between">
           <span className="text-gray-600 font-medium">
             {programInfo.advisor_type || "N/A"}

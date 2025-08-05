@@ -60,7 +60,7 @@ const DASHBOARD_FILTER_OPTIONS = [
   { id: "All", label: "All", isActive: true },
   { id: "Active", label: "Active", isActive: false },
   { id: "Completed", label: "Completed", isActive: false },
-  // { id: "Flagged", label: "Flagged", isActive: false },
+  { id: "Flagged", label: "Flagged", isActive: false },
 ];
 
 const ASSIGNMENT_FILTER_OPTIONS = [

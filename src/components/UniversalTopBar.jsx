@@ -70,12 +70,12 @@ const UniversalTopBar = ({
           </div>
 
           <div className="flex items-center space-x-4">
-            <button className="p-1 rounded-full bg-transparent">
+            {/* <button className="p-1 rounded-full bg-transparent">
               <Bell className="w-5 h-5" />
             </button>
             <button className="p-1 rounded-full">
               <Settings className="w-5 h-5 text-gray-600" />
-            </button>
+            </button> */}
             <div className="relative">
               <button
                 className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden border-2 border-gray-300"

@@ -180,23 +180,24 @@ export default function Users() {
                 </tr>
               </thead>
               <tbody className="overflow-y-auto h-full w-full">
-                {isArrayWithValues(users) ? (
-                  <>
-                    {users.map((row, rowIndex) => (
-                      <tr
-                        key={row.id || rowIndex}
-                        className="bg-white/90 backdrop-blur-[2.5px] rounded-[2.625rem] h-[3.5rem] max-h-16 px-[2rem] py-[0.8rem] text-[#181D27] text-[12px] leading-[18px] font-medium transition hover:bg-[#E3E1FC]"
-                      >
-                        {columns.map((col, i) => (
-                          <td
-                            key={col.key}
-                            className={`px-3 py-2 ${
-                              i === 0 ? "rounded-l-[2.625rem]" : ""
-                            } ${
-                              i === columns.length - 1
-                                ? "rounded-r-[2.625rem]"
-                                : ""
-                            }
+                {
+                  isArrayWithValues(users) && (
+                    <>
+                      {users.map((row, rowIndex) => (
+                        <tr
+                          key={row.id || rowIndex}
+                          className="bg-white/90 backdrop-blur-[2.5px] rounded-[2.625rem] h-[3.5rem] max-h-16 px-[2rem] py-[0.8rem] text-[#181D27] text-[12px] leading-[18px] font-medium transition hover:bg-[#E3E1FC]"
+                        >
+                          {columns.map((col, i) => (
+                            <td
+                              key={col.key}
+                              className={`px-3 py-2 ${
+                                i === 0 ? "rounded-l-[2.625rem]" : ""
+                              } ${
+                                i === columns.length - 1
+                                  ? "rounded-r-[2.625rem]"
+                                  : ""
+                              }
                              ${col.key === "first_name" ? "pl-8" : ""}
                               ${
                                 col.key === "concent_given"
@@ -204,24 +205,42 @@ export default function Users() {
                                   : ""
                               }
                              `}
-                          >
-                            {typeof col.render === "function"
-                              ? col.render(row)
-                              : row[col.key]}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </>
-                ) : (
-                  <tr>
-                    <td colSpan={columns.length} className="text-center">
-                      No users found
-                    </td>
-                  </tr>
-                )}
+                            >
+                              {typeof col.render === "function"
+                                ? col.render(row)
+                                : row[col.key]}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </>
+                  )
+                  //   : (
+                  // <tr className="">
+                  //   {/* <td colSpan={columns.length} className="text-center">
+                  //     No users found
+                  //   </td> */}
+                  //   <td
+                  //     colSpan={columns.length}
+                  //     className={`text-center mt-[50vh]
+
+                  //     `}
+                  //   >
+                  //     {/* <p className="text-gray-600 text-center w-full h-full"> */}
+                  //     No users found
+                  //     {/* </p> */}
+                  //   </td>
+                  // </tr>
+                  //   )
+                }
               </tbody>
             </table>
+          )}
+
+          {!isArrayWithValues(users) && (
+            <div className="flex-1 h-full w-full flex justify-center items-center">
+              <p className="text-md">No User found</p>
+            </div>
           )}
         </div>
 

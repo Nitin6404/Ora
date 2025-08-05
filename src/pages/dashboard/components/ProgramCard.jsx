@@ -7,19 +7,51 @@ import {
   CircleCheckBig,
   Clock3,
 } from "lucide-react";
+import { formatDate } from "../../../utils/format_date";
+import { useNavigate } from "react-router-dom";
 
 const ProgramCard = ({ program, onprogramClick }) => {
+  const navigate = useNavigate();
+  const dropdownRef = React.useRef(null);
+  const [open, setOpen] = React.useState(false);
   const programId = program.id;
   const status = program.status || "Inactive";
   const flagged = program.flagged || false;
-  const sessionCount = program.number_of_sessions || 0;
+  const currentSession = program?.current_session?.session_number || 0;
+  const totalSessions = program?.number_of_sessions || 0;
+  const lastSession = program?.current_session?.last_session;
+  const breaksTaken = program?.program?.breaks_taken;
+  const isEditable = program.is_editable || false;
 
   const getStatusColor = (status, flagged) => {
     if (flagged) return "bg-red-100 text-red-700";
     if (status === "Completed") return "bg-[#70eba8] text-green-700";
     if (status === "Active") return "bg-[#d6d7db] text-[#333]";
     if (status === "In Progress") return "bg-yellow-100 text-yellow-700";
+    if (status === "Flagged") return "bg-red-100 text-red-700";
     return "bg-gray-100 text-gray-700";
+  };
+
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        !event.target.closest(".menu-toggle")
+      ) {
+        setOpen(false);
+      }
+    };
+
+    // Use pointerdown instead of mousedown!
+    document.addEventListener("pointerdown", handleClickOutside);
+    return () => {
+      document.removeEventListener("pointerdown", handleClickOutside);
+    };
+  }, []);
+
+  const handleEditProgram = (id) => {
+    navigate(`/assign/edit/${id}`);
   };
 
   return (
@@ -43,21 +75,43 @@ const ProgramCard = ({ program, onprogramClick }) => {
               {status === "In Progress" && (
                 <Clock3 className="w-[1rem] h-[1rem]" />
               )}
+              {status === "Flagged" && (
+                <AlertTriangle className="w-[1rem] h-[1rem]" />
+              )}
             </div>
             <span className="pr-[0.75rem] pl-[0.25rem]">{status}</span>
           </span>
-          <EllipsisVertical className="w-[1.25rem] h-[1.25rem] text-gray-600" />
+          {isEditable && (
+            <div className="relative">
+              <EllipsisVertical
+                size={20}
+                className="text-gray-400 cursor-pointer menu-toggle"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpen((prev) => !prev);
+                }}
+              />
+              {open && (
+                <div
+                  ref={dropdownRef}
+                  className="absolute top-3 right-0 z-10 mt-2 w-36 bg-white rounded-md shadow-lg p-1 dropdown"
+                >
+                  <button
+                    onClick={() => handleEditProgram(program.id)}
+                    className="block w-full text-left px-2 py-1 hover:bg-gray-100"
+                  >
+                    Edit Assign
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Progress Bar */}
       <div className="flex items-center justify-between gap-[0.5rem] py-[0.5rem]">
-        <span>
-          {status === "Completed"
-            ? "100%"
-            : ((program.number_of_sessions / 3) * 100).toFixed(0)}
-          %
-        </span>
+        <span>{`${((currentSession / totalSessions) * 100).toFixed(0)}%`}</span>
         <div className="w-full flex items-center justify-between bg-gray-100 h-[0.5rem] rounded-full">
           <div
             className={` h-full rounded-full
@@ -67,10 +121,7 @@ const ProgramCard = ({ program, onprogramClick }) => {
             ${status === "Flagged" && "bg-red-400"}
             `}
             style={{
-              width:
-                status === "Completed"
-                  ? "100%"
-                  : `${((program.number_of_sessions / 3) * 100).toFixed(0)}%`,
+              width: `${((currentSession / totalSessions) * 100).toFixed(0)}%`,
             }}
           />
         </div>
@@ -90,7 +141,19 @@ const ProgramCard = ({ program, onprogramClick }) => {
           )}
         </div>
         <div className="ml-auto text-sm bg-[#f8f7fd] px-3 py-1.5 rounded-full">
-          {program.mood_status || "😐 Sad"}
+          {(() => {
+            const mood = program.current_session.mood;
+
+            if (!mood) return "N/A";
+
+            let emoji = "";
+            if (mood.toLowerCase() === "sad") emoji = "😢";
+            else if (mood.toLowerCase() === "happy") emoji = "😄";
+            else if (mood.toLowerCase() === "depressed") emoji = "😟";
+            else emoji = ""; // default emoji for other moods
+
+            return `${emoji} ${mood}`;
+          })()}
         </div>{" "}
         {/* mood_status is null; fallback */}
       </div>
@@ -152,22 +215,24 @@ const ProgramCard = ({ program, onprogramClick }) => {
           <div className="flex flex-col justify-between font-medium">
             <span>Current Session</span>
             <span className="px-4 py-1.5 rounded-full bg-[#f2f0fd] text-center mt-2 text-[#7670b8]">
-              {program.number_of_sessions + " of 3" || "N/A"}
+              {currentSession + " of " + totalSessions || "N/A"}
             </span>
           </div>
           <div className="w-[1.5px] h-12 bg-gray-200" />
           <div className="flex flex-col justify-between font-medium">
             <span>Break Taken</span>
             <span className="px-4 py-1.5 rounded-full bg-[#eff8ff] text-center mt-2 text-[#5d84a3]">
-              {program.exits || "2 Breaks"}
+              {breaksTaken + " Breaks"}
             </span>
           </div>
         </div>
         <div className="border-b-2 border-gray-200 mt-3"></div>
         <div className="py-2 text-xs font-semibold text-[#3a3c48] flex justify-between items-center">
-          <span>Last Session: {program.last_session || "May 20, 2025"}</span>
+          <span>Last Session: {formatDate(lastSession) || "N/A"}</span>
           <img
-            onClick={() => onprogramClick(program.id)}
+            onClick={() =>
+              onprogramClick(`${program.patient.id}/${program.program.id}/`)
+            }
             className="cursor-pointer"
             src="/tilde-icon.png"
             alt=""

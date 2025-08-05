@@ -21,7 +21,7 @@ const AssignCard = ({ assign, onAssignClick }) => {
   const sessionCount = assign.number_of_sessions || 0;
   const totalSession = assign.number_of_sessions || 0;
   const currentSession = assign.current_session.session_number || 0;
-  const progress = (currentSession / totalSession) * 100 || 0;
+  const progress = ((currentSession / totalSession) * 100).toFixed(0) || 0;
   const breaksTaken = assign?.program?.breaks_taken || 0;
   const isEditable = assign.is_editable || false;
   const mood = assign?.current_session?.mood;
@@ -31,6 +31,7 @@ const AssignCard = ({ assign, onAssignClick }) => {
     if (status === "Completed") return "bg-[#70eba8] text-green-700";
     if (status === "Active") return "bg-[#d6d7db] text-[#333]";
     if (status === "In Progress") return "bg-yellow-100 text-yellow-700";
+    if (status === "Flagged") return "bg-red-100 text-red-700";
     return "bg-gray-100 text-gray-700";
   };
 
@@ -77,6 +78,9 @@ const AssignCard = ({ assign, onAssignClick }) => {
               {status === "In Progress" && (
                 <Clock3 className="w-[1rem] h-[1rem]" />
               )}
+              {status === "Flagged" && (
+                <AlertTriangle className="w-[1rem] h-[1rem]" />
+              )}
             </div>
             <span className="pr-[0.75rem] pl-[0.25rem]">{status}</span>
           </span>
@@ -104,7 +108,7 @@ const AssignCard = ({ assign, onAssignClick }) => {
                     }}
                   >
                     <Pencil size={20} className="text-gray-400" />
-                    <span>Edit Program</span>
+                    <span>Edit Assign</span>
                   </button>
                 </div>
               )}

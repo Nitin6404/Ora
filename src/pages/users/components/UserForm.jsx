@@ -40,11 +40,15 @@ const UserForm = ({
         message: "Phone number must be 10 digits",
       }),
 
-    password: z
-      .string({
-        required_error: "Password is required",
-      })
-      .min(3, "Password must be at least 3 characters long"),
+    ...(formType !== "edit"
+      ? {
+          password: z
+            .string({
+              required_error: "Password is required",
+            })
+            .min(3, "Password must be at least 3 characters long"),
+        }
+      : {}),
 
     gender: z.string().min(1, "Gender is required"),
 
@@ -88,12 +92,6 @@ const UserForm = ({
       placeholder: "Enter phone",
     },
     {
-      id: "password",
-      label: "Password",
-      type: "password",
-      placeholder: "Enter password",
-    },
-    {
       id: "gender",
       label: "Gender",
       type: "select",
@@ -108,6 +106,15 @@ const UserForm = ({
       options: rolesColumn,
     },
   ];
+
+  if (formType !== "edit") {
+    inputFields.push({
+      id: "password",
+      label: "Password",
+      type: "password",
+      placeholder: "Enter password",
+    });
+  }
 
   const renderField = ({ id, label, type, placeholder, options = [] }) => {
     if (type === "select") {

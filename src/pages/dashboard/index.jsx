@@ -19,9 +19,9 @@ import { debounce } from "lodash";
 import { useMemo } from "react";
 import DateRangeModal from "../../components/DateRangeModal";
 import { useQueryClient } from "@tanstack/react-query";
-import { Trash2, Edit2 } from "lucide-react";
 import { formatDateForAPI } from "../../utils/format_date_for_api";
 import getMoveTrends from "./helpers/getMoveTrends";
+import AssignModal from "../assign/components/AssignModal";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -29,6 +29,7 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("All");
   const [filterOptions, setFilterOptions] = useState(DASHBOARD_FILTER_OPTIONS);
 
+  const [assignId, setAssignId] = useState(null);
   const [search, setSearch] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -47,8 +48,8 @@ const Dashboard = () => {
 
   const param = useMemo(() => {
     return {
-      status: activeTab === "All" || activeTab === "Flagged" ? "" : activeTab,
-      flag: activeTab === "Flagged" ? "Flagged" : "",
+      status: activeTab,
+      // flag: activeTab === "Flagged" ? "Flagged" : "",
       search: searchTerm || "",
       start_date: startDate ? formatDateForAPI(startDate) : "",
       end_date: endDate ? formatDateForAPI(endDate) : "",
@@ -110,9 +111,11 @@ const Dashboard = () => {
     setFilterOptions(DASHBOARD_FILTER_OPTIONS);
     setPage(1);
     setSearch("");
+    setSearchTerm("");
     setDebouncedSearch("");
     setStartDate("");
     setEndDate("");
+    handleSearchChange("");
   };
 
   const sessionDuration = isObjectWithValues(stats?.duration_buckets)
@@ -168,12 +171,13 @@ const Dashboard = () => {
                 searchPlaceholder={`Search ${
                   filterOptions.find((option) => option.isActive).id
                 }...`}
-                onAddClick={() => navigate("/programs/addprogram")}
+                onAddClick={() => navigate("/assign/assignprogram")}
                 addButtonText="Assign Program"
                 startDate={startDate}
                 endDate={endDate}
                 onDateSelect={() => setShowDateRange(true)} // Open modal
                 handleReset={handleReset}
+                isDashboard={true}
               />
             </div>
 
@@ -188,7 +192,14 @@ const Dashboard = () => {
                     key={index}
                     className="flex-shrink-0 w-[260px] md:w-[315px] overflow-hidden rounded-3xl"
                   >
-                    <ProgramCard program={program} />
+                    <ProgramCard
+                      program={program}
+                      onprogramClick={(id) => {
+                        if (assignId !== id) {
+                          setAssignId(id);
+                        }
+                      }}
+                    />
                   </div>
                 ))
               ) : (
@@ -200,6 +211,17 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {assignId && (
+        <>
+          <AssignModal
+            isOpen={!!assignId}
+            onClose={() => setAssignId(null)}
+            assignId={assignId}
+          />
+          <div className="absolute inset-0 backdrop-blur-2xl bg-white/20 w-full h-full z-[70]" />
+        </>
+      )}
 
       {showDateRange && (
         <DateRangeModal

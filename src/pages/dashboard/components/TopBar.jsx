@@ -37,12 +37,12 @@ const TopBar = ({ name }) => {
           </p>
         </div>
         <div className="hidden lg:flex items-center space-x-4">
-          <button className="p-2 rounded-full bg-transparent">
+          {/* <button className="p-2 rounded-full bg-transparent">
             <Bell className="w-5 h-5 " />
           </button>
           <button className="p-2 rounded-full ">
             <Settings className="w-5 h-5 text-gray-600" />
-          </button>
+          </button> */}
           <div className="relative">
             <button
               className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden border-2 border-gray-300"
@@ -88,14 +88,14 @@ const TopBar = ({ name }) => {
           </button>
           {open && (
             <div className="absolute right-0 mt-2 rounded shadow p-2 w-32 z-10 bg-white">
-              <button className="flex items-center space-x-2 p-1 text-sm w-full text-left">
+              {/* <button className="flex items-center space-x-2 p-1 text-sm w-full text-left">
                 <Bell className="w-4 h-4" />
                 <span>Notifications</span>
               </button>
               <button className="flex items-center space-x-2 p-1 text-sm w-full text-left">
                 <Settings className="w-4 h-4" />
                 <span>Settings</span>
-              </button>
+              </button> */}
               <button
                 className="flex items-center space-x-2 p-1 text-sm w-full text-left"
                 onClick={handleLogout}

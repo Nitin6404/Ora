@@ -103,6 +103,7 @@ export default function AddUser() {
           showPassword={showPassword}
           handlePasswordVisibility={handlePasswordVisibility}
           navigate={navigate}
+          formType="add"
         />
       </div>
     </Navigation>

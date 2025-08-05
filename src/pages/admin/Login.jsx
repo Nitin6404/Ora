@@ -9,6 +9,8 @@ import { useNavigate } from "react-router-dom";
 import api from "../../services/loginService";
 import { LOGIN_ENDPOINT } from "../../config/apiConfig";
 import "./LoginButton.css";
+import { toast, ToastContainer } from "react-toastify";
+
 const images = [pic1, pic2, pic3];
 export default function NewLogin() {
   const [currentImage, setCurrentImage] = useState(0);
@@ -58,7 +60,7 @@ export default function NewLogin() {
       setErrors(newErrors);
       return;
     }
-console.log('execute');
+    console.log("execute");
     setErrors({});
 
     setLoading(true);
@@ -82,7 +84,7 @@ console.log('execute');
 
       // Save token and user info in localStorage
       localStorage.setItem("token", token);
-      localStorage.setItem('refresh', refresh); 
+      localStorage.setItem("refresh", refresh);
       localStorage.setItem("role_name", role_name);
       localStorage.setItem(
         "user",
@@ -103,7 +105,8 @@ console.log('execute');
       }
     } catch (error) {
       console.error("Login error:", error.response?.data || error.message);
-      alert("Login failed. Please check your credentials.");
+      // Delay to show
+      toast.error("Login failed. Please check your credentials.");
     } finally {
       setLoading(false);
     }
@@ -111,6 +114,7 @@ console.log('execute');
 
   return (
     <div className="flex flex-col lg:flex-row h-screen overflow-hidden bg-[#ededf9]">
+      <ToastContainer />
       {/* Left slideshow section */}
       <div className="w-full lg:w-[65%] relative h-64 lg:h-full">
         {images.map((img, index) => (
@@ -324,4 +328,3 @@ console.log('execute');
     </div>
   );
 }
-  

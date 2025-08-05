@@ -37,7 +37,7 @@ const SessionPerformanceChart = ({
         <h3 className="text-base lg:text-lg font-bold text-gray-800">
           Session Performance
         </h3>
-        {isMobile ? (
+        {/* {isMobile ? (
           <div className="relative">
             <button className="p-2 rounded-full bg-transparent">
               <EllipsisVertical className="w-5 h-5" />
@@ -47,7 +47,7 @@ const SessionPerformanceChart = ({
           <div className="text-sm text-[#9994e6] hover:underline hover:cursor-pointer">
             See more
           </div>
-        )}
+        )} */}
       </div>
 
       <div className="flex md:flex-row flex-col items-center">
@@ -100,23 +100,29 @@ const SessionPerformanceChart = ({
 
         <div className="grid grid-rows-3 md:gap-2 gap-4 mt-2 lg:mt-4">
           <div className="text-start flex justify-between items-center space-x-5">
-            <div className="w-2 h-full bg-[#938cf1] rounded-md" />
-            <div className="text-sm text-gray-600">
-              Total <br /> Sessions
+            <div className="flex gap-2 items-center h-full">
+              <div className="w-2 h-full bg-[#938cf1] rounded-md" />
+              <div className="text-sm text-gray-600">
+                Total <br /> Sessions
+              </div>
             </div>
             <div className="text-2xl font-bold ">{totalSessions}</div>
           </div>
           <div className="text-start flex justify-between items-center space-x-5">
-            <div className="w-2 h-full bg-[#69e8a7] rounded-md" />
-            <div className="text-sm text-gray-600">
-              Session <br /> Completed
+            <div className="flex gap-2 items-center h-full">
+              <div className="w-2 h-full bg-[#69e8a7] rounded-md" />
+              <div className="text-sm text-gray-600">
+                Session <br /> Completed
+              </div>
             </div>
             <div className="text-2xl font-bold ">{sessionCompleted}</div>
           </div>
           <div className="text-start flex justify-between items-center space-x-5">
-            <div className="w-2 h-full bg-[#faa499] rounded-md" />
-            <div className="text-sm text-gray-600">
-              Distress Flags <br /> Raised
+            <div className="flex gap-2 items-center h-full">
+              <div className="w-2 h-full bg-[#faa499] rounded-md" />
+              <div className="text-sm text-gray-600">
+                Distress Flags <br /> Raised
+              </div>
             </div>
             <div className="text-2xl font-bold ">{distressRaised}</div>
           </div>

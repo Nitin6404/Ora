@@ -31,6 +31,7 @@ const FilterTopBar = ({
   addButtonText = "Add New",
   searchPlaceholder = "Search...",
   handleReset,
+  isDashboard = false,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showSearchInput, setShowSearchInput] = useState(false);
@@ -44,11 +45,17 @@ const FilterTopBar = ({
   const handleResetFilter = () => {
     if (handleReset) {
       handleReset();
+      setSearchTerm("");
+      setShowSearchInput(false);
     } else window.location.reload();
   };
 
   return (
-    <div className="w-full backdrop-blur-sm bg-white/10 rounded-t-[1.875rem] overflow-x-auto no-scrollbar pt-2 px-2">
+    <div
+      className={`w-full backdrop-blur-sm bg-white/10 overflow-x-auto no-scrollbar px-2
+        ${isDashboard ? "rounded-[1.875rem] py-2" : "rounded-t-[1.875rem] pt-2"}
+        `}
+    >
       <div className="bg-white p-1 rounded-[1.875rem] flex flex-row items-center justify-between overflow-x-auto lg:gap-4 md:gap-2 gap-1 w-full no-scrollbar">
         {/* Filter Buttons */}
         <div className="flex items-center lg:gap-2 md:gap-1 gap-1">

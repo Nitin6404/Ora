@@ -50,10 +50,13 @@ export default function EditUser() {
     mutationFn: updateUser,
     onSuccess: () => {
       toast.success("User updated successfully!");
-      navigate("/users");
+      setTimeout(() => {
+        navigate("/users");
+      }, 1500);
     },
     onError: (error) => {
-      toast.error(error || "Failed to update user.");
+      const errorMessage = Object.values(error)[0];
+      toast.error(errorMessage[0] || "Failed to update user.");
     },
   });
 
@@ -76,7 +79,7 @@ export default function EditUser() {
       !formData.date_of_birth ||
       !formData.email ||
       !formData.phone_no ||
-      !formData.password ||
+      // !formData.password ||
       !formData.gender ||
       !formData.role_ids
     ) {
@@ -93,13 +96,13 @@ export default function EditUser() {
       multipartData.append("date_of_birth", formData.date_of_birth);
       multipartData.append("email", formData.email);
       multipartData.append("phone_no", formData.phone_no);
-      multipartData.append("password", formData.password);
+      // multipartData.append("password", formData.password);
       multipartData.append("gender", formData.gender);
       multipartData.append("role_ids", formData.role_ids);
       updateUserMutation.mutate({ id, formData: multipartData });
     } catch (err) {
-      console.error("❌ Upload error:", err.response?.data || err.message);
-      toast.error("Failed to update user.");
+      const errorMessage = Object.values(err)[0];
+      toast.error(errorMessage[0] || "Failed to update user.");
     } finally {
       setLoading(false);
     }
