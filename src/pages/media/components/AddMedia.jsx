@@ -18,6 +18,12 @@ export default function AddMedia() {
     type: "mp3" || "mp4",
     file: null,
   });
+  const [errors, setErrors] = useState({
+    title: "",
+    type: "",
+    file: "",
+  });
+
   const uploaderRef = useRef(null);
 
   const uploadAudioMutation = useMutation({
@@ -61,29 +67,89 @@ export default function AddMedia() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.title || !formData.type || !formData.file) {
-      toast.error("Please fill all the fields!");
-      return;
+    const { title, type, file } = formData;
+    const newErrors = { title: "", type: "", file: "" };
+
+    let hasError = false;
+
+    // Title
+    if (!title.trim()) {
+      newErrors.title = "Title is required.";
+      hasError = true;
     }
 
-    if (
-      formData.file.type !== "audio/mp3" &&
-      formData.file.type !== "video/mp4" &&
-      formData.file.type !== "audio/mpeg"
-    ) {
-      toast.error("Invalid file type!");
+    // Type
+    if (!type) {
+      newErrors.type = "Media type is required.";
+      hasError = true;
+    }
+
+    // File
+    if (!file) {
+      newErrors.file = "Please upload a media file.";
+      hasError = true;
+    } else {
+      const fileType = file.type;
+      const fileSizeMB = file.size / (1024 * 1024); // in MB
+
+      // Supported MIME types
+      const validAudioTypes = [
+        "audio/mp3",
+        "audio/mpeg",
+        "audio/wav",
+        "audio/x-wav",
+        "audio/ogg",
+        "audio/webm",
+        "audio/aac",
+        "audio/flac",
+      ];
+
+      const validVideoTypes = [
+        "video/mp4",
+        "video/webm",
+        "video/ogg",
+        "video/x-matroska", // .mkv
+        "video/quicktime", // .mov
+        "video/x-msvideo", // .avi
+      ];
+
+      if (type === "mp3") {
+        if (!validAudioTypes.includes(fileType)) {
+          newErrors.file =
+            "Invalid audio format. Supported: MP3, WAV, OGG, AAC, FLAC.";
+          hasError = true;
+        } else if (fileSizeMB > 10) {
+          newErrors.file = "Audio size must be ≤ 10 MB.";
+          hasError = true;
+        }
+      } else if (type === "mp4") {
+        if (!validVideoTypes.includes(fileType)) {
+          newErrors.file =
+            "Invalid video format. Supported: MP4, MKV, MOV, AVI, WEBM.";
+          hasError = true;
+        } else if (fileSizeMB > 500) {
+          newErrors.file = "Video size must be ≤ 500 MB.";
+          hasError = true;
+        }
+      }
+    }
+
+    setErrors(newErrors);
+
+    if (hasError) {
+      // toast.error("Please fix the errors before submitting.");
       return;
     }
 
     try {
       const multipartData = new FormData();
-      multipartData.append("title", formData.title);
-      multipartData.append("type", formData.type);
-      multipartData.append("file", formData.file);
-      if (formData.type === "mp3") uploadAudioMutation.mutate(multipartData);
-      else if (formData.type === "mp4") {
-        uploadVideoMutation.mutate(formData);
-      }
+      multipartData.append("title", title);
+      multipartData.append("type", type);
+      multipartData.append("file", file);
+
+      if (type === "mp3") uploadAudioMutation.mutate(multipartData);
+      else if (type === "mp4") uploadVideoMutation.mutate(formData);
+
       uploaderRef.current.reset();
     } catch (err) {
       console.error("❌ Upload error:", err.response?.data || err.message);
@@ -91,9 +157,10 @@ export default function AddMedia() {
     } finally {
       setFormData({
         title: "",
-        type: "mp3" || "mp4",
+        type: "mp3",
         file: null,
       });
+      setErrors({ title: "", type: "", file: "" });
     }
   };
 
@@ -113,6 +180,7 @@ export default function AddMedia() {
           loading={loading}
           navigate={navigate}
           uploaderRef={uploaderRef}
+          errors={errors}
         />
       </div>
     </Navigation>
@@ -137,6 +205,7 @@ const AddMediaForm = ({
   loading,
   navigate,
   uploaderRef,
+  errors,
 }) => (
   <div className="bg-white/30 mx-2 px-4 rounded-xl h-[92%] flex flex-col justify-between">
     <div className="space-y-6">
@@ -161,6 +230,9 @@ const AddMediaForm = ({
                 placeholder="Enter media title"
               />
             </div>
+            {errors.title && (
+              <p className="text-red-500 text-xs mt-1">{errors.title}</p>
+            )}
           </div>
           <div className="col-span-2 md:col-span-1">
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -170,12 +242,17 @@ const AddMediaForm = ({
               // label="Media Type"
               options={MEDIA_TYPE}
               selected={
-                MEDIA_TYPE.find((item) => item.value === formData.type)?.name
+                MEDIA_TYPE.find((item) => item.value === formData.type)?.name ||
+                "Select Media Type"
               }
               onSelect={(item) =>
                 setFormData({ ...formData, type: item.value })
               }
+              onRemove={() => setFormData({ ...formData, type: "" })}
             />
+            {errors.type && (
+              <p className="text-red-500 text-xs mt-1">{errors.type}</p>
+            )}
           </div>
         </div>
         <div className="col-span-2 md:col-span-1">
@@ -185,8 +262,17 @@ const AddMediaForm = ({
           <CustomFileUploader
             ref={uploaderRef}
             defaultTitle="Upload Media File"
+            description={`Allowed file types: ${
+              formData.type === "mp3"
+                ? "MP3, WAV, OGG, AAC, FLAC."
+                : "MP4, MKV, MOV, AVI, WEBM."
+            }`}
+            sizeLimit={formData.type === "mp3" ? 10 : 500}
             onFileSelect={(file) => setFormData({ ...formData, file })}
           />
+          {errors.file && (
+            <p className="text-red-500 text-xs mt-1">{errors.file}</p>
+          )}
         </div>
       </div>
     </div>

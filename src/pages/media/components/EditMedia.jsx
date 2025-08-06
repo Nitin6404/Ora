@@ -13,18 +13,23 @@ import getMediaById from "../helpers/getMediaById";
 import PrimaryLoader from "../../../components/PrimaryLoader";
 
 export default function EditMedia() {
-  // state from navigation
   const location = useLocation();
-  const [formData, setFormData] = useState({
-    title: "",
-    type: location.state.type,
-    file: null, // could be File or URL string
-    isFileChanged: false, // NEW: to track if user uploaded new file
-  });
-
-  const uploaderRef = useRef(null);
   const { id } = useParams();
   const navigate = useNavigate();
+  const uploaderRef = useRef(null);
+
+  const [formData, setFormData] = useState({
+    title: "",
+    type: location.state.type || "",
+    file: null,
+    isFileChanged: false,
+  });
+
+  const [errors, setErrors] = useState({
+    title: "",
+    type: "",
+    file: "",
+  });
 
   const { data: media, isLoading: fetching } = useQuery({
     queryKey: ["media", id],
@@ -38,7 +43,7 @@ export default function EditMedia() {
       setFormData((prev) => ({
         ...prev,
         title: media.title,
-        type: media.type === "mp3" ? "mp3" : "mp4",
+        type: media.type,
         file: media.type === "mp3" ? media.audio_s3_url : media.video_s3_url,
         isFileChanged: false,
       }));
@@ -49,10 +54,12 @@ export default function EditMedia() {
     mutationFn: updateMedia,
     onSuccess: () => {
       toast.success("Media updated successfully!");
-      navigate("/media");
+      setTimeout(() => {
+        navigate("/media");
+      }, 1500);
     },
     onError: (err) => {
-      toast.error(err?.message || "Failed to update media.");
+      toast.error(err || "Failed to update media.");
     },
   });
 
@@ -61,38 +68,89 @@ export default function EditMedia() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async () => {
-    if (!formData.title || !formData.type) {
-      toast.error("Please fill all the fields!");
-      return;
+  const validateForm = () => {
+    const { title, type, file, isFileChanged } = formData;
+    const newErrors = { title: "", type: "", file: "" };
+    let hasError = false;
+
+    if (!title.trim()) {
+      newErrors.title = "Title is required.";
+      hasError = true;
     }
 
-    // Only check file type if file is changed
-    if (
-      formData.isFileChanged &&
-      formData.file &&
-      !["audio/mp3", "audio/mpeg", "video/mp4"].includes(formData.file.type)
-    ) {
-      toast.error("Invalid file type!");
-      return;
+    if (!type) {
+      newErrors.type = "Media type is required.";
+      hasError = true;
     }
+
+    if (isFileChanged && file instanceof File) {
+      const fileType = file.type;
+      const fileSizeMB = file.size / (1024 * 1024);
+
+      const validAudioTypes = [
+        "audio/mp3",
+        "audio/mpeg",
+        "audio/wav",
+        "audio/x-wav",
+        "audio/ogg",
+        "audio/webm",
+        "audio/aac",
+        "audio/flac",
+      ];
+
+      const validVideoTypes = [
+        "video/mp4",
+        "video/webm",
+        "video/ogg",
+        "video/x-matroska",
+        "video/quicktime",
+        "video/x-msvideo",
+      ];
+
+      if (type === "mp3") {
+        if (!validAudioTypes.includes(fileType)) {
+          newErrors.file =
+            "Invalid audio format. Supported: MP3, WAV, OGG, AAC, FLAC.";
+          hasError = true;
+        } else if (fileSizeMB > 10) {
+          newErrors.file = "Audio size must be ≤ 10 MB.";
+          hasError = true;
+        }
+      } else if (type === "mp4") {
+        if (!validVideoTypes.includes(fileType)) {
+          newErrors.file =
+            "Invalid video format. Supported: MP4, MKV, MOV, AVI, WEBM.";
+          hasError = true;
+        } else if (fileSizeMB > 500) {
+          newErrors.file = "Video size must be ≤ 500 MB.";
+          hasError = true;
+        }
+      }
+    }
+
+    setErrors(newErrors);
+    return !hasError;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
 
     try {
       const multipartData = new FormData();
       multipartData.append("title", formData.title);
       multipartData.append("type", formData.type);
 
-      // Only include file if it's changed
       if (formData.isFileChanged && formData.file instanceof File) {
         multipartData.append("file", formData.file);
       }
-      // Send update
+
       updateMediaMutation.mutate({
         id,
         type: formData.type,
         data: multipartData,
       });
     } catch (err) {
+      console.log(err);
       toast.error("Something went wrong.");
     }
   };
@@ -103,7 +161,6 @@ export default function EditMedia() {
       <UniversalTopBar isAdd addTitle="Edit Media" backPath="/media" />
       <div className="h-full flex flex-col py-2 bg-white/30 m-2 p-2 rounded-2xl gap-2">
         <BreadCrumb />
-
         <EditMediaForm
           formData={formData}
           setFormData={setFormData}
@@ -113,6 +170,7 @@ export default function EditMedia() {
           fetching={fetching}
           uploaderRef={uploaderRef}
           navigate={navigate}
+          errors={errors}
         />
       </div>
     </Navigation>
@@ -136,6 +194,7 @@ const EditMediaForm = ({
   fetching,
   uploaderRef,
   navigate,
+  errors,
 }) => (
   <div className="bg-white/30 mx-2 px-4 rounded-xl h-[92%] flex flex-col justify-between">
     <div className="space-y-6">
@@ -150,41 +209,46 @@ const EditMediaForm = ({
         ) : (
           <>
             <div className="col-span-2 md:col-span-1">
-              <div className="col-span-2 md:col-span-1">
-                <label
-                  htmlFor="title"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Title
-                </label>
-                <div className="input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8">
-                  <input
-                    id="title"
-                    name="title"
-                    type="text"
-                    value={formData.title}
-                    onChange={handleChange}
-                    className="input-field w-full"
-                    placeholder="Enter media title"
-                  />
-                </div>
-              </div>
-              <div className="col-span-2 md:col-span-1">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Media Type
-                </label>
-                <CustomDropdown
-                  options={MEDIA_TYPE}
-                  selected={
-                    MEDIA_TYPE.find((item) => item.value === formData.type)
-                      ?.name
-                  }
-                  onSelect={(item) =>
-                    setFormData({ ...formData, type: item.value })
-                  }
+              <label
+                htmlFor="title"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Title
+              </label>
+              <div className="input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8">
+                <input
+                  id="title"
+                  name="title"
+                  type="text"
+                  value={formData.title}
+                  onChange={handleChange}
+                  className="input-field w-full"
+                  placeholder="Enter media title"
                 />
               </div>
+              {errors.title && (
+                <p className="text-red-500 text-xs mt-1">{errors.title}</p>
+              )}
+
+              <label className="block text-sm font-medium text-gray-700 mb-1 mt-4">
+                Media Type
+              </label>
+              <CustomDropdown
+                options={MEDIA_TYPE}
+                selected={
+                  MEDIA_TYPE.find((item) => item.value === formData.type)
+                    ?.name || "Select Media Type"
+                }
+                onSelect={(item) =>
+                  setFormData({ ...formData, type: item.value })
+                }
+                onRemove={() => setFormData({ ...formData, type: "" })}
+              />
+              {errors.type && (
+                <p className="text-red-500 text-xs mt-1">{errors.type}</p>
+              )}
             </div>
+
             <div className="col-span-2 md:col-span-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Replace File (optional)
@@ -192,11 +256,20 @@ const EditMediaForm = ({
               <CustomFileUploader
                 ref={uploaderRef}
                 defaultTitle="Upload Media File"
+                description={`Allowed file types: ${
+                  formData.type === "mp3"
+                    ? "MP3, WAV, OGG, AAC, FLAC."
+                    : "MP4, MKV, MOV, AVI, WEBM."
+                }`}
+                sizeLimit={formData.type === "mp3" ? 10 : 500}
                 initialImage={formData.file}
                 onFileSelect={(file) =>
                   setFormData({ ...formData, file, isFileChanged: true })
                 }
               />
+              {errors.file && (
+                <p className="text-red-500 text-xs mt-1">{errors.file}</p>
+              )}
             </div>
           </>
         )}

@@ -22,7 +22,7 @@ import { isArrayWithValues } from "../../utils/isArrayWithValues";
 import { debounce } from "lodash";
 import PlayPauseIcon from "./components/PlayPauseIcon";
 import { EllipsisVertical, Edit2, Trash2 } from "lucide-react";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 const MediaPage = () => {
   const navigate = useNavigate();
@@ -198,11 +198,14 @@ const MediaPage = () => {
         ? deleteAudio(id)
         : deleteVideo(id),
     onSuccess: () => {
+      console.log("sicess");
       toast.success("Media deleted successfully");
-      queryClient.invalidateQueries({ queryKey });
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey });
+      }, 1500);
     },
     onError: (error) => {
-      toast.error("Failed to delete media");
+      toast.error(error || "Failed to delete media");
     },
   });
 
@@ -254,6 +257,7 @@ const MediaPage = () => {
 
   return (
     <Navigation>
+      <ToastContainer />
       <div className="h-full flex flex-col p-2">
         <UniversalTopBar defaultTitle="Media" />
 
