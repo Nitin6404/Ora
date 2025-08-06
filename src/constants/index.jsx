@@ -174,9 +174,9 @@ const USER_COLUMN = [
   {
     key: "role_names",
     label: "Role",
-    render: (p) => p.role_names.join(", ") || "NA",
+    render: (p) => snakeToCamel(p.role_names.join(", ")) || "NA",
   },
-  { key: "gender", label: "Gender", render: (p) => p.gender || "NA" },
+  { key: "gender", label: "Gender", render: (p) => p.gender || "N/A" },
   {
     key: "date_of_birth",
     label: "DOB",
@@ -269,4 +269,8 @@ export {
   USERS_FILTER_OPTIONS,
   DASHBOARD_FILTER_OPTIONS,
   EDIT_DECISION_FLOW_BREADCRUMBS,
+};
+
+const snakeToCamel = (str) => {
+  return str.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 };

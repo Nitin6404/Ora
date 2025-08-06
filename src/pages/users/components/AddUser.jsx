@@ -19,6 +19,7 @@ export default function AddUser() {
     password: "",
     gender: "",
     role_ids: [],
+    profile_image: null,
   });
 
   const createUserMutation = useMutation({
@@ -74,6 +75,9 @@ export default function AddUser() {
       multipartData.append("password", formData.password);
       multipartData.append("gender", formData.gender);
       multipartData.append("role_ids", formData.role_ids);
+      if (formData.profile_image) {
+        multipartData.append("profile_image", formData.profile_image);
+      }
       createUserMutation.mutate(multipartData);
     } catch (err) {
       const errorMessage = Object.values(err)[0];
@@ -99,7 +103,7 @@ export default function AddUser() {
           setFormData={setFormData}
           handleChange={handleChange}
           handleSubmit={handleSubmit}
-          loading={loading}
+          loading={createUserMutation.isPending}
           showPassword={showPassword}
           handlePasswordVisibility={handlePasswordVisibility}
           navigate={navigate}

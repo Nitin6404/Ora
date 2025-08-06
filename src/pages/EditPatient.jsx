@@ -73,12 +73,10 @@ export default function EditPatient() {
         if (value !== null) multipartData.append(key, value);
       });
 
-      console.log(multipartData);
       const response = await axiosInstance.put(
         `${API_URL_PUT}${id}/`,
         multipartData
       );
-      console.log(response);
 
       toast.success("Patient updated successfully!");
       navigate("/patients");

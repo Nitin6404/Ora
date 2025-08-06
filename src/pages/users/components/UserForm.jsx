@@ -1,3 +1,4 @@
+import React from "react";
 import { ChevronLeft } from "lucide-react";
 import { GENDER_DROPDOWN } from "../../../constants";
 import CustomDropdown from "../../../components/CustomDropDown";
@@ -7,6 +8,7 @@ import PasswordEye from "../../../components/PasswordEye";
 import { z } from "zod";
 import { useState } from "react";
 import toTitleCase from "../../../utils/to_title_case";
+import CustomFileUploader from "../../../components/CustomFileUploader";
 
 const UserForm = ({
   formData,
@@ -19,6 +21,8 @@ const UserForm = ({
   navigate,
   formType,
 }) => {
+  const [isDesktop, setIsDesktop] = React.useState(window.innerWidth > 1024);
+
   const [errors, setErrors] = useState({});
   const { data: roles = [] } = useQuery({
     queryKey: ["roles"],
@@ -31,7 +35,6 @@ const UserForm = ({
     last_name: z.string().min(1, "Last name is required"),
     date_of_birth: z.string().min(1, "Date of birth is required"),
     email: z.string().email("Invalid email address"),
-
     // Coerce string to number safely for phone number
     phone_no: z
       .string()
@@ -39,19 +42,20 @@ const UserForm = ({
       .refine((val) => /^\d{10}$/.test(val), {
         message: "Phone number must be 10 digits",
       }),
-
     ...(formType !== "edit"
       ? {
           password: z
             .string({
               required_error: "Password is required",
             })
-            .min(3, "Password must be at least 3 characters long"),
+            .min(8, "Password must be at least 8 characters long"),
+          // .regex(
+          //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+          //   "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character"
+          // )
         }
       : {}),
-
     gender: z.string().min(1, "Gender is required"),
-
     // Coerce role ID to number and validate it
     role_ids: z.preprocess((val) => {
       const num = Number(val);
@@ -140,7 +144,7 @@ const UserForm = ({
         <label htmlFor={id} className="text-sm font-medium text-gray-700">
           {label}
         </label>
-        <div className="input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8">
+        <div className="!relative input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8">
           <input
             id={id}
             name={id}
@@ -151,35 +155,104 @@ const UserForm = ({
             autoComplete="off"
             className="input-field pr-10"
           />
+          {id === "password" && (
+            <button
+              type="button"
+              onClick={handlePasswordVisibility}
+              className="absolute right-3 top-[50%] transform -translate-y-1/2  text-xs"
+              tabIndex={-1}
+            >
+              <PasswordEye showPassword={showPassword} />
+            </button>
+          )}
         </div>
         {errors[id] && (
           <p className="text-red-500 text-xs mt-1">{errors[id]}</p>
-        )}
-        {id === "password" && (
-          <button
-            type="button"
-            onClick={handlePasswordVisibility}
-            className="absolute right-3 top-[50%]  text-xs"
-            tabIndex={-1}
-          >
-            <PasswordEye showPassword={showPassword} />
-          </button>
         )}
       </div>
     );
   };
 
+  React.useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth > 1024);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    // Initial check
+    handleResize();
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  console.log(isDesktop);
   return (
-    <div className="bg-white/30 mx-2 lg:px-4 rounded-2xl h-[92%] flex flex-col justify-between">
-      <div className="flex flex-row flex-wrap gap-4 px-4 py-2">
-        {inputFields.map((field) => (
-          <div
-            key={field.id}
-            className="flex flex-col gap-4 w-full md:w-[48%] lg:w-[30%]"
-          >
-            {renderField(field)}
+    <div className="bg-white/30 mx-2 lg:px-4 rounded-2xl h-[92%] flex flex-col justify-between overflow-auto no-scrollbar">
+      <div className="grid lg:grid-cols-6 md:grid-cols-2 grid-cols-1 px-4 py-2 ">
+        <div
+          className={`col-span-4 gap-4 pr-5
+          `}
+        >
+          <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4 w-full">
+            {inputFields.map((field) => (
+              <div key={field.id} className="flex flex-col gap-4 w-full">
+                {renderField(field)}
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
+        <div
+          className={`col-span-2 flex-1 flex-col gap-4
+          ${isDesktop ? "" : "hidden"}`}
+        >
+          <label
+            htmlFor="profile_image"
+            className="text-sm font-medium text-gray-700"
+          >
+            Profile Image
+          </label>
+          <CustomFileUploader
+            onFileSelect={(file) =>
+              setFormData({ ...formData, profile_image: file })
+            }
+            initialImage={formData.profile_image_url}
+            onFileRemove={() => {
+              console.log("File removed");
+              // on edit user remove profile image url from formData
+              setFormData({
+                ...formData,
+                profile_image: null,
+                profile_image_url: null,
+              });
+            }}
+            defaultTitle="Profile Image"
+            sizeLimit={5}
+          />
+        </div>
+      </div>
+      <div
+        className={`mb-8 flex-auto flex-col gap-4 px-4 py-2 
+          ${isDesktop ? "hidden" : ""}`}
+      >
+        <label
+          htmlFor="profile_image"
+          className="text-sm font-medium text-gray-700"
+        >
+          Profile Image
+        </label>
+        <CustomFileUploader
+          onFileSelect={(file) =>
+            setFormData({ ...formData, profile_image: file })
+          }
+          initialImage={formData.profile_image_url}
+          onFileRemove={() =>
+            // on edit user remove profile image url from formData
+            setFormData({ ...formData, profile_image_url: null })
+          }
+          defaultTitle="Profile Image"
+          sizeLimit={5}
+        />
       </div>
 
       {/* Footer Buttons */}

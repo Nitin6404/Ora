@@ -1,6 +1,7 @@
 import { BarChart, Bar, XAxis, ResponsiveContainer, Cell } from "recharts";
 
 const SessionDurationChart = ({ sessionDuration = [] }) => {
+  console.log(sessionDuration);
   return (
     <div className="bg-[#fff] rounded-3xl shadow-sm px-5 py-4 flex flex-col justify-between w-[100%]">
       <h3 className="text-base lg:text-lg font-bold text-gray-800 mb-4 w-full">
@@ -13,7 +14,19 @@ const SessionDurationChart = ({ sessionDuration = [] }) => {
             data={sessionDuration}
             margin={{ top: 20, right: 0, left: 0, bottom: 0 }}
           >
-            <XAxis dataKey="name" axisLine={true} tickLine={false} />
+            <XAxis
+              dataKey="name"
+              axisLine={false}
+              tickLine={false}
+              tick={{
+                fill: "#686a6d",
+                fontSize: 10,
+              }}
+              tickMargin={10}
+              tickFormatter={(value) => {
+                return `${value}Min`;
+              }}
+            />
             <Bar
               dataKey="value"
               radius={[8, 8, 8, 8]}

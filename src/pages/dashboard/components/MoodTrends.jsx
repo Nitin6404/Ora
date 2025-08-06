@@ -1,5 +1,22 @@
 import { Loader2 } from "lucide-react";
 
+const emojiMap = {
+  mood_improved: {
+    emoji: "😊",
+    name: "Improved",
+  },
+  mood_no_change: {
+    emoji: "😑",
+    name: "No Change",
+  },
+  mood_declined: {
+    emoji: "😟",
+    name: "Declined",
+  },
+};
+
+const findEmoji = (key) => emojiMap[key] || "";
+
 const MoodTrends = ({ moodTrends, isLoading }) => {
   return (
     <div className="rounded-3xl px-5 py-4 bg-[#ebeafd]/40">
@@ -19,7 +36,7 @@ const MoodTrends = ({ moodTrends, isLoading }) => {
             >
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-gray-700">
-                  {snakeCaseToTitleCase(key)}
+                  {findEmoji(key).emoji + " " + findEmoji(key).name}
                 </span>
               </div>
               <div className={`text-2xl font-bold text-black`}>

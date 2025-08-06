@@ -24,6 +24,8 @@ export default function EditUser() {
     password: "",
     gender: "",
     role_ids: [],
+    profile_image: null,
+    profile_image_url: "",
   });
 
   const { data, isLoading } = useQuery({
@@ -79,7 +81,6 @@ export default function EditUser() {
       !formData.date_of_birth ||
       !formData.email ||
       !formData.phone_no ||
-      // !formData.password ||
       !formData.gender ||
       !formData.role_ids
     ) {
@@ -96,9 +97,14 @@ export default function EditUser() {
       multipartData.append("date_of_birth", formData.date_of_birth);
       multipartData.append("email", formData.email);
       multipartData.append("phone_no", formData.phone_no);
-      // multipartData.append("password", formData.password);
       multipartData.append("gender", formData.gender);
       multipartData.append("role_ids", formData.role_ids);
+      if (formData.profile_image) {
+        multipartData.append("profile_image", formData.profile_image);
+      }
+      // if (formData.profile _image_url) {
+      multipartData.append("profile_image_url", formData.profile_image_url);
+      // }
       updateUserMutation.mutate({ id, formData: multipartData });
     } catch (err) {
       const errorMessage = Object.values(err)[0];
@@ -128,7 +134,7 @@ export default function EditUser() {
             setFormData={setFormData}
             handleChange={handleChange}
             handleSubmit={handleSubmit}
-            loading={loading}
+            loading={updateUserMutation.isPending}
             showPassword={showPassword}
             handlePasswordVisibility={handlePasswordVisibility}
             navigate={navigate}
