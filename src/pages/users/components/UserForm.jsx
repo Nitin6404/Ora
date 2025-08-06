@@ -29,38 +29,78 @@ const UserForm = ({
     queryFn: getRoles,
   });
 
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
+
   const userSchema = z.object({
     first_name: z.string().min(1, "First name is required"),
-    middle_name: z.string().min(1, "Middle name is required"),
+    middle_name: z.string().optional(),
     last_name: z.string().min(1, "Last name is required"),
-    date_of_birth: z.string().min(1, "Date of birth is required"),
+
+    date_of_birth: z
+      .string()
+      .min(1, "Date of birth is required")
+      .refine((date) => new Date(date) < new Date(), {
+        message: "Date of birth must be in the past",
+      }),
+
     email: z.string().email("Invalid email address"),
-    // Coerce string to number safely for phone number
+
     phone_no: z
       .string()
-      .min(1, "Phone number is required")
-      .refine((val) => /^\d{10}$/.test(val), {
-        message: "Phone number must be 10 digits",
-      }),
-    ...(formType !== "edit"
-      ? {
-          password: z
-            .string({
-              required_error: "Password is required",
-            })
-            .min(8, "Password must be at least 8 characters long"),
-          // .regex(
-          //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-          //   "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character"
-          // )
+      .min(10, "Phone number is required")
+      .refine(
+        (val) => {
+          const cleaned = val.replace(/\D/g, ""); // remove non-digits
+          console.log(cleaned);
+          return (
+            (/^(\+91)?[6-9]\d{9}$/.test(val) && cleaned.length === 10) || // India
+            (/^(\+1)?[2-9]\d{9}$/.test(val) && cleaned.length === 10) // US
+          );
+        },
+        {
+          message:
+            "Phone number must be valid Indian or US number with 10 digits",
         }
-      : {}),
+      ),
+
     gender: z.string().min(1, "Gender is required"),
-    // Coerce role ID to number and validate it
-    role_ids: z.preprocess((val) => {
-      const num = Number(val);
-      return isNaN(num) ? undefined : num;
-    }, z.number({ invalid_type_error: "Role must be a number" }).min(1, "Role is required")),
+
+    role_ids: z.any().refine(
+      (val) => {
+        return Array.isArray(val)
+          ? val.length > 0
+          : val !== null && val !== undefined;
+      },
+      {
+        message: "Role is required",
+      }
+    ),
+
+    profile_image: z
+      .any()
+      .optional()
+      .refine(
+        (file) => {
+          if (!file) return true;
+          return file instanceof File;
+        },
+        { message: "Invalid file" }
+      )
+      .refine(
+        (file) => {
+          if (!file) return true;
+          return ACCEPTED_IMAGE_TYPES.includes(file.type);
+        },
+        { message: "Only .jpg, .jpeg, .png formats are supported" }
+      )
+      .refine(
+        (file) => {
+          if (!file) return true;
+          return file.size <= MAX_FILE_SIZE;
+        },
+        { message: "File must be less than 10MB" }
+      ),
   });
 
   const rolesColumn = roles.map((role) => ({
@@ -120,6 +160,7 @@ const UserForm = ({
     });
   }
 
+  console.log(errors);
   const renderField = ({ id, label, type, placeholder, options = [] }) => {
     if (type === "select") {
       return (
@@ -131,6 +172,7 @@ const UserForm = ({
               options.find((item) => item.value === formData[id])?.name || ""
             }
             onSelect={(item) => setFormData({ ...formData, [id]: item.value })}
+            onRemove={() => setFormData({ ...formData, [id]: "" })}
           />
           {errors[id] && (
             <p className="text-red-500 text-xs mt-1">{errors[id]}</p>
@@ -192,7 +234,7 @@ const UserForm = ({
       <div className="grid lg:grid-cols-6 md:grid-cols-2 grid-cols-1 px-4 py-2 ">
         <div
           className={`col-span-4 gap-4 pr-5
-          `}
+            `}
         >
           <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4 w-full">
             {inputFields.map((field) => (
@@ -204,7 +246,7 @@ const UserForm = ({
         </div>
         <div
           className={`col-span-2 flex-1 flex-col gap-4
-          ${isDesktop ? "" : "hidden"}`}
+            ${isDesktop ? "" : "hidden"}`}
         >
           <label
             htmlFor="profile_image"
@@ -227,13 +269,18 @@ const UserForm = ({
               });
             }}
             defaultTitle="Profile Image"
-            sizeLimit={5}
+            sizeLimit={10}
           />
+          {errors["profile_image"] && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors["profile_image"]}
+            </p>
+          )}
         </div>
       </div>
       <div
         className={`mb-8 flex-auto flex-col gap-4 px-4 py-2 
-          ${isDesktop ? "hidden" : ""}`}
+            ${isDesktop ? "hidden" : ""}`}
       >
         <label
           htmlFor="profile_image"
@@ -251,8 +298,11 @@ const UserForm = ({
             setFormData({ ...formData, profile_image_url: null })
           }
           defaultTitle="Profile Image"
-          sizeLimit={5}
+          sizeLimit={10}
         />
+        {errors["profile_image"] && (
+          <p className="text-red-500 text-xs mt-1">{errors.profile_image}</p>
+        )}
       </div>
 
       {/* Footer Buttons */}
@@ -269,13 +319,22 @@ const UserForm = ({
             const result = userSchema.safeParse(formData);
             if (!result.success) {
               const errors = {};
+              const passwordRegex =
+                /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d|.*[@#$%^&*!]).{8,}$/;
+              const isPasswordValid = passwordRegex.test(formData.password);
+              if (!isPasswordValid && formType !== "edit") {
+                errors.password =
+                  "Password must include uppercase, lowercase, number, and special character";
+              }
               result.error.issues.forEach((error) => {
                 errors[error.path[0]] = error.message;
               });
               setErrors(errors);
               return;
             }
-            handleSubmit();
+
+            setErrors({});
+            handleSubmit(); // ← only if validation passed
           }}
           disabled={loading}
           className="patient-btn flex justify-center items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-b from-[#7367F0] to-[#453E90] rounded-full shadow-md gap-2"

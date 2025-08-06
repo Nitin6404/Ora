@@ -167,38 +167,43 @@ const USER_COLUMN = [
   {
     key: "first_name",
     label: "First Name",
-    render: (p) => p.first_name || "-",
+    render: (p) => (p.first_name ? snakeToCamel(p.first_name) : "-"),
   },
-  { key: "last_name", label: "Last Name", render: (p) => p.last_name || "-" },
+  {
+    key: "last_name",
+    label: "Last Name",
+    render: (p) => (p.last_name ? snakeToCamel(p.last_name) : "-"),
+  },
   { key: "id", label: "ID" },
   {
     key: "role_names",
     label: "Role",
-    render: (p) => snakeToCamel(p.role_names.join(", ")) || "-",
+    render: (p) => (p.role_names ? snakeToCamel(p.role_names.join(", ")) : "-"),
   },
-  { key: "gender", label: "Gender", render: (p) => p.gender || "-" },
+  {
+    key: "gender",
+    label: "Gender",
+    render: (p) => (p.gender ? snakeToCamel(p.gender) : "-"),
+  },
   {
     key: "date_of_birth",
     label: "DOB",
-    render: (p) => {
-      const date = new Date(p.date_of_birth);
-      return date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      });
-    },
+    render: (p) => (p.date_of_birth ? formatDate(p.date_of_birth) : "-"),
   },
   {
     key: "email",
     label: "Email",
-    render: (p) => p.email || "-",
+    render: (p) => (p.email ? p.email : "-"),
   },
-  { key: "phone_no", label: "Phone", render: (p) => p.phone_no || "-" },
+  {
+    key: "phone_no",
+    label: "Phone",
+    render: (p) => (p.phone_no ? p.phone_no : "-"),
+  },
   {
     key: "created_date",
     label: "Created At",
-    render: (p) => new Date(p.created_date).toLocaleDateString() || "-",
+    render: (p) => (p.created_date ? formatDate(p.created_date) : "-"),
   },
 
   localStorage.getItem("role_name") === "admin" && {
@@ -271,6 +276,6 @@ export {
   EDIT_DECISION_FLOW_BREADCRUMBS,
 };
 
-const snakeToCamel = (str) => {
+export const snakeToCamel = (str) => {
   return str.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 };

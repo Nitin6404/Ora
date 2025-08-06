@@ -231,12 +231,30 @@ const MusicVideoNode = ({ data, audioList, videoList }) => {
 
   const options = type === "music" ? audioList : videoList;
   const selectedItem = options.find((item) => item.id === selectedId);
-const [intensity, setIntensity] = useState(data.intensity || 1); // default High
+  const [intensity, setIntensity] = useState(1); // default High
 
-const handleIntensityChange = (value) => {
-  setIntensity(value);
-  handleUpdate({ intensity: value });
-};
+  useEffect(() => {
+    if (data.intensity !== undefined) {
+      setIntensity(data.intensity);
+    }
+  }, [data.intensity]);
+
+  const [videoMode, setVideoMode] = useState(1); // default to Normal
+
+  useEffect(() => {
+    if (data.videoMode !== undefined) {
+      setVideoMode(data.videoMode);
+    }
+  }, [data.videoMode]);
+
+  const handleIntensityChange = (value) => {
+    setIntensity(value);
+    handleUpdate({ intensity: value });
+  };
+  const handleVideoModeChange = (mode) => {
+    setVideoMode(mode);
+    handleUpdate({ videoMode: mode });
+  };
 
   return (
     <div className="border border-green-400 rounded-xl p-3 bg-white w-80 shadow relative">
@@ -308,28 +326,52 @@ const handleIntensityChange = (value) => {
       >
         Connect To Another Node
       </button>
-<div className="mb-2">
-  <div className="text-xs mb-1 text-gray-600">Select Intensity:</div>
-  <div className="flex gap-2">
-    {[
-      { label: "Low", value: 0.4 },
-      { label: "Medium", value: 0.6 },
-      { label: "High", value: 1 },
-    ].map((item) => (
-      <button
-        key={item.label}
-        onClick={() => handleIntensityChange(item.value)}
-        className={`px-3 py-1 rounded text-xs font-medium border ${
-          intensity === item.value
-            ? "bg-purple-500 text-white"
-            : "bg-white text-gray-700 border-gray-300"
-        }`}
-      >
-        {item.label}
-      </button>
-    ))}
-  </div>
-</div>
+      {type === "video" && (
+        <div className="mb-2">
+          <div className="text-xs mb-1 text-gray-600">Video Mode:</div>
+          <div className="flex gap-2">
+            {[
+              { label: "Normal", value: 1 },
+              { label: "Theatre", value: 2 },
+            ].map((item) => (
+              <button
+                key={item.label}
+                onClick={() => handleVideoModeChange(item.value)}
+                className={`px-3 py-1 rounded text-xs font-medium border ${
+                  videoMode === item.value
+                    ? "bg-indigo-600 text-white"
+                    : "bg-white text-gray-700 border-gray-300"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="mb-2">
+        <div className="text-xs mb-1 text-gray-600">Select Intensity:</div>
+        <div className="flex gap-2">
+          {[
+            { label: "Low", value: 0.4 },
+            { label: "Medium", value: 0.6 },
+            { label: "High", value: 1 },
+          ].map((item) => (
+            <button
+              key={item.label}
+              onClick={() => handleIntensityChange(item.value)}
+              className={`px-3 py-1 rounded text-xs font-medium border ${
+                intensity === item.value
+                  ? "bg-purple-500 text-white"
+                  : "bg-white text-gray-700 border-gray-300"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <Handle type="source" position={Position.Bottom} />
     </div>
@@ -356,7 +398,7 @@ export default function EditDecisionTreeFlow() {
 
   const location = useLocation();
   const programDetails = location.state?.programDetails;
-
+  console.log("programDetails", programDetails);
   const nodeTypes = useMemo(
     () => ({
       questionNode: QuestionNode,
@@ -689,7 +731,8 @@ export default function EditDecisionTreeFlow() {
           itemId: n.data.selectedId || "",
           timer: Number(n.data.timer) || 0,
           forceTimer: !!n.data.forceTimer || false,
-           intensity: n.data.intensity || 1,
+          intensity: n.data.intensity || 1,
+          videoMode: n.data.videoMode || 1,
           url: (() => {
             const isMusic = n.data.typeOption === "music";
             const list = isMusic ? audioList : videoList;
@@ -763,6 +806,7 @@ export default function EditDecisionTreeFlow() {
           timer: Number(n.data.timer) || 0,
           forceTimer: !!n.data.forceTimer || false,
           intensity: n.data.intensity || 1,
+          videoMode: n.data.videoMode || 1,
           url: (() => {
             const isMusic = n.data.typeOption === "music";
             const list = isMusic ? audioList : videoList;
@@ -826,6 +870,8 @@ export default function EditDecisionTreeFlow() {
         identifier: `${Date.now()}_${Math.floor(Math.random() * 1000)}`,
         typeOption: "music",
         selectedId: "",
+        intensity: 1, // ✅ default to High
+        videoMode: 1,
         nodeId: String(newId),
         onUpdateData: updateMusicVideoNode,
         onSelectAnswer: handleSelectAnswer,

@@ -76,7 +76,6 @@ export default function EditUser() {
   const handleSubmit = async () => {
     if (
       !formData.first_name ||
-      !formData.middle_name ||
       !formData.last_name ||
       !formData.date_of_birth ||
       !formData.email ||
@@ -91,20 +90,18 @@ export default function EditUser() {
     setLoading(true);
     try {
       const multipartData = new FormData();
-      multipartData.append("first_name", formData.first_name);
-      multipartData.append("middle_name", formData.middle_name);
-      multipartData.append("last_name", formData.last_name);
-      multipartData.append("date_of_birth", formData.date_of_birth);
-      multipartData.append("email", formData.email);
-      multipartData.append("phone_no", formData.phone_no);
-      multipartData.append("gender", formData.gender);
-      multipartData.append("role_ids", formData.role_ids);
-      if (formData.profile_image) {
-        multipartData.append("profile_image", formData.profile_image);
+      for (const [key, value] of Object.entries(formData)) {
+        if (key === "role_ids" && Array.isArray(value)) {
+          value.forEach((roleId) => multipartData.append("role_ids[]", roleId));
+        } else if (value !== undefined && value !== null && value !== "") {
+          multipartData.append(key, value);
+        } else if (key === "profile_image" && value !== null) {
+          multipartData.append(key, value);
+        } else if (key === "profile_image_url" && value !== "") {
+          multipartData.append(key, value);
+        }
       }
-      // if (formData.profile _image_url) {
-      multipartData.append("profile_image_url", formData.profile_image_url);
-      // }
+
       updateUserMutation.mutate({ id, formData: multipartData });
     } catch (err) {
       const errorMessage = Object.values(err)[0];
