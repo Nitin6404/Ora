@@ -20,7 +20,6 @@ const CustomFileUploader = forwardRef(
     },
     ref
   ) => {
-    console.log("sizeLimit", sizeLimit);
     const inputRef = useRef(null);
     const [file, setFile] = useState(null);
     const [progress, setProgress] = useState(null);
@@ -76,16 +75,21 @@ const CustomFileUploader = forwardRef(
       //   return;
       // }
 
+      if (onFileSelect) {
+        onFileSelect(null);
+      }
+
+      if (onFileRemove) {
+        onFileRemove();
+      }
+
       setFile(file);
       setProgress(0);
       setUploading(true);
       setPaused(false);
+      setUploaded(false); // make sure we're in uploading state
       setRemainingTime(((100 - 0) / 5) * 0.3);
       setPreview(URL.createObjectURL(file));
-
-      if (onFileSelect) {
-        onFileSelect(file);
-      }
     };
 
     // Simulate upload progress
@@ -101,6 +105,12 @@ const CustomFileUploader = forwardRef(
               setRemainingTime(0);
               setUploading(false);
               setUploaded(true);
+
+              // ✅ Trigger onFileSelect only when upload completes
+              if (onFileSelect && file) {
+                onFileSelect(file);
+              }
+
               return 100;
             }
             return next;
@@ -181,7 +191,6 @@ const CustomFileUploader = forwardRef(
             </div>
           </div>
 
-          {/* Uploading Box */}
           {file && !uploaded && (
             <div className="border border-gray-300 bg-white rounded-md lg:p-4 md:p-4 p-1 relative h-full w-full">
               <div className="flex items-center justify-between mb-2">
@@ -225,7 +234,6 @@ const CustomFileUploader = forwardRef(
             </div>
           )}
 
-          {/* Uploaded Box */}
           {(uploaded || preview) && !uploading && (
             <div className="flex items-center justify-between border border-gray-300 rounded-xl lg:p-4 md:p-6 p-1 relative bg-white h-full w-full">
               <div className="w-full h-full flex items-center justify-between">

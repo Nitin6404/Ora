@@ -40,11 +40,17 @@ export default function EditMedia() {
 
   useEffect(() => {
     if (media) {
+      let type = "";
+      if (media?.audio_s3_url) {
+        type = "mp3";
+      } else if (media?.video_s3_url) {
+        type = "mp4";
+      }
       setFormData((prev) => ({
         ...prev,
         title: media.title,
-        type: media.type,
-        file: media.type === "mp3" ? media.audio_s3_url : media.video_s3_url,
+        type: type,
+        file: type === "mp3" ? media.audio_s3_url : media.video_s3_url,
         isFileChanged: false,
       }));
     }
@@ -80,6 +86,11 @@ export default function EditMedia() {
 
     if (!type) {
       newErrors.type = "Media type is required.";
+      hasError = true;
+    }
+
+    if (isFileChanged && !file) {
+      newErrors.file = "File is required.";
       hasError = true;
     }
 
@@ -155,6 +166,7 @@ export default function EditMedia() {
     }
   };
 
+  console.log(formData);
   return (
     <Navigation>
       <ToastContainer />
@@ -242,7 +254,9 @@ const EditMediaForm = ({
                 onSelect={(item) =>
                   setFormData({ ...formData, type: item.value })
                 }
-                onRemove={() => setFormData({ ...formData, type: "" })}
+                onRemove={() => {
+                  setFormData({ ...formData, type: "", file: null });
+                }}
               />
               {errors.type && (
                 <p className="text-red-500 text-xs mt-1">{errors.type}</p>

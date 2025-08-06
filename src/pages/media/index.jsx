@@ -27,6 +27,8 @@ import { toast, ToastContainer } from "react-toastify";
 const MediaPage = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [activeFilter, setActiveFilter] = useState("audio"); // default
+
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
@@ -75,7 +77,7 @@ const MediaPage = () => {
           ...col,
           render: (row) => (
             <EllipsisVertical
-              className="hover:cursor-pointer w-5 h-5"
+              className="hover:cursor-pointer w-5 h-5 dropdown-trigger"
               onClick={(e) => {
                 if (dropdownId === row.id) {
                   setDropdownId(null);
@@ -102,7 +104,7 @@ const MediaPage = () => {
           ...col,
           render: (row) => (
             <EllipsisVertical
-              className="hover:cursor-pointer w-5 h-5"
+              className="hover:cursor-pointer w-5 h-5 dropdown-trigger"
               onClick={(e) => {
                 if (dropdownId === row.id) {
                   setDropdownId(null);
@@ -138,6 +140,7 @@ const MediaPage = () => {
   };
 
   const handleFilterChange = (type) => {
+    setActiveFilter(type);
     setFilterOptions((prev) =>
       prev.map((option) => ({
         ...option,
@@ -176,16 +179,11 @@ const MediaPage = () => {
       }),
   };
 
-  const queryFn =
-    filterOptions.find((option) => option.isActive).id === "audio"
-      ? getAudios
-      : getVideos;
-
-  const mediaType = filterOptions.find((option) => option.isActive).id;
+  const queryFn = activeFilter === "audio" ? getAudios : getVideos;
 
   const queryKey = useMemo(
-    () => [mediaType, debouncedSearch, page],
-    [mediaType, debouncedSearch, page]
+    () => [activeFilter, debouncedSearch, page, startDate, endDate],
+    [activeFilter, debouncedSearch, page, startDate, endDate]
   );
   const { data, isLoading } = useQuery({
     queryKey,
@@ -194,9 +192,7 @@ const MediaPage = () => {
 
   const deleteMutation = useMutation({
     mutationFn: (id) =>
-      filterOptions.find((option) => option.isActive).id === "audio"
-        ? deleteAudio(id)
-        : deleteVideo(id),
+      activeFilter === "audio" ? deleteAudio(id) : deleteVideo(id),
     onSuccess: () => {
       console.log("sicess");
       toast.success("Media deleted successfully");
@@ -215,7 +211,7 @@ const MediaPage = () => {
   const handleEditMedia = (id) => {
     navigate(`/media/edit/${id}`, {
       state: {
-        type: filterOptions.find((option) => option.isActive).id,
+        type: activeFilter,
       },
     });
   };
@@ -238,13 +234,22 @@ const MediaPage = () => {
         key: "selection",
       },
     ]);
-    setFilterOptions(MEDIA_FILTER_OPTIONS);
+    setActiveFilter("audio");
+    setFilterOptions(
+      MEDIA_FILTER_OPTIONS.map((opt) => ({
+        ...opt,
+        isActive: opt.id === "audio",
+      }))
+    );
+
+    queryClient.invalidateQueries({ queryKey });
   };
 
-  const columns =
-    filterOptions.find((option) => option.isActive).id === "audio"
-      ? audioColumns
-      : videoColumns;
+  const columns = activeFilter === "audio" ? audioColumns : videoColumns;
+
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey });
+  }, [debouncedSearch, startDate, endDate, activeFilter, page]);
 
   useEffect(() => {
     return () => {
@@ -253,6 +258,23 @@ const MediaPage = () => {
         audioRef.current = null;
       }
     };
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      // Delay to let dropdown render before checking click
+      setTimeout(() => {
+        if (
+          !e.target.closest(".dropdown-menu") &&
+          !e.target.closest(".dropdown-trigger")
+        ) {
+          setDropdownId(null);
+        }
+      }, 0);
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
   return (
@@ -265,9 +287,7 @@ const MediaPage = () => {
           filterOptions={filterOptions}
           onFilterChange={handleFilterChange}
           onSearchChange={handleSearchChange}
-          searchPlaceholder={`Search ${
-            filterOptions.find((option) => option.isActive).id
-          }...`}
+          searchPlaceholder={`Search ${activeFilter}...`}
           onAddClick={handleAddMedia}
           addButtonText="Add New Media"
           startDate={startDate}
@@ -302,7 +322,7 @@ const MediaPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {isArrayWithValues(data?.results) ? (
+                {isArrayWithValues(data?.results) &&
                   data.results.map((row) => (
                     <tr
                       key={row.id}
@@ -337,16 +357,15 @@ const MediaPage = () => {
                         </td>
                       ))}
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={columns.length} className="text-center py-4">
-                      No media found
-                    </td>
-                  </tr>
-                )}
+                  ))}
               </tbody>
             </table>
+          )}
+
+          {!isArrayWithValues(data?.results) && (
+            <div className="flex-1 h-full w-full flex justify-center items-center">
+              <p className="text-md">No media found</p>
+            </div>
           )}
         </div>
 
