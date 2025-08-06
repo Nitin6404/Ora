@@ -269,6 +269,7 @@ const UserForm = ({
               });
             }}
             defaultTitle="Profile Image"
+            description="Allowed file types: PNG, JPEG, JPG, formats only."
             sizeLimit={10}
           />
           {errors["profile_image"] && (
@@ -298,6 +299,7 @@ const UserForm = ({
             setFormData({ ...formData, profile_image_url: null })
           }
           defaultTitle="Profile Image"
+          description="Allowed file types: PNG, JPEG, JPG, formats only."
           sizeLimit={10}
         />
         {errors["profile_image"] && (

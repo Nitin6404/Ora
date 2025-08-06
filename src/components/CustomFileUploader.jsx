@@ -10,7 +10,14 @@ import { toast } from "react-toastify";
 
 const CustomFileUploader = forwardRef(
   (
-    { onFileSelect, initialImage, onFileRemove, defaultTitle, sizeLimit },
+    {
+      onFileSelect,
+      initialImage,
+      onFileRemove,
+      defaultTitle,
+      sizeLimit,
+      description,
+    },
     ref
   ) => {
     console.log("sizeLimit", sizeLimit);
@@ -155,6 +162,9 @@ const CustomFileUploader = forwardRef(
                     </span>
                   )}
                 </p>
+                {description && (
+                  <p className="text-xs text-gray-500">{description}</p>
+                )}
                 <button
                   disabled={uploading || uploaded}
                   className="mt-2 font-medium border border-[#7367F0] lg:text-xs md:text-[0.6rem] text-[0.5rem] text-[#7367F0] lg:px-2 md:px-1 px-1 lg:py-1.5 md:py-1 py-1 rounded-lg disabled:cursor-not-allowed"
