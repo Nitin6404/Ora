@@ -31,7 +31,11 @@ export default function AddMedia() {
     onSuccess: () => {
       toast.success("Audio uploaded successfully!");
       setTimeout(() => {
-        navigate("/media");
+        navigate("/media", {
+          state: {
+            type: "audio",
+          },
+        });
       }, 1500);
     },
     onError: (error) => {
@@ -45,7 +49,11 @@ export default function AddMedia() {
       console.log("Video uploaded successfully!");
       toast.success("Video uploaded successfully!");
       setTimeout(() => {
-        navigate("/media");
+        navigate("/media", {
+          state: {
+            type: "video",
+          },
+        });
       }, 1500);
     },
     onError: (error) => {

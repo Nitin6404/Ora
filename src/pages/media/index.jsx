@@ -23,11 +23,20 @@ import { debounce } from "lodash";
 import PlayPauseIcon from "./components/PlayPauseIcon";
 import { EllipsisVertical, Edit2, Trash2 } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
+import { useLocation } from "react-router-dom";
 
 const MediaPage = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [activeFilter, setActiveFilter] = useState("audio"); // default
+  const location = useLocation();
+  const type = location.state?.type || "audio";
+  useEffect(() => {
+    if (location.state?.type) {
+      handleFilterChange(location.state.type);
+    }
+  }, [location.state?.type]);
+
+  const [activeFilter, setActiveFilter] = useState(type); // default
 
   const [videoDialogOpen, setVideoDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -194,7 +203,6 @@ const MediaPage = () => {
     mutationFn: (id) =>
       activeFilter === "audio" ? deleteAudio(id) : deleteVideo(id),
     onSuccess: () => {
-      console.log("sicess");
       toast.success("Media deleted successfully");
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey });

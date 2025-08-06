@@ -61,7 +61,11 @@ export default function EditMedia() {
     onSuccess: () => {
       toast.success("Media updated successfully!");
       setTimeout(() => {
-        navigate("/media");
+        navigate("/media", {
+          state: {
+            type: formData.type === "mp3" ? "audio" : "video",
+          },
+        });
       }, 1500);
     },
     onError: (err) => {
@@ -166,7 +170,6 @@ export default function EditMedia() {
     }
   };
 
-  console.log(formData);
   return (
     <Navigation>
       <ToastContainer />
