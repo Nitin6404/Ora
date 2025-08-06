@@ -144,7 +144,7 @@ const ProgramCard = ({ program, onprogramClick }) => {
           {(() => {
             const mood = program.current_session.mood;
 
-            if (!mood) return "N/A";
+            if (!mood) return "-";
 
             let emoji = "";
             if (mood.toLowerCase() === "sad") emoji = "😢";
@@ -174,10 +174,10 @@ const ProgramCard = ({ program, onprogramClick }) => {
         <div className="text-xs space-y-2 w-full">
           <div className="flex gap-2 items-center justify-between">
             <span className="bg-gray-100 font-semibold px-2 py-1 rounded-full">
-              {program.program.advisor?.advisor_type || "N/A"}
+              {program.program.advisor?.advisor_type || "-"}
             </span>
             <span className="text-right bg-white font-medium px-5 py-1 rounded-full">
-              {program.program.advisor?.name || "N/A"}
+              {program.program.advisor?.name || "-"}
             </span>
           </div>
 
@@ -186,7 +186,7 @@ const ProgramCard = ({ program, onprogramClick }) => {
               VMA
             </span>
             <span className="text-right bg-white font-medium px-5 py-1 rounded-full">
-              {program.vma || "N/A"}
+              {program.vma || "-"}
             </span>
           </div>
           <div className="flex gap-2 items-center justify-between">
@@ -194,7 +194,7 @@ const ProgramCard = ({ program, onprogramClick }) => {
               VSA
             </span>
             <span className="text-right bg-white font-medium px-5 py-1 rounded-full">
-              {program.vsa || "N/A"}
+              {program.vsa || "-"}
             </span>
           </div> */}
           {/* Environment & Frequency */}
@@ -203,7 +203,7 @@ const ProgramCard = ({ program, onprogramClick }) => {
               {program.environment?.name || "Unknown"}
             </span>
             <span className="text-sm font-medium text-[#2d4e57] bg-[#ebf0f4] px-5 py-1 rounded-full">
-              {program.solfeggio_frequency || "N/A"}
+              {program.solfeggio_frequency || "-"}
             </span>
           </div>
         </div>
@@ -215,7 +215,7 @@ const ProgramCard = ({ program, onprogramClick }) => {
           <div className="flex flex-col justify-between font-medium">
             <span>Current Session</span>
             <span className="px-4 py-1.5 rounded-full bg-[#f2f0fd] text-center mt-2 text-[#7670b8]">
-              {currentSession + " of " + totalSessions || "N/A"}
+              {currentSession + " of " + totalSessions || "-"}
             </span>
           </div>
           <div className="w-[1.5px] h-12 bg-gray-200" />
@@ -228,7 +228,7 @@ const ProgramCard = ({ program, onprogramClick }) => {
         </div>
         <div className="border-b-2 border-gray-200 mt-3"></div>
         <div className="py-2 text-xs font-semibold text-[#3a3c48] flex justify-between items-center">
-          <span>Last Session: {formatDate(lastSession) || "N/A"}</span>
+          <span>Last Session: {formatDate(lastSession) || "-"}</span>
           <img
             onClick={() =>
               onprogramClick(`${program.patient.id}/${program.program.id}/`)

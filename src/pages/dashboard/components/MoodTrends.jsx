@@ -40,7 +40,7 @@ const MoodTrends = ({ moodTrends, isLoading }) => {
                 </span>
               </div>
               <div className={`text-2xl font-bold text-black`}>
-                {value.toString().padStart(2, "0")}
+                {value.toString()}
               </div>
             </div>
           ))

@@ -24,7 +24,7 @@ const SessionDurationChart = ({ sessionDuration = [] }) => {
               }}
               tickMargin={10}
               tickFormatter={(value) => {
-                return `${value}Min`;
+                return `${value}min`;
               }}
             />
             <Bar

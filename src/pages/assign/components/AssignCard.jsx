@@ -169,10 +169,10 @@ const AssignCard = ({ assign, onAssignClick }) => {
         <div className="text-xs space-y-2 w-full">
           <div className="flex gap-2 items-center justify-between">
             <span className="bg-gray-100 font-semibold px-2 py-1 rounded-full">
-              {assign?.program?.advisor?.advisor_type || "N/A"}
+              {assign?.program?.advisor?.advisor_type || "-"}
             </span>
             <span className="text-right bg-white font-medium px-5 py-1 rounded-full">
-              {assign?.program?.advisor?.name || "N/A"}
+              {assign?.program?.advisor?.name || "-"}
             </span>
           </div>
 
@@ -181,7 +181,7 @@ const AssignCard = ({ assign, onAssignClick }) => {
               VMA
             </span>
             <span className="text-right bg-white font-medium px-5 py-1 rounded-full">
-              {assign.vma_detail?.name || "N/A"}
+              {assign.vma_detail?.name || "-"}
             </span>
           </div>
           <div className="flex gap-2 items-center justify-between">
@@ -189,7 +189,7 @@ const AssignCard = ({ assign, onAssignClick }) => {
               VSA
             </span>
             <span className="text-right bg-white font-medium px-5 py-1 rounded-full">
-              {assign.vsa_detail?.name || "N/A"}
+              {assign.vsa_detail?.name || "-"}
             </span>
           </div> */}
           {/* Environment & Frequency */}
@@ -198,7 +198,7 @@ const AssignCard = ({ assign, onAssignClick }) => {
               {assign.environment?.name || "Unknown"}
             </span>
             <span className="text-sm font-medium text-[#2d4e57] bg-[#ebf0f4] px-5 py-1 rounded-full">
-              {assign.solfeggio_frequency || "N/A"}
+              {assign.solfeggio_frequency || "-"}
             </span>
           </div>
         </div>
@@ -210,7 +210,7 @@ const AssignCard = ({ assign, onAssignClick }) => {
           <div className="flex flex-col justify-between font-medium">
             <span>Current Session</span>
             <span className="px-4 py-1.5 rounded-full bg-[#f2f0fd] text-center mt-2 text-[#7670b8]">
-              {currentSession + " of " + totalSession || "N/A"}
+              {currentSession + " of " + totalSession || "-"}
             </span>
           </div>
           <div className="w-[1.5px] h-12 bg-gray-200" />

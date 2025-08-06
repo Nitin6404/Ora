@@ -167,16 +167,16 @@ const USER_COLUMN = [
   {
     key: "first_name",
     label: "First Name",
-    render: (p) => p.first_name || "NA",
+    render: (p) => p.first_name || "-",
   },
-  { key: "last_name", label: "Last Name", render: (p) => p.last_name || "NA" },
+  { key: "last_name", label: "Last Name", render: (p) => p.last_name || "-" },
   { key: "id", label: "ID" },
   {
     key: "role_names",
     label: "Role",
-    render: (p) => snakeToCamel(p.role_names.join(", ")) || "NA",
+    render: (p) => snakeToCamel(p.role_names.join(", ")) || "-",
   },
-  { key: "gender", label: "Gender", render: (p) => p.gender || "N/A" },
+  { key: "gender", label: "Gender", render: (p) => p.gender || "-" },
   {
     key: "date_of_birth",
     label: "DOB",
@@ -192,13 +192,13 @@ const USER_COLUMN = [
   {
     key: "email",
     label: "Email",
-    render: (p) => p.email || "NA",
+    render: (p) => p.email || "-",
   },
-  { key: "phone_no", label: "Phone", render: (p) => p.phone_no || "NA" },
+  { key: "phone_no", label: "Phone", render: (p) => p.phone_no || "-" },
   {
     key: "created_date",
     label: "Created At",
-    render: (p) => new Date(p.created_date).toLocaleDateString() || "NA",
+    render: (p) => new Date(p.created_date).toLocaleDateString() || "-",
   },
 
   localStorage.getItem("role_name") === "admin" && {

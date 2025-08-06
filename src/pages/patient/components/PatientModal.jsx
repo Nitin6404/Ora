@@ -170,12 +170,12 @@ const PatientInfoCard = ({ data }) => {
           {/* <StatusBadge className status={data.status} /> */}
           <div >
             <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-              {data.status || "N/A"}
+              {data.status || "-"}
             </span>
           </div>
           <div className="flex flex-col items-start mb-2">
-            <h3 className="text-lg font-semibold mr-3 text-black">{data.full_name || "N/A"}</h3>
-            <p className="text-gray-600 text-start">ORA-00{data.id || "N/A"}</p>
+            <h3 className="text-lg font-semibold mr-3 text-black">{data.full_name || "-"}</h3>
+            <p className="text-gray-600 text-start">ORA-00{data.id || "-"}</p>
           </div>
         </div>
       </div>
@@ -185,23 +185,23 @@ const PatientInfoCard = ({ data }) => {
       <div className="space-y-4 bg-[#f1f1fd] rounded-xl py-4 px-2 ">
         <div className="flex justify-between">
           <span className="text-gray-600 font-medium">Gender</span>
-          <span className="font-medium px-[0.75em] py-[0.25em] rounded-full bg-white">{data.gender || "N/A"}</span>
+          <span className="font-medium px-[0.75em] py-[0.25em] rounded-full bg-white">{data.gender || "-"}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-600 font-medium">Date of Birth</span>
-          <span className="font-medium px-[0.75em] py-[0.25em] rounded-full bg-white">{formatDate(data.date_of_birth) || "N/A"}</span>
+          <span className="font-medium px-[0.75em] py-[0.25em] rounded-full bg-white">{formatDate(data.date_of_birth) || "-"}</span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-gray-600 font-medium">Phone Number</span>
-          <span className="font-medium text-cyan-500 px-[0.75em] py-[0.25em] rounded-full bg-cyan-50">{data.phone_no || "N/A"}</span>
+          <span className="font-medium text-cyan-500 px-[0.75em] py-[0.25em] rounded-full bg-cyan-50">{data.phone_no || "-"}</span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-gray-600 font-medium">Email</span>
-          <span className="font-medium text-cyan-500 px-[0.75em] py-[0.25em] rounded-full bg-cyan-50">{data.email || "N/A"}</span>
+          <span className="font-medium text-cyan-500 px-[0.75em] py-[0.25em] rounded-full bg-cyan-50">{data.email || "-"}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-600 font-medium">Clinic / Site</span>
-          <span className="font-medium px-[0.75em] py-[0.25em] rounded-full bg-white">{data.clinic_site || "N/A"}</span>
+          <span className="font-medium px-[0.75em] py-[0.25em] rounded-full bg-white">{data.clinic_site || "-"}</span>
         </div>
       </div>
 
@@ -209,7 +209,7 @@ const PatientInfoCard = ({ data }) => {
 
       <div className="space-y-4 rounded-xl">
         <MoodTrend label="Last Mood" moodTrend={{
-          "to": data.last_mood || "N/A",
+          "to": data.last_mood || "-",
         }} />
       </div>
 
@@ -218,7 +218,7 @@ const PatientInfoCard = ({ data }) => {
       <div className="space-y-4 rounded-xl">
         <div className="flex justify-between items-center">
           <span className="text-gray-600">Last Session</span>
-          <span className="font-medium">{formatDate(data.last_session) || "N/A"}</span>
+          <span className="font-medium">{formatDate(data.last_session) || "-"}</span>
         </div>
       </div>
 
@@ -326,7 +326,7 @@ const SessionCard = ({ session, index }) => (
           <span className="font-medium">{session.session_number}</span>
         </span>
         <div className="text-sm text-black font-medium mt-[0.5em] md:mt-0">
-          Assigned On: {formatDate(session.created_at) || "N/A"}
+          Assigned On: {formatDate(session.created_at) || "-"}
         </div>
       </div>
 
@@ -413,14 +413,14 @@ const MoodTrend = ({ label, moodTrend }) => {
         {moodTrend.from && (
           <>
             <MoodEmoji mood={moodTrend.from} />
-            <span className="mx-[0.5em] font-medium">{moodTrend.from || "N/A"}</span>
+            <span className="mx-[0.5em] font-medium">{moodTrend.from || "-"}</span>
             <span className="mx-[0.5em]">→</span>
           </>
         )}
         {moodTrend.to && (
           <>
             <MoodEmoji mood={moodTrend.to} />
-            <span className="ml-2 font-medium">{moodTrend.to || "N/A"}</span>
+            <span className="ml-2 font-medium">{moodTrend.to || "-"}</span>
           </>
         )}
       </div>

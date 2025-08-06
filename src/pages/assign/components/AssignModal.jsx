@@ -148,11 +148,11 @@ const PatientInfoCard = ({ data }) => {
           <div className="flex flex-col gap-y-1 divide-y text-sm text-gray-600">
             <div className="flex items-center gap-x-2">
               <span>Assigned On: </span>
-              <span> {formatDate(programInfo?.assigned_on) || "N/A"}</span>
+              <span> {formatDate(programInfo?.assigned_on) || "-"}</span>
             </div>
             <div className="flex items-center gap-x-2">
               <span>Last Session: </span>
-              <span> {formatDate(programInfo?.last_session) || "N/A"}</span>
+              <span> {formatDate(programInfo?.last_session) || "-"}</span>
             </div>
           </div>
         </div>
@@ -208,15 +208,15 @@ const PatientInfoCard = ({ data }) => {
           {/* <StatusBadge className status={data.status} /> */}
           {/* <div>
             <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-              {data.status || "N/A"}
+              {data.status || "-"}
             </span>
           </div> */}
           <div className="flex flex-col items-start mb-2">
             <h3 className="text-xl font-semibold mr-3 text-black">
-              {patientInfo?.full_name || "N/A"}
+              {patientInfo?.full_name || "-"}
             </h3>
             <p className="text-gray-600 text-start text-base">
-              ORA-00{patientInfo?.patient_id || "N/A"}
+              ORA-00{patientInfo?.patient_id || "-"}
             </p>
           </div>
         </div>
@@ -225,7 +225,7 @@ const PatientInfoCard = ({ data }) => {
       <div className="flex items-center gap-4 text-sm">
         <p>Program</p>
         <p className="bg-[#f1f1fd] px-[0.75em] py-[0.25em] rounded-full text-[#7367f0]">
-          {programInfo?.name || "N/A"}
+          {programInfo?.name || "-"}
         </p>
       </div>
 
@@ -234,28 +234,28 @@ const PatientInfoCard = ({ data }) => {
       <div className="space-y-2 bg-[#f1f1fd] rounded-xl py-4 px-2 text-md">
         <div className="flex justify-between">
           <span className="text-gray-600 font-medium">
-            {programInfo.advisor_type || "N/A"}
+            {programInfo.advisor_type || "-"}
           </span>
           <span className="font-medium px-[0.75em] py-[0.25em] rounded-full bg-white">
-            {programInfo.advisor || "N/A"}
+            {programInfo.advisor || "-"}
           </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-gray-600 font-medium">Environment</span>
           <span className="font-medium text-cyan-500 px-[0.75em] py-[0.25em] rounded-full bg-cyan-50">
-            {programInfo.environment || "N/A"}
+            {programInfo.environment || "-"}
           </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-gray-600 font-medium">Frequency</span>
           <span className="font-medium text-cyan-500 px-[0.75em] py-[0.25em] rounded-full bg-cyan-50">
-            {programInfo.frequency || "N/A"}
+            {programInfo.frequency || "-"}
           </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-gray-600 font-medium">Tone Preference</span>
           <span className="font-medium px-[0.75em] py-[0.25em] rounded-full bg-white">
-            {programInfo.tone_preference || "N/A"}
+            {programInfo.tone_preference || "-"}
           </span>
         </div>
       </div>
@@ -269,7 +269,7 @@ const PatientInfoCard = ({ data }) => {
             <span className="px-4 py-1.5 rounded-full bg-[#f2f0fd] text-center mt-2 text-[#7670b8]">
               {programInfo?.current_session +
                 " of " +
-                programInfo?.total_sessions || "N/A"}
+                programInfo?.total_sessions || "-"}
             </span>
           </div>
           <div className="w-[1.5px] h-12 bg-gray-200" />
@@ -295,15 +295,15 @@ const PatientInfoCard = ({ data }) => {
         <div className="flex flex-col justify-center items-center space-y-1">
           <span>Mood Before Session</span>
           <span className="px-8 py-1 rounded-full bg-gray-100 flex items-center gap-2">
-            <p>{MoodEmoji(currentSession?.mood_before || "") || "N/A"}</p>
-            <p>{currentSession?.mood_before || "N/A"}</p>
+            <p>{MoodEmoji(currentSession?.mood_before || "") || "-"}</p>
+            <p>{currentSession?.mood_before || "-"}</p>
           </span>
         </div>
         <div className="flex flex-col justify-center items-center space-y-1">
           <span>Mood After Session</span>
           <span className="px-8 py-1 rounded-full bg-gray-100 flex items-center gap-2">
-            <p>{MoodEmoji(currentSession?.mood_after || "") || "N/A"}</p>
-            <p>{currentSession?.mood_after || "N/A"}</p>
+            <p>{MoodEmoji(currentSession?.mood_after || "") || "-"}</p>
+            <p>{currentSession?.mood_after || "-"}</p>
           </span>
         </div>
       </div>
@@ -383,15 +383,15 @@ const ProgramCard = ({ session, index }) => (
         <div className="flex flex-col justify-center items-center space-y-1">
           <span>Mood Before Session</span>
           <span className="px-8 py-1 rounded-full bg-gray-100 flex items-center gap-2">
-            <p>{MoodEmoji(session?.mood_before || "") || "N/A"}</p>
-            <p>{session?.mood_before || "N/A"}</p>
+            <p>{MoodEmoji(session?.mood_before || "") || "-"}</p>
+            <p>{session?.mood_before || "-"}</p>
           </span>
         </div>
         <div className="flex flex-col justify-center items-center space-y-1">
           <span>Mood After Session</span>
           <span className="px-8 py-1 rounded-full bg-gray-100 flex items-center gap-2">
-            <p>{MoodEmoji(session?.mood_after || "") || "N/A"}</p>
-            <p>{session?.mood_after || "N/A"}</p>
+            <p>{MoodEmoji(session?.mood_after || "") || "-"}</p>
+            <p>{session?.mood_after || "-"}</p>
           </span>
         </div>
       </div>
@@ -493,7 +493,7 @@ const SessionLog = ({ data, formData, setFormData, raiseFlagMutation }) => {
                     <span>{"Session " + flag?.session}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-red-500">{flag?.type || "N/A"}</span>
+                    <span className="text-red-500">{flag?.type || "-"}</span>
                     <span>{"Raised By: " + flag?.raised_by}</span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -502,7 +502,7 @@ const SessionLog = ({ data, formData, setFormData, raiseFlagMutation }) => {
                   </div>
                   <Divider />
                   <div className="flex items-center justify-start">
-                    <span>{flag?.note || "N/A"}</span>
+                    <span>{flag?.note || "-"}</span>
                     {/* <span>Flagged By</span> */}
                   </div>
                 </div>
@@ -532,11 +532,11 @@ const SessionLog = ({ data, formData, setFormData, raiseFlagMutation }) => {
               </div>
               <div className="flex items-center justify-between">
                 <span>Total Time Spent</span>
-                <span>{currentSession?.total_time_spent || "N/A"}</span>
+                <span>{currentSession?.total_time_spent || "-"}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span>Avg. Session Duration</span>
-                <span>{currentSession?.avg_session_duration || "N/A"}</span>
+                <span>{currentSession?.avg_session_duration || "-"}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span>Breaks Taken</span>
@@ -559,8 +559,8 @@ const SessionLog = ({ data, formData, setFormData, raiseFlagMutation }) => {
               <Divider />
               {sessions?.map((session, index) => (
                 <div key={index} className="flex items-center justify-between">
-                  <span>{"Session " + session?.session_number || "N/A"}</span>
-                  <span>{session?.mood_after || "N/A"}</span>
+                  <span>{"Session " + session?.session_number || "-"}</span>
+                  <span>{session?.mood_after || "-"}</span>
                 </div>
               ))}
             </div>
@@ -606,7 +606,7 @@ const SessionCard = ({ session, index }) => (
           <span className="font-medium">{session.session_number}</span>
         </span>
         <div className="text-sm text-black font-medium mt-[0.5em] md:mt-0">
-          Assigned On: {formatDate(session.created_at) || "N/A"}
+          Assigned On: {formatDate(session.created_at) || "-"}
         </div>
       </div>
 
@@ -683,7 +683,7 @@ const InfoRow = ({
     <span
       className={`font-medium px-[1em] py-[0.2em] rounded-full ${className} ${textClassName}`}
     >
-      {value || "N/A"}
+      {value || "-"}
     </span>
   </div>
 );
@@ -739,7 +739,7 @@ const MoodTrend = ({ label, moodTrend }) => {
           <>
             <MoodEmoji mood={moodTrend.from} />
             <span className="mx-[0.5em] font-medium">
-              {moodTrend.from || "N/A"}
+              {moodTrend.from || "-"}
             </span>
             <span className="mx-[0.5em]">→</span>
           </>
@@ -747,7 +747,7 @@ const MoodTrend = ({ label, moodTrend }) => {
         {moodTrend.to && (
           <>
             <MoodEmoji mood={moodTrend.to} />
-            <span className="ml-2 font-medium">{moodTrend.to || "N/A"}</span>
+            <span className="ml-2 font-medium">{moodTrend.to || "-"}</span>
           </>
         )}
       </div>

@@ -44,9 +44,9 @@ const ProgramInfoCard = ({ data }) => {
               <div className="text-black flex flex-col space-y-1 text-sm font-medium">
                 <span className="text-gray-600 text-sm flex flex-col md:flex-row gap-x-1">
                   <span>Last Updated: </span>
-                  <span> {formatDate(data?.updated_date) || "N/A"}</span>
+                  <span> {formatDate(data?.updated_date) || "-"}</span>
                 </span>
-                <span>ORA-00{data?.id || "N/A"}</span>
+                <span>ORA-00{data?.id || "-"}</span>
               </div>
               <span
                 className={`px-1 py-1 rounded-full text-xs font-medium flex justify-center items-center  ${getStatusColor(
@@ -69,7 +69,7 @@ const ProgramInfoCard = ({ data }) => {
             </div>
             <div className="flex items-center justify-start w-full pt-3">
               <span className="text-[#7367f0] text-lg md:text-2xl font-medium">
-                {data.name || "N/A"}
+                {data.name || "-"}
               </span>
             </div>
           </div>
@@ -77,7 +77,7 @@ const ProgramInfoCard = ({ data }) => {
           <div className="flex flex-col items-start justify-start text-black">
             <span className="text-sm">Condition Type</span>
             <span className="font-medium text-lg">
-              {data.condition_type || "N/A"}
+              {data.condition_type || "-"}
             </span>
           </div>
           <Divider />
@@ -86,23 +86,23 @@ const ProgramInfoCard = ({ data }) => {
           </div>
           <InfoRow
             label="Target Group"
-            value={data.target_group || "N/A"}
+            value={data.target_group || "-"}
             className="bg-[#dff0fe] text-blue-600"
           />
           <InfoRow
             label="Estimate Duration"
-            value={data.estimate_duration || "N/A"}
+            value={data.estimate_duration || "-"}
             className="text-black font-bold"
           />
           <Divider />
           <ProgramDetailCard
             title="Therapy Goal"
-            description={data.therapy_goal || "N/A"}
+            description={data.therapy_goal || "-"}
           />
           <Divider />
           <ProgramDetailCard
             title="Program Description"
-            description={data.program_description || "N/A"}
+            description={data.program_description || "-"}
           />
         </div>
       ) : (
@@ -118,7 +118,7 @@ const AdvisorInfo = ({ advisor }) => {
     <div className="font-medium text-black w-full flex items-center">
       <InfoRow
         label={advisor.advisor_type}
-        value={advisor.name || "N/A"}
+        value={advisor.name || "-"}
         className="bg-white"
       />
     </div>
@@ -171,10 +171,10 @@ const PatientInfoRow = ({ patient }) => {
         </div>
         <div className="flex flex-col items-start justify-start p-2">
           <span className="font-medium flex items-center text-xl">
-            {patient.full_name || "N/A"}
+            {patient.full_name || "-"}
           </span>
           <span className="text-gray-700 text-sm">
-            ORA-00{patient.patient_id || "N/A"}
+            ORA-00{patient.patient_id || "-"}
           </span>
         </div>
       </div>
@@ -275,10 +275,10 @@ const QuestionRow = ({ question, analytics }) => {
   return (
     <div className="flex items-center justify-between w-full py-1">
       <div className="flex items-center text-sm w-2/3">
-        {question.question || "N/A"}
+        {question.question || "-"}
       </div>
       {analytics ? (
-        <span className="text-sm">{question.answer || "N/A"}</span>
+        <span className="text-sm">{question.answer || "-"}</span>
       ) : (
         <div className="flex justify-center items-center gap-5 w-1/3">
           {question.answers.map((answer, index) => (
@@ -286,7 +286,7 @@ const QuestionRow = ({ question, analytics }) => {
               className="text-gray-700 text-sm uppercase text-nowrap"
               key={index}
             >
-              {answer.label || "N/A"}
+              {answer.label || "-"}
             </span>
           ))}
         </div>

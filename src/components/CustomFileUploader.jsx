@@ -62,11 +62,11 @@ const CustomFileUploader = forwardRef(
     };
 
     const startUpload = (file) => {
-      if (file.size > sizeLimit * 1024 * 1024) {
-        toast.error("File size exceeds the limit of 5MB");
-        reset();
-        return;
-      }
+      // if (file.size > sizeLimit * 1024 * 1024) {
+      //   toast.error("File size exceeds the limit of 5MB");
+      //   reset();
+      //   return;
+      // }
 
       setFile(file);
       setProgress(0);

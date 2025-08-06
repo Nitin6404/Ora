@@ -30,7 +30,7 @@ const TopBar = ({ name }) => {
       <div className="flex justify-between items-center space-x-4">
         <div>
           <h1 className="text-sm lg:text-2xl font-medium text-gray-800">
-            Welcome Back Dr. {name ? name : "Olivia Grant"}
+            Welcome Back  {name ? name : "Olivia Grant"}
           </h1>
           <p className="text-xs lg:text-base text-gray-600 mt-1">
             Let's review today's therapy progress

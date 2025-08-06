@@ -20,7 +20,7 @@ const ProgramCard = ({ program, onClick }) => {
         month: "long",
         day: "numeric",
       })
-    : "N/A";
+    : "-";
 
   useEffect(() => {
     const handleClickOutside = (event) => {

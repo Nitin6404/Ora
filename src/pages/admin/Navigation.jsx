@@ -83,7 +83,7 @@ export default function Navigation({ children }) {
   const location = useLocation();
 
   const user = JSON.parse(localStorage.getItem("user"));
-  const allowedPages = [...user?.allowed_pages, "assign", "media"] || [];
+  const allowedPages = [...user?.allowed_pages] || [];
 
   const visibleModules = modules.filter((mod) =>
     allowedPages.includes(mod.name)

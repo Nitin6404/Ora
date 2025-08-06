@@ -1,0 +1,296 @@
+import React from "react";
+import { ChevronLeft } from "lucide-react";
+import { GENDER_DROPDOWN } from "../../../constants";
+import CustomDropdown from "../../../components/CustomDropDown";
+import getRoles from "../helpers/getRoles";
+import { useQuery } from "@tanstack/react-query";
+import PasswordEye from "../../../components/PasswordEye";
+import { z } from "zod";
+import { useState } from "react";
+import toTitleCase from "../../../utils/to_title_case";
+import CustomFileUploader from "../../../components/CustomFileUploader";
+
+const UserForm = ({
+  formData,
+  setFormData,
+  handleChange,
+  handleSubmit,
+  loading,
+  showPassword,
+  handlePasswordVisibility,
+  navigate,
+  formType,
+}) => {
+  const [isDesktop, setIsDesktop] = React.useState(window.innerWidth > 1024);
+
+  const [errors, setErrors] = useState({});
+  const { data: roles = [] } = useQuery({
+    queryKey: ["roles"],
+    queryFn: getRoles,
+  });
+
+  const userSchema = z.object({
+    first_name: z.string().min(1, "First name is required"),
+    middle_name: z.string().min(1, "Middle name is required"),
+    last_name: z.string().min(1, "Last name is required"),
+    date_of_birth: z.string().min(1, "Date of birth is required"),
+    email: z.string().email("Invalid email address"),
+    // Coerce string to number safely for phone number
+    phone_no: z
+      .string()
+      .min(1, "Phone number is required")
+      .refine((val) => /^\d{10}$/.test(val), {
+        message: "Phone number must be 10 digits",
+      }),
+    ...(formType !== "edit"
+      ? {
+          password: z
+            .string({
+              required_error: "Password is required",
+            })
+            .min(8, "Password must be at least 8 characters long"),
+          // .regex(
+          //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+          //   "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character"
+          // )
+        }
+      : {}),
+    gender: z.string().min(1, "Gender is required"),
+    // Coerce role ID to number and validate it
+    role_ids: z.preprocess((val) => {
+      const num = Number(val);
+      return isNaN(num) ? undefined : num;
+    }, z.number({ invalid_type_error: "Role must be a number" }).min(1, "Role is required")),
+  });
+
+  const rolesColumn = roles.map((role) => ({
+    value: role.id,
+    name: toTitleCase(role.role_name),
+  }));
+
+  const inputFields = [
+    {
+      id: "first_name",
+      label: "First Name",
+      type: "text",
+      placeholder: "Enter name",
+    },
+    {
+      id: "middle_name",
+      label: "Middle Name",
+      type: "text",
+      placeholder: "Enter name",
+    },
+    {
+      id: "last_name",
+      label: "Last Name",
+      type: "text",
+      placeholder: "Enter name",
+    },
+    { id: "date_of_birth", label: "Date of Birth", type: "date" },
+    { id: "email", label: "Email", type: "email", placeholder: "Enter email" },
+    {
+      id: "phone_no",
+      label: "Phone Number",
+      type: "text",
+      placeholder: "Enter phone",
+    },
+    {
+      id: "gender",
+      label: "Gender",
+      type: "select",
+      placeholder: "Select gender",
+      options: GENDER_DROPDOWN,
+    },
+    {
+      id: "role_ids",
+      label: "Role",
+      type: "select",
+      placeholder: "Select role",
+      options: rolesColumn,
+    },
+  ];
+
+  if (formType !== "edit") {
+    inputFields.push({
+      id: "password",
+      label: "Password",
+      type: "password",
+      placeholder: "Enter password",
+    });
+  }
+
+  const renderField = ({ id, label, type, placeholder, options = [] }) => {
+    if (type === "select") {
+      return (
+        <div key={id} className="flex flex-col">
+          <CustomDropdown
+            label={label}
+            options={options || []}
+            selected={
+              options.find((item) => item.value === formData[id])?.name || ""
+            }
+            onSelect={(item) => setFormData({ ...formData, [id]: item.value })}
+          />
+          {errors[id] && (
+            <p className="text-red-500 text-xs mt-1">{errors[id]}</p>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div key={id} className="flex flex-col relative">
+        <label htmlFor={id} className="text-sm font-medium text-gray-700">
+          {label}
+        </label>
+        <div className="!relative input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8">
+          <input
+            id={id}
+            name={id}
+            type={id === "password" && showPassword ? "text" : type}
+            value={formData[id] || ""}
+            onChange={handleChange}
+            placeholder={placeholder}
+            autoComplete="off"
+            className="input-field pr-10"
+          />
+          {id === "password" && (
+            <button
+              type="button"
+              onClick={handlePasswordVisibility}
+              className="absolute right-3 top-[50%] transform -translate-y-1/2  text-xs"
+              tabIndex={-1}
+            >
+              <PasswordEye showPassword={showPassword} />
+            </button>
+          )}
+        </div>
+        {errors[id] && (
+          <p className="text-red-500 text-xs mt-1">{errors[id]}</p>
+        )}
+      </div>
+    );
+  };
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth > 1024);
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    // Initial check
+    handleResize();
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  console.log(isDesktop);
+  return (
+    <div className="bg-white/30 mx-2 lg:px-4 rounded-2xl h-[92%] flex flex-col justify-between overflow-auto no-scrollbar">
+      <div className="grid lg:grid-cols-6 md:grid-cols-2 grid-cols-1 px-4 py-2 ">
+        <div
+          className={`col-span-4 gap-4 pr-5
+          `}
+        >
+          <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4 w-full">
+            {inputFields.map((field) => (
+              <div key={field.id} className="flex flex-col gap-4 w-full">
+                {renderField(field)}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div
+          className={`col-span-2 flex-1 flex-col gap-4
+          ${isDesktop ? "" : "hidden"}`}
+        >
+          <label
+            htmlFor="profile_image"
+            className="text-sm font-medium text-gray-700"
+          >
+            Profile Image
+          </label>
+          <CustomFileUploader
+            onFileSelect={(file) =>
+              setFormData({ ...formData, profile_image: file })
+            }
+            initialImage={formData.profile_image_url}
+            onFileRemove={() => {
+              console.log("File removed");
+              // on edit user remove profile image url from formData
+              setFormData({
+                ...formData,
+                profile_image: null,
+                profile_image_url: null,
+              });
+            }}
+            defaultTitle="Profile Image"
+            sizeLimit={5}
+          />
+        </div>
+      </div>
+      <div
+        className={`mb-8 flex-auto flex-col gap-4 px-4 py-2 
+          ${isDesktop ? "hidden" : ""}`}
+      >
+        <label
+          htmlFor="profile_image"
+          className="text-sm font-medium text-gray-700"
+        >
+          Profile Image
+        </label>
+        <CustomFileUploader
+          onFileSelect={(file) =>
+            setFormData({ ...formData, profile_image: file })
+          }
+          initialImage={formData.profile_image_url}
+          onFileRemove={() =>
+            // on edit user remove profile image url from formData
+            setFormData({ ...formData, profile_image_url: null })
+          }
+          defaultTitle="Profile Image"
+          sizeLimit={5}
+        />
+      </div>
+
+      {/* Footer Buttons */}
+      <div className="flex flex-col sm:flex-row justify-between py-3 px-2 border-t border-[#ABA4F6] gap-3">
+        <button
+          onClick={() => navigate(-1)}
+          className="custom-gradient-button flex justify-center items-center text-sm px-4 py-2"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          <span>Back</span>
+        </button>
+        <button
+          onClick={() => {
+            const result = userSchema.safeParse(formData);
+            if (!result.success) {
+              const errors = {};
+              result.error.issues.forEach((error) => {
+                errors[error.path[0]] = error.message;
+              });
+              setErrors(errors);
+              return;
+            }
+            handleSubmit();
+          }}
+          disabled={loading}
+          className="patient-btn flex justify-center items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-b from-[#7367F0] to-[#453E90] rounded-full shadow-md gap-2"
+        >
+          {loading
+            ? formType === "edit"
+              ? "Updating..."
+              : "Creating..."
+            : formType === "edit"
+            ? "Update User"
+            : "Create User"}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default UserForm;

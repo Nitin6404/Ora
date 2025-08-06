@@ -231,6 +231,12 @@ const MusicVideoNode = ({ data, audioList, videoList }) => {
 
   const options = type === "music" ? audioList : videoList;
   const selectedItem = options.find((item) => item.id === selectedId);
+const [intensity, setIntensity] = useState(data.intensity || 1); // default High
+
+const handleIntensityChange = (value) => {
+  setIntensity(value);
+  handleUpdate({ intensity: value });
+};
 
   return (
     <div className="border border-green-400 rounded-xl p-3 bg-white w-80 shadow relative">
@@ -302,6 +308,28 @@ const MusicVideoNode = ({ data, audioList, videoList }) => {
       >
         Connect To Another Node
       </button>
+<div className="mb-2">
+  <div className="text-xs mb-1 text-gray-600">Select Intensity:</div>
+  <div className="flex gap-2">
+    {[
+      { label: "Low", value: 0.4 },
+      { label: "Medium", value: 0.6 },
+      { label: "High", value: 1 },
+    ].map((item) => (
+      <button
+        key={item.label}
+        onClick={() => handleIntensityChange(item.value)}
+        className={`px-3 py-1 rounded text-xs font-medium border ${
+          intensity === item.value
+            ? "bg-purple-500 text-white"
+            : "bg-white text-gray-700 border-gray-300"
+        }`}
+      >
+        {item.label}
+      </button>
+    ))}
+  </div>
+</div>
 
       <Handle type="source" position={Position.Bottom} />
     </div>
@@ -661,6 +689,7 @@ export default function EditDecisionTreeFlow() {
           itemId: n.data.selectedId || "",
           timer: Number(n.data.timer) || 0,
           forceTimer: !!n.data.forceTimer || false,
+           intensity: n.data.intensity || 1,
           url: (() => {
             const isMusic = n.data.typeOption === "music";
             const list = isMusic ? audioList : videoList;
@@ -733,6 +762,7 @@ export default function EditDecisionTreeFlow() {
           itemId: n.data.selectedId || "",
           timer: Number(n.data.timer) || 0,
           forceTimer: !!n.data.forceTimer || false,
+          intensity: n.data.intensity || 1,
           url: (() => {
             const isMusic = n.data.typeOption === "music";
             const list = isMusic ? audioList : videoList;

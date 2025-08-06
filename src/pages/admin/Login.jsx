@@ -99,7 +99,7 @@ export default function NewLogin() {
       );
 
       if (role_name == "patient") {
-        navigate("/profile");
+        navigate("/dashboard");
       } else {
         navigate("/dashboard");
       }
