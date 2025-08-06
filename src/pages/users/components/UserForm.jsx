@@ -317,24 +317,42 @@ const UserForm = ({
         <button
           onClick={() => {
             const result = userSchema.safeParse(formData);
+
+            // Custom password regex (not handled in Zod)
+            const passwordRegex =
+              /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d|.*[@#$%^&*!]).{8,}$/;
+
+            // Determine if password is valid only if not in 'edit' mode
+            const isPasswordValid =
+              formType === "edit" || passwordRegex.test(formData.password);
+
+            const errors = {};
+
+            // Add password error if not valid and we're not editing
+            if (formType !== "edit" && !isPasswordValid) {
+              errors.password =
+                "Password must include uppercase, lowercase, number, and special character";
+            }
+
+            // Collect Zod validation errors if any
             if (!result.success) {
-              const errors = {};
-              const passwordRegex =
-                /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d|.*[@#$%^&*!]).{8,}$/;
-              const isPasswordValid = passwordRegex.test(formData.password);
-              if (!isPasswordValid && formType !== "edit") {
-                errors.password =
-                  "Password must include uppercase, lowercase, number, and special character";
-              }
-              result.error.issues.forEach((error) => {
-                errors[error.path[0]] = error.message;
+              result.error.issues.forEach((issue) => {
+                const field = issue.path[0];
+                if (!errors[field]) {
+                  errors[field] = issue.message;
+                }
               });
+            }
+
+            // If there are any errors, block submission
+            if (Object.keys(errors).length > 0) {
               setErrors(errors);
               return;
             }
 
+            // ✅ All validations passed
             setErrors({});
-            handleSubmit(); // ← only if validation passed
+            handleSubmit();
           }}
           disabled={loading}
           className="patient-btn flex justify-center items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-b from-[#7367F0] to-[#453E90] rounded-full shadow-md gap-2"

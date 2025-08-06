@@ -206,7 +206,7 @@ const USER_COLUMN = [
     render: (p) => (p.created_date ? formatDate(p.created_date) : "-"),
   },
 
-  localStorage.getItem("role_name") === "admin" && {
+  {
     key: "actions",
     label: "Actions",
     render: (p) => {
