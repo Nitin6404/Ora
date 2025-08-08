@@ -328,6 +328,7 @@ const ProgramForm = ({
                   vsaList.find((item) => item.id === formData.vsa)?.name
                 }
                 onSelect={(value) => setFormData({ ...formData, vsa: value })}
+                onRemove={() => setFormData({ ...formData, vsa: "" })}
               />
             ) : (
               <CustomDropdown
@@ -336,6 +337,7 @@ const ProgramForm = ({
                 options={[]}
                 selected={""}
                 onSelect={(value) => setFormData({ ...formData, vsa: value })}
+                onRemove={() => setFormData({ ...formData, vsa: "" })}
               />
             )}
           </div>
@@ -358,6 +360,7 @@ const ProgramForm = ({
                       [valueKey]: getValue ? getValue(item) : item.name,
                     }))
                   }
+                  onRemove={() => setFormData({ ...formData, [valueKey]: "" })}
                 />
               </div>
             )
@@ -373,6 +376,7 @@ const ProgramForm = ({
                   vmaList.find((item) => item.id === formData.vma)?.name
                 }
                 onSelect={(value) => setFormData({ ...formData, vma: value })}
+                onRemove={() => setFormData({ ...formData, vma: "" })}
               />
             ) : (
               <CustomDropdown
@@ -381,6 +385,7 @@ const ProgramForm = ({
                 options={[]}
                 selected={""}
                 onSelect={(value) => setFormData({ ...formData, vma: value })}
+                onRemove={() => setFormData({ ...formData, vma: "" })}
               />
             )}
           </div>

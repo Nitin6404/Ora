@@ -65,16 +65,23 @@ const CustomDropdown = ({
         </label>
       )}
 
-      <div className="input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8">
+      <div
+        onClick={() => setIsOpen(!isOpen)}
+        disabled={disabled}
+        className="input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8"
+      >
         <button
-          onClick={() => setIsOpen(!isOpen)}
-          disabled={disabled}
           className={`input-field w-full text-left !text-gray-500 !font-medium bg-white border border-gray-300 px-4 py-2 rounded-lg shadow-sm
             ${disabled && "opacity-50 cursor-not-allowed"}`}
         >
           {placeholder ? placeholder : selected || `Select ${label}`}
         </button>
-        <ChevronDown className="absolute top-2/3 right-3 transform -translate-y-1/2 text-gray-400 " />
+        <ChevronDown
+          className={`absolute top-2/3 right-3 transform -translate-y-1/2 text-gray-400 hover:cursor-pointer ${
+            disabled && "opacity-50 cursor-not-allowed"
+          }
+          `}
+        />
       </div>
 
       {isOpen && (

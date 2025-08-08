@@ -201,7 +201,8 @@ const PatientInfoCard = ({ data }) => {
           />
         ) : (
           <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-            <User size={24} />
+            {/* <User size={24} /> */}
+            {patientInfo?.full_name?.slice(0, 1)}
           </div>
         )}
         <div className="flex flex-col space-y-2">

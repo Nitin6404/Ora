@@ -377,6 +377,7 @@ const ProgramForm = ({
                       [valueKey]: getValue ? getValue(item) : item.name,
                     }))
                   }
+                  onRemove={() => setFormData({ ...formData, [valueKey]: "" })}
                 />
               </div>
             )

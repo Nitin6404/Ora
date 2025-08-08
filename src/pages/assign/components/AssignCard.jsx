@@ -145,7 +145,7 @@ const AssignCard = ({ assign, onAssignClick }) => {
               className="w-full h-full rounded-full"
             />
           ) : (
-            "U"
+            assign?.patient?.full_name?.slice(0, 1)
           )}
         </div>
         <div className="ml-auto text-sm bg-[#f8f7fd] px-3 py-1.5 rounded-full">

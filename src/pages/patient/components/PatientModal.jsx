@@ -3,6 +3,7 @@ import { User, Zap, AlertTriangle, CircleCheckBig, Clock3 } from "lucide-react";
 import { formatDate } from "../../../utils/format_date";
 import ModalWrapper from "../../../components/ModalWrapper";
 import "../../patient.css";
+import { snakeToCamel } from "../../../constants/index";
 
 const MoodEmoji = ({ mood }) => {
   const getMoodEmoji = () => {
@@ -35,113 +36,6 @@ const getStatusColor = (status, flagged) => {
 const PatientDashboardModal = ({ isOpen, onClose, patientData }) => {
   if (!isOpen) return null;
 
-  // const defaultData = {
-  //   name: "Emily Sanchez",
-  //   id: "ORA-00148",
-  //   status: "Active",
-  //   avatar: "/api/placeholder/80/80",
-  //   gender: "Female",
-  //   dateOfBirth: "Jan 14, 1983 (Age: 42)",
-  //   phone: "+1 310-555-0194",
-  //   email: "emily.sanchez@email.com",
-  //   clinic: "Mount Sinai Oncology, NY",
-  //   lastMood: "Sad",
-  //   lastSession: "May 29, 2025",
-  //   programs: [
-  //     {
-  //       id: "Program 2",
-  //       name: "Chemo Recovery Series A",
-  //       environment: "Tranquil Forest",
-  //       sessions: "2 of 3",
-  //       status: "In Progress",
-  //       assignedOn: "May 21, 2025",
-  //       moodTrend: "Stable",
-  //     },
-  //     {
-  //       id: "Program 1",
-  //       name: "Mindful Coping Starter",
-  //       environment: "Tranquil Forest",
-  //       sessions: "3 of 3",
-  //       status: "Completed",
-  //       assignedOn: "May 21, 2025",
-  //       moodTrend: "Improving",
-  //     },
-  //     {
-  //       id: "Program 3",
-  //       name: "Chemo Recovery Series A",
-  //       environment: "Tranquil Forest",
-  //       sessions: "2 of 3",
-  //       status: "In Progress",
-  //       assignedOn: "May 21, 2025",
-  //       moodTrend: "Stable",
-  //     },
-  //     {
-  //       id: "Program 4",
-  //       name: "Chemo Recovery Series A",
-  //       environment: "Tranquil Forest",
-  //       sessions: "2 of 3",
-  //       status: "In Progress",
-  //       assignedOn: "May 21, 2025",
-  //       moodTrend: "Stable",
-  //     },
-  //     {
-  //       id: "Program 5",
-  //       name: "Chemo Recovery Series A",
-  //       environment: "Tranquil Forest",
-  //       sessions: "2 of 3",
-  //       status: "In Progress",
-  //       assignedOn: "May 21, 2025",
-  //       moodTrend: "Stable",
-  //     },
-  //   ],
-  //   sessions: [
-  //     {
-  //       id: "Session 2",
-  //       program: "Mindful Coping Starter",
-  //       environment: "Tranquil Forest",
-  //       duration: "12 Min",
-  //       assignedOn: "May 21, 2025",
-  //       moodTrend: { from: "Stable", to: "Sad" },
-  //       breakTaken: "Yes",
-  //       distressFlag: "Yes",
-  //       exitTime: "6:02 min",
-  //       moodNote: "Mood drop reported",
-  //     },
-  //     {
-  //       id: "Session 1",
-  //       program: "Mindful Coping Starter",
-  //       environment: "Tranquil Forest",
-  //       duration: "10 Min",
-  //       assignedOn: "May 21, 2025",
-  //       moodTrend: { from: "Sad", to: "Stable" },
-  //     },
-  //     {
-  //       id: "Session 3",
-  //       program: "Mindful Coping Starter",
-  //       environment: "Tranquil Forest",
-  //       duration: "10 Min",
-  //       assignedOn: "May 21, 2025",
-  //       moodTrend: { from: "Sad", to: "Stable" },
-  //     },
-  //     {
-  //       id: "Session 4",
-  //       program: "Mindful Coping Starter",
-  //       environment: "Tranquil Forest",
-  //       duration: "10 Min",
-  //       assignedOn: "May 21, 2025",
-  //       moodTrend: { from: "Sad", to: "Stable" },
-  //     },
-  //     {
-  //       id: "Session 5",
-  //       program: "Mindful Coping Starter",
-  //       environment: "Tranquil Forest",
-  //       duration: "10 Min",
-  //       assignedOn: "May 21, 2025",
-  //       moodTrend: { from: "Sad", to: "Stable" },
-  //     },
-  //   ],
-  // };
-  // const data = { ...defaultData, ...patientData };
   const data = patientData;
 
   return (
@@ -178,7 +72,8 @@ const PatientInfoCard = ({ data }) => {
           />
         ) : (
           <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center">
-            <User size={24} />
+            {/* <User size={24} /> */}
+            {snakeToCamel(data?.full_name)?.slice(0, 1)}
           </div>
         )}
         <div className="flex flex-col space-y-2">
@@ -190,7 +85,7 @@ const PatientInfoCard = ({ data }) => {
           </div>
           <div className="flex flex-col items-start mb-2">
             <h3 className="text-lg font-semibold mr-3 text-black">
-              {data?.full_name || "-"}
+              {snakeToCamel(data?.full_name) || "-"}
             </h3>
             <p className="text-gray-600 text-start">ORA-00{data?.id || "-"}</p>
           </div>
@@ -203,7 +98,7 @@ const PatientInfoCard = ({ data }) => {
         <div className="flex justify-between">
           <span className="text-gray-600 font-medium">Gender</span>
           <span className="font-medium px-[0.75em] py-[0.25em] rounded-full bg-white">
-            {data?.gender || "-"}
+            {snakeToCamel(data?.gender) || "-"}
           </span>
         </div>
         <div className="flex justify-between">
@@ -215,7 +110,7 @@ const PatientInfoCard = ({ data }) => {
         <div className="flex justify-between items-center">
           <span className="text-gray-600 font-medium">Phone Number</span>
           <span className="font-medium text-cyan-500 px-[0.75em] py-[0.25em] rounded-full bg-cyan-50">
-            {data?.phone_no || "-"}
+            {snakeToCamel(data?.phone_no) || "-"}
           </span>
         </div>
         <div className="flex justify-between items-center">
@@ -227,7 +122,7 @@ const PatientInfoCard = ({ data }) => {
         <div className="flex justify-between">
           <span className="text-gray-600 font-medium">Clinic / Site</span>
           <span className="font-medium px-[0.75em] py-[0.25em] rounded-full bg-white">
-            {data?.clinic_site || "-"}
+            {snakeToCamel(data?.clinic_site || "-")}
           </span>
         </div>
       </div>
@@ -497,7 +392,7 @@ const MoodTrend = ({ label, moodTrend }) => {
           <>
             <MoodEmoji mood={moodTrend.from} />
             <span className="mx-[0.5em] font-medium">
-              {moodTrend.from || "-"}
+              {snakeToCamel(moodTrend.from) || "-"}
             </span>
             <span className="mx-[0.5em]">→</span>
           </>
@@ -505,7 +400,9 @@ const MoodTrend = ({ label, moodTrend }) => {
         {moodTrend.to && (
           <>
             <MoodEmoji mood={moodTrend.to} />
-            <span className="ml-2 font-medium">{moodTrend.to || "-"}</span>
+            <span className="ml-2 font-medium">
+              {snakeToCamel(moodTrend.to) || "-"}
+            </span>
           </>
         )}
       </div>

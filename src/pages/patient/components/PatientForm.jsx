@@ -26,11 +26,10 @@ const PatientForm = ({
   handleChange,
   handleSubmit,
   loading,
-  showPassword,
-  handlePasswordVisibility,
   setFormData,
   navigate,
   isEdit = false,
+  errors = {},
 }) => {
   return (
     <div className="bg-white/30 mx-2 lg:px-4 rounded-xl h-[92%] flex flex-col justify-between">
@@ -53,6 +52,9 @@ const PatientForm = ({
                   className="input-field"
                 />
               </div>
+              {errors[id] && (
+                <p className="text-red-500 text-xs mt-1">{errors[id]}</p>
+              )}
             </div>
           ))}
           <div className="hidden md:flex flex-wrap gap-4 w-full">
@@ -97,6 +99,9 @@ const PatientForm = ({
                   className="input-field"
                 />
               </div>
+              {errors[id] && (
+                <p className="text-red-500 text-xs mt-1">{errors[id]}</p>
+              )}
             </div>
           ))}
 
@@ -112,7 +117,11 @@ const PatientForm = ({
               onSelect={(item) =>
                 setFormData({ ...formData, gender: item.value })
               }
+              onRemove={() => setFormData({ ...formData, gender: "" })}
             />
+            {errors.gender && (
+              <p className="text-red-500 text-xs mt-1">{errors.gender}</p>
+            )}
           </div>
         </div>
 
@@ -125,9 +134,15 @@ const PatientForm = ({
             initialImage={formData.profile_image_url}
             onFileRemove={() => {
               console.log("File removed");
-              setFormData({ ...formData, profile_image_url: null });
+              setFormData({ ...formData, file: null, profile_image_url: null });
             }}
+            defaultTitle="Upload Patient Image"
+            description="Allowed file types: JPEG, PNG, JPG"
+            sizeLimit={12}
           />
+          {errors.profile_image && (
+            <p className="text-red-500 text-xs mt-1">{errors.profile_image}</p>
+          )}
         </div>
 
         {/* Checkboxes */}

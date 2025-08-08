@@ -135,9 +135,9 @@ const Dashboard = () => {
   return (
     <Navigation>
       <TopBar name={name} />
-      <div className="h-full flex flex-col p-2 overflow-x-hidden no-scrollbar font-inter">
-        <div className="flex-1 p-4 md:px-6 md:py-3 overflow-auto no-scrollbar">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-6 mb-6 md:mb-8 w-full">
+      <div className="h-full flex flex-col p-[0.125rem] overflow-y-auto no-scrollbar font-inter">
+        <div className="flex-1 p-[0.25rem] md:px-[0.375rem] md:py-[0.1875rem] overflow-auto no-scrollbar">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-[0.25rem] md:gap-[0.375rem] mb-[0.375rem] md:mb-[0.5rem] w-full">
             <div className="col-span-1 md:col-span-2 lg:col-span-1">
               <ActiveProgramsCard noOfPrograms={stats?.active_programs} />
             </div>
@@ -162,8 +162,8 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="bg-[#ebeafd]/40 p-4 md:p-2 rounded-[30px]">
-            <div className="flex flex-wrap items-center justify-between gap-2 mb-4 md:mb-2">
+          <div className="bg-[#ebeafd]/40 p-[0.25rem] md:p-[0.125rem] rounded-[1.875rem]">
+            <div className="flex flex-wrap items-center justify-between gap-[0.125rem] mb-[0.25rem] md:mb-[0.125rem]">
               <FilterTopBar
                 filterOptions={filterOptions}
                 onFilterChange={handleFilterChange}
@@ -183,14 +183,14 @@ const Dashboard = () => {
 
             <ScrollWrapper>
               {isLoading ? (
-                <div className="flex flex-1 items-center justify-center w-full min-h-64">
+                <div className="flex flex-1 items-center justify-center w-full min-h-[4rem]">
                   <PrimaryLoader />
                 </div>
               ) : isArrayWithValues(filteredPrograms) ? (
                 filteredPrograms.map((program, index) => (
                   <div
                     key={index}
-                    className="flex-shrink-0 w-[260px] md:w-[315px] overflow-hidden rounded-3xl"
+                    className="flex-shrink-0 w-[16.25rem] md:w-[19.6875rem] overflow-hidden rounded-[1.5rem]"
                   >
                     <ProgramCard
                       program={program}
@@ -203,7 +203,7 @@ const Dashboard = () => {
                   </div>
                 ))
               ) : (
-                <div className="flex flex-1 items-center justify-center w-full min-h-64">
+                <div className="flex flex-1 items-center justify-center w-full min-h-[4rem]">
                   <p className="text-gray-600 text-sm">No programs found</p>
                 </div>
               )}

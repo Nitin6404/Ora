@@ -11,6 +11,36 @@ import {
   PATIENT_ENDPOINT,
 } from "../config/apiConfig";
 import axiosInstance from "../services/apiService";
+import { z } from "zod";
+
+export const editPatientSchema = z.object({
+  full_name: z.string().min(1, "Full name is required"),
+  date_of_birth: z
+    .string()
+    .min(1, "Date of birth is required")
+    .refine((date) => new Date(date) < new Date(), {
+      message: "Date of birth must be in the past",
+    }),
+  email: z.string().email("Invalid email address"),
+  phone_no: z
+    .string()
+    .min(10, "Phone number is required")
+    .refine(
+      (val) => {
+        const cleaned = val.replace(/\D/g, "");
+        return (
+          (/^(\+91)?[6-9]\d{9}$/.test(val) && cleaned.length === 10) ||
+          (/^(\+1)?[2-9]\d{9}$/.test(val) && cleaned.length === 10)
+        );
+      },
+      {
+        message:
+          "Phone number must be valid Indian or US number with 10 digits",
+      }
+    ),
+  gender: z.string().min(1, "Gender is required"),
+  profile_image: z.any().optional(),
+});
 
 const API_URL = API_BASE_URL + PATIENT_INFO;
 const API_URL_PUT = API_BASE_URL + PATIENT_ENDPOINT;
@@ -18,12 +48,13 @@ const API_URL_PUT = API_BASE_URL + PATIENT_ENDPOINT;
 export default function EditPatient() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [formErrors, setFormErrors] = useState({});
+
   const [formData, setFormData] = useState({
     full_name: "",
     date_of_birth: "",
     email: "",
     phone_no: "",
-    password: "",
     is_active: true,
     concent_given: true,
     profile_image: null,
@@ -33,7 +64,6 @@ export default function EditPatient() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const fetchPatient = async () => {
@@ -66,11 +96,45 @@ export default function EditPatient() {
   };
 
   const handleSubmit = async () => {
+    const result = editPatientSchema.safeParse(formData);
+    const newErrors = {};
+
+    if (formData.profile_image) {
+      const fileType = formData.profile_image.type;
+      const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+      if (!allowedTypes.includes(fileType)) {
+        newErrors.profile_image =
+          "Invalid file type. Only JPEG, PNG, and JPG are allowed.";
+      }
+
+      const fileSizeMB = formData.profile_image.size / (1024 * 1024); // in MB
+      if (fileSizeMB > 12) {
+        newErrors.profile_image = "Profile image must be 12 MB or less.";
+      }
+    }
+
+    if (!result.success) {
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0];
+        if (!newErrors[field]) {
+          newErrors[field] = issue.message;
+        }
+      });
+
+      setFormErrors(newErrors); // Make sure you define this in your state
+      toast.error("Please fix the errors before saving.");
+      return;
+    }
+
+    setFormErrors({});
     setSaving(true);
+
     try {
       const multipartData = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
         if (value !== null) multipartData.append(key, value);
+        if (key === "profile_image_url" && value == null)
+          multipartData.append(key, value);
       });
 
       const response = await axiosInstance.put(
@@ -110,11 +174,10 @@ export default function EditPatient() {
             handleChange={handleChange}
             handleSubmit={handleSubmit}
             loading={saving}
-            showPassword={showPassword}
-            handlePasswordVisibility={handlePasswordVisibility}
             setFormData={setFormData}
             navigate={navigate}
             isEdit
+            errors={formErrors}
           />
         )}
       </div>

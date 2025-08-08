@@ -1,0 +1,30 @@
+/* styles.css or your component CSS file */
+.figma-button {
+  width: 320px;
+  height: 42px;
+  border-radius: 24px;
+  border-width: 0.75px;
+  padding: 6px 12px;
+  background: linear-gradient(0deg, #453E90, #453E90),
+              radial-gradient(79.76% 79.76% at 50% 0%, #7367F0 0%, rgba(115, 103, 240, 0) 100%);
+  border-style: solid;
+  border-image-source: radial-gradient(50% 93.75% at 50% 6.25%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 100%);
+  box-shadow: 0px 0px 0px 1px #7367F0;
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.figma-button:hover {
+  background: linear-gradient(0deg, #5b52c1, #5b52c1),
+              radial-gradient(79.76% 79.76% at 50% 0%, #8d85f8 0%, rgba(115, 103, 240, 0.1) 100%);
+  box-shadow: 0px 0px 6px 2px #7367F0;
+}
+.custom-mask {
+  -webkit-mask-image: url('/path-to/mask-shape.svg');
+  mask-image: url('/path-to/mask-shape.svg');
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}

@@ -3,9 +3,9 @@ import { EllipsisVertical } from "lucide-react";
 import { useState, useEffect } from "react";
 
 const SessionPerformanceChart = ({
-  totalSessions = 0,
-  sessionCompleted = 0,
-  distressRaised = 0,
+  totalSessions = "00",
+  sessionCompleted = "00",
+  distressRaised = "00",
 }) => {
   const [isMobile, setIsMobile] = useState(false);
 

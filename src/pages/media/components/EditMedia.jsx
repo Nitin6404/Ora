@@ -214,7 +214,7 @@ const EditMediaForm = ({
   <div className="bg-white/30 mx-2 px-4 rounded-xl h-[92%] flex flex-col justify-between">
     <div className="space-y-6">
       <h2 className="text-lg font-semibold text-gray-800">
-        Update Media Details
+        {/* Update Media Details */}
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {fetching ? (
@@ -278,7 +278,7 @@ const EditMediaForm = ({
                     ? "MP3, WAV, OGG, AAC, FLAC."
                     : "MP4, MKV, MOV, AVI, WEBM."
                 }`}
-                sizeLimit={formData.type === "mp3" ? 10 : 500}
+                sizeLimit={formData.type === "mp3" ? 20 : 100}
                 initialImage={formData.file}
                 onFileSelect={(file) =>
                   setFormData({ ...formData, file, isFileChanged: true })

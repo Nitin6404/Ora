@@ -1,5 +1,6 @@
 import React from "react";
 import { DateRange } from "react-date-range";
+import { XIcon } from "lucide-react";
 
 export default function DateRangeModal({
   show,
@@ -33,6 +34,14 @@ export default function DateRangeModal({
         className="bg-white rounded-md shadow-md p-3 w-[90vw] max-w-[24rem] md:w-auto z-[9999]"
         onClick={(e) => e.stopPropagation()}
       >
+        <div className="relative flex items-center justify-between">
+          <button
+            onClick={onClose}
+            className="absolute -top-2 -right-2 z-[10000] cursor-pointer hover:text-red-500 transition-colors p-1"
+          >
+            <XIcon size={16} />
+          </button>
+        </div>
         <DateRange
           editableDateInputs
           onChange={(item) => setDateRange([item.selection])}

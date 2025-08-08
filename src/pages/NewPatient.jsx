@@ -77,7 +77,8 @@ export default function NewPatient() {
           />
         ) : (
           <div className="w-[32px] h-[32px] bg-gray-200 rounded-full flex items-center justify-center">
-            <User size={24} />
+            {/* <User size={24} /> */}
+            {p.full_name?.slice(0, 1)}
           </div>
         ),
     },

@@ -10,10 +10,42 @@ import { ChevronLeft } from "lucide-react";
 import { API_BASE_URL, PATIENT_ENDPOINT } from "../config/apiConfig";
 import { GENDER_DROPDOWN } from "../constants";
 import "./patient.css";
+import { z } from "zod";
+import PasswordEye from "../components/PasswordEye";
+
+const patientSchema = z.object({
+  full_name: z.string().min(1, "Full name is required"),
+  date_of_birth: z
+    .string()
+    .min(1, "Date of birth is required")
+    .refine((date) => new Date(date) < new Date(), {
+      message: "Date of birth must be in the past",
+    }),
+  email: z.string().email("Invalid email address"),
+  phone_no: z
+    .string()
+    .min(10, "Phone number is required")
+    .refine(
+      (val) => {
+        const cleaned = val.replace(/\D/g, "");
+        return (
+          (/^(\+91)?[6-9]\d{9}$/.test(val) && cleaned.length === 10) ||
+          (/^(\+1)?[2-9]\d{9}$/.test(val) && cleaned.length === 10)
+        );
+      },
+      {
+        message:
+          "Phone number must be valid Indian or US number with 10 digits",
+      }
+    ),
+  gender: z.string().min(1, "Gender is required"),
+  profile_image: z.any().optional(), // Can refine like in userSchema
+});
 
 const API_URL = `${API_BASE_URL}${PATIENT_ENDPOINT}`;
 
 export default function AddPatient() {
+  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     full_name: "",
     date_of_birth: "",
@@ -25,6 +57,7 @@ export default function AddPatient() {
     profile_image: null,
     gender: "",
   });
+  const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d|.*[@#$%^&*!]).{8,}$/;
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -41,45 +74,68 @@ export default function AddPatient() {
   const handlePasswordVisibility = () => setShowPassword((prev) => !prev);
 
   const handleSubmit = async () => {
-    const { full_name, date_of_birth, email, phone_no, password, gender } =
-      formData;
-    if (
-      !full_name ||
-      !date_of_birth ||
-      !email ||
-      !phone_no ||
-      !password ||
-      !gender
-    ) {
-      toast.error("Please fill all the fields!");
+    const result = patientSchema.safeParse(formData);
+
+    const isPasswordValid = passwordRegex.test(formData.password);
+    const newErrors = {};
+
+    if (!isPasswordValid) {
+      newErrors.password =
+        "Password must include uppercase, lowercase, number, and special character";
+    }
+
+    if (!result.success) {
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0];
+        if (!newErrors[field]) {
+          newErrors[field] = issue.message;
+        }
+      });
+    }
+
+    if (formData.profile_image) {
+      const fileType = formData.profile_image.type;
+      const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+      if (!allowedTypes.includes(fileType)) {
+        newErrors.profile_image =
+          "Invalid file type. Only JPEG, PNG, and JPG are allowed.";
+      }
+
+      const fileSizeMB = formData.profile_image.size / (1024 * 1024); // in MB
+      if (fileSizeMB > 12) {
+        newErrors.profile_image = "Profile image must be 12 MB or less.";
+      }
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("Please fix the errors before submitting.");
       return;
     }
 
+    setErrors({});
     setLoading(true);
+
     try {
       const token = localStorage.getItem("token");
       const multipartData = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
-        if (value !== null) multipartData.append(key, value);
+        if (value !== null && value !== "") multipartData.append(key, value);
       });
 
-      const res = await axiosInstance.post(API_URL, multipartData, {
+      await axiosInstance.post(API_URL, multipartData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       toast.success("Patient created!");
-      navigate("/patients");
+      setTimeout(() => navigate("/patients"), 1500);
     } catch (err) {
       const error = err.response?.data;
       let errorMessage = "";
-      // error is an object which contains a field of unknown value
-      console.error("❌ Error:", error);
       for (const key in error) {
-        console.log(key, error[key][0]);
-        errorMessage = error[key][0] + "\n";
-        
-        // Capatelise the error message sentence
-        errorMessage = error[key][0].charAt(0).toUpperCase() + error[key][0].slice(1) + "\n";
+        errorMessage = error[key];
+        console.log(error[key]);
+        console.log(errorMessage);
       }
       toast.error(errorMessage);
     } finally {
@@ -102,6 +158,7 @@ export default function AddPatient() {
           handlePasswordVisibility={handlePasswordVisibility}
           setFormData={setFormData}
           navigate={navigate}
+          errors={errors}
         />
       </div>
     </Navigation>
@@ -153,6 +210,7 @@ const AddPatientForm = ({
   showPassword,
   handlePasswordVisibility,
   navigate,
+  errors,
 }) => {
   return (
     <div className="bg-white/30 mx-2 lg:px-4 rounded-xl h-[92%] flex flex-col justify-between">
@@ -160,7 +218,7 @@ const AddPatientForm = ({
         {/* need 1, 2, 3  */}
         <div className="flex flex-col gap-4 w-full md:w-[48%] lg:w-[30%]">
           {inputFields.slice(0, 3).map(({ id, label, type, placeholder }) => (
-            <div key={id} className="flex flex-col ">
+            <div key={id} className="flex flex-col">
               <label htmlFor={id} className="text-sm font-medium text-gray-700">
                 {label}
               </label>
@@ -176,8 +234,12 @@ const AddPatientForm = ({
                   className="input-field"
                 />
               </div>
+              {errors[id] && (
+                <p className="text-red-500 text-xs mt-1">{errors[id]}</p>
+              )}
             </div>
           ))}
+
           <div className="hidden md:flex flex-wrap gap-4 pt-4 w-full">
             {[
               { name: "is_active", label: "Active" },
@@ -204,7 +266,7 @@ const AddPatientForm = ({
 
         <div className="flex flex-col gap-4 w-full md:w-[48%] lg:w-[30%]">
           {inputFields.slice(3, 4).map(({ id, label, type, placeholder }) => (
-            <div key={id} className="flex flex-col ">
+            <div key={id} className="flex flex-col">
               <label htmlFor={id} className="text-sm font-medium text-gray-700">
                 {label}
               </label>
@@ -220,6 +282,9 @@ const AddPatientForm = ({
                   className="input-field"
                 />
               </div>
+              {errors[id] && (
+                <p className="text-red-500 text-xs mt-1">{errors[id]}</p>
+              )}
             </div>
           ))}
 
@@ -243,13 +308,16 @@ const AddPatientForm = ({
                 className="input-field pr-10"
               />
             </div>
+            {errors.password && (
+              <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+            )}
             <button
               type="button"
               onClick={handlePasswordVisibility}
               className="absolute right-3 top-9 text-xs"
               tabIndex={-1}
             >
-              {showPassword ? "Hide" : "Show"}
+              <PasswordEye showPassword={showPassword} />
             </button>
           </div>
 
@@ -265,17 +333,30 @@ const AddPatientForm = ({
               onSelect={(item) =>
                 setFormData({ ...formData, gender: item.value })
               }
+              onRemove={() => setFormData({ ...formData, gender: "" })}
             />
+            {errors.gender && (
+              <p className="text-red-500 text-xs mt-1">{errors.gender}</p>
+            )}
           </div>
         </div>
 
         {/* File Upload */}
         <div className="flex flex-col flex-1">
           <CustomFileUploader
+            defaultTitle="Upload Patient Image"
+            description="Allowed file types: JPEG, PNG, JPG"
+            sizeLimit={12}
             onFileSelect={(file) =>
               setFormData({ ...formData, profile_image: file })
             }
+            onFileRemove={() =>
+              setFormData({ ...formData, profile_image: null })
+            }
           />
+          {errors.profile_image && (
+            <p className="text-red-500 text-xs mt-1">{errors.profile_image}</p>
+          )}
         </div>
 
         {/* Checkboxes */}

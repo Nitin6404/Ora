@@ -126,8 +126,8 @@ export default function AddMedia() {
           newErrors.file =
             "Invalid audio format. Supported: MP3, WAV, OGG, AAC, FLAC.";
           hasError = true;
-        } else if (fileSizeMB > 10) {
-          newErrors.file = "Audio size must be ≤ 10 MB.";
+        } else if (fileSizeMB > 20) {
+          newErrors.file = "Audio file must be 20 MB or less.";
           hasError = true;
         }
       } else if (type === "mp4") {
@@ -135,8 +135,8 @@ export default function AddMedia() {
           newErrors.file =
             "Invalid video format. Supported: MP4, MKV, MOV, AVI, WEBM.";
           hasError = true;
-        } else if (fileSizeMB > 500) {
-          newErrors.file = "Video size must be ≤ 500 MB.";
+        } else if (fileSizeMB > 100) {
+          newErrors.file = "Video file must be 100 MB or less.";
           hasError = true;
         }
       }
@@ -172,7 +172,6 @@ export default function AddMedia() {
     }
   };
 
-  console.log("loading", loading);
   return (
     <Navigation>
       <ToastContainer />
@@ -217,7 +216,7 @@ const AddMediaForm = ({
 }) => (
   <div className="bg-white/30 mx-2 px-4 rounded-xl h-[92%] flex flex-col justify-between">
     <div className="space-y-6">
-      <h2 className="text-lg font-semibold text-gray-800">Media Details</h2>
+      {/* <h2 className="text-lg font-semibold text-gray-800">Media Details</h2> */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="col-span-2 md:col-span-1">
           <div className="col-span-2 md:col-span-1">
@@ -275,7 +274,7 @@ const AddMediaForm = ({
                 ? "MP3, WAV, OGG, AAC, FLAC."
                 : "MP4, MKV, MOV, AVI, WEBM."
             }`}
-            sizeLimit={formData.type === "mp3" ? 10 : 500}
+            sizeLimit={formData.type === "mp3" ? 20 : 100}
             onFileSelect={(file) => setFormData({ ...formData, file })}
           />
           {errors.file && (
