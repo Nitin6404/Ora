@@ -137,7 +137,7 @@ const Dashboard = () => {
       <TopBar name={name} />
       <div className="h-full flex flex-col p-[0.125rem] overflow-y-auto no-scrollbar font-inter">
         <div className="flex-1 p-[0.25rem] md:px-[0.375rem] md:py-[0.1875rem] overflow-auto no-scrollbar">
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-[0.25rem] md:gap-[0.375rem] mb-[0.375rem] md:mb-[0.5rem] w-full">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-[0.375rem] md:mb-[0.5rem] w-full">
             <div className="col-span-1 md:col-span-2 lg:col-span-1">
               <ActiveProgramsCard noOfPrograms={stats?.active_programs} />
             </div>

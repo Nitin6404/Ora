@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Search, ChevronDown, XCircle } from "lucide-react";
 import "../pages/patient.css";
+import { Loader2 } from "lucide-react";
 
 const CustomDropdown = ({
   label,
@@ -10,6 +11,8 @@ const CustomDropdown = ({
   disabled,
   placeholder,
   onRemove = () => {},
+  hideDD = false,
+  loading = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -65,23 +68,22 @@ const CustomDropdown = ({
         </label>
       )}
 
-      <div
-        onClick={() => setIsOpen(!isOpen)}
-        disabled={disabled}
-        className="input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8"
-      >
+      <div className="input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8">
         <button
+          onClick={() => setIsOpen(!isOpen)}
+          disabled={disabled}
           className={`input-field w-full text-left !text-gray-500 !font-medium bg-white border border-gray-300 px-4 py-2 rounded-lg shadow-sm
             ${disabled && "opacity-50 cursor-not-allowed"}`}
         >
           {placeholder ? placeholder : selected || `Select ${label}`}
         </button>
-        <ChevronDown
-          className={`absolute top-2/3 right-3 transform -translate-y-1/2 text-gray-400 hover:cursor-pointer ${
-            disabled && "opacity-50 cursor-not-allowed"
-          }
+        <button onClick={() => setIsOpen(!isOpen)} disabled={disabled}>
+          <ChevronDown
+            className={`absolute top-2/3 right-3 transform -translate-y-1/2 text-gray-400 
+             ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
           `}
-        />
+          />
+        </button>
       </div>
 
       {isOpen && (
@@ -92,15 +94,16 @@ const CustomDropdown = ({
           bg-white border border-gray-200 rounded-xl shadow-xl px-1.5 py-3
         `}
         >
-          <div className="relative">
-            <Search
-              className="absolute top-3 right-5 text-gray-400"
-              size={16}
-            />
-            {/* <div className="input-wrapper"> */}
-            <input
-              type="text"
-              className="
+          {!hideDD && (
+            <div className="relative">
+              <Search
+                className="absolute top-3 right-5 text-gray-400"
+                size={16}
+              />
+              {/* <div className="input-wrapper"> */}
+              <input
+                type="text"
+                className="
                 lg:px-3 lg:py-2 md:px-2 md:py-1 px-2 py-1 
                 rounded-[6px] border border-[#e6e6e6]
                 bg-white text-[#333] text-[14px] font-sans
@@ -111,12 +114,13 @@ const CustomDropdown = ({
                 outline-none
                 w-full
                 "
-              placeholder="Search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            {/* </div> */}
-          </div>
+                placeholder="Search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              {/* </div> */}
+            </div>
+          )}
 
           <div className="lg:my-2 md:my-1 my-1 border-b border-gray-100" />
 
@@ -148,7 +152,14 @@ const CustomDropdown = ({
               ))
             ) : (
               <div className="lg:p-3 md:p-2 p-1 text-xs text-gray-500">
-                No results found
+                {/* No results found */}
+                {loading ? (
+                  <div className="flex items-center justify-center">
+                    <Loader2 size={16} className="animate-spin" />
+                  </div>
+                ) : (
+                  "No results found"
+                )}
               </div>
             )}
           </div>

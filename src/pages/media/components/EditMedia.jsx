@@ -283,6 +283,7 @@ const EditMediaForm = ({
                 onFileSelect={(file) =>
                   setFormData({ ...formData, file, isFileChanged: true })
                 }
+                hidePreview
               />
               {errors.file && (
                 <p className="text-red-500 text-xs mt-1">{errors.file}</p>

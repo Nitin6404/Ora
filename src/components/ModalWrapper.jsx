@@ -10,7 +10,7 @@ const ModalWrapper = ({ isOpen, onClose, Header, children }) => {
       <div className="fixed inset-0 overflow-hidden backdrop-blur-2xl z-[100] m-4 border-[2px] rounded-[16px] border-[#7367f0] no-scrollbar">
         <div className="min-h-screen flex flex-col backdrop-blur-2xl overflow-hidden rounded-2xl shadow-2xl h-full w-full no-scrollbar px-6 py-3 pb-12 space-y-2">
           {/* Header */}
-          <div className="bg-transparent rounded-t-2xl flex justify-between items-center">
+          {/* <div className="bg-transparent rounded-t-2xl flex justify-between items-center">
             <button
               onClick={onClose}
               className="flex justify-center items-center text-gray-600 hover:text-gray-800 bg-white/70 px-3 py-1 rounded-full"
@@ -19,11 +19,11 @@ const ModalWrapper = ({ isOpen, onClose, Header, children }) => {
               Back
             </button>
             {Header}
-          </div>
+          </div> */}
 
           {/* Main Content */}
-          <div className="h-full py-2 overflow-y-auto lg:overflow-hidden no-scrollbar">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+          <div className="h-full py-2 overflow-hidden no-scrollbar">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-hidden h-full">
               {children}
             </div>
           </div>

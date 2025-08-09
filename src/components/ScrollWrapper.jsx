@@ -1,6 +1,10 @@
 import React, { useRef } from "react";
 
-const ScrollWrapper = ({ children, direction = "horizontal", className = "" }) => {
+const ScrollWrapper = ({
+  children,
+  direction = "horizontal",
+  className = "",
+}) => {
   const scrollRef = useRef(null);
   const isHorizontal = direction !== "vertical";
 
@@ -61,7 +65,11 @@ const ScrollWrapper = ({ children, direction = "horizontal", className = "" }) =
           maxWidth: isHorizontal ? "100%" : undefined,
         }}
       >
-        <div className={`${isHorizontal ? "flex space-x-4" : "flex flex-col space-y-4"}`}>
+        <div
+          className={`${
+            isHorizontal ? "flex space-x-4 p-2" : "flex flex-col space-y-4"
+          }`}
+        >
           {children}
         </div>
       </div>

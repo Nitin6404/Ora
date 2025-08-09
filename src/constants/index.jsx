@@ -277,5 +277,6 @@ export {
 };
 
 export const snakeToCamel = (str) => {
-  return str.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+  if (!str || str === null || str === "") return "-";
+  return str?.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
 };

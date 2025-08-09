@@ -15,6 +15,27 @@ import {
 } from "../../../constants";
 import { API_BASE_URL } from "../../../config/apiConfig";
 import UniversalTopBar from "../../../components/UniversalTopBar";
+import { useLocation } from "react-router-dom";
+import { z } from "zod";
+
+const programSchema = z
+  .object({
+    name: z.string().min(1, "Program name is required"),
+    condition_type: z.string().min(1, "Condition type is required"),
+    estimate_duration: z.string().min(1, "Estimate duration is required"),
+    therapy_goal: z.string().min(1, "Therapy goal is required"),
+    target_group: z.string().min(1, "Target group is required"),
+    program_description: z.string().min(1, "Program description is required"),
+    status: z.string().optional(),
+    is_active: z.boolean().default(true),
+
+    vma: z.number().optional(),
+    vsa: z.number().optional(),
+  })
+  .refine((data) => data.vma || data.vsa, {
+    message: "Either VMA or VSA is required",
+    path: ["vma"], // still attach error to one field
+  });
 
 const ENDPOINTS = {
   metaData: "/api/program/meta",
@@ -23,6 +44,7 @@ const ENDPOINTS = {
 
 export default function EditProgram() {
   const { id } = useParams();
+  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     name: "",
     condition_type: "",
@@ -32,8 +54,8 @@ export default function EditProgram() {
     program_description: "",
     status: "",
     is_active: true,
-    vma: "",
-    vsa: "",
+    vma: undefined,
+    vsa: undefined,
   });
 
   const [vmaList, setVmaList] = useState([]);
@@ -50,6 +72,28 @@ export default function EditProgram() {
   };
 
   const handleSubmit = async (isSaveAsDraft = false) => {
+    const result = programSchema.safeParse(formData);
+    if (!result.success) {
+      const newErrors = {};
+      result.error.issues.forEach((issue) => {
+        if (
+          issue.path[0] === "vma" &&
+          issue.message === "Either VMA or VSA is required"
+        ) {
+          // Assign the same error to both
+          newErrors["vma"] = issue.message;
+          newErrors["vsa"] = issue.message;
+        } else {
+          newErrors[issue.path[0]] = issue.message;
+        }
+      });
+      setErrors(newErrors);
+      setLoading(false);
+      return;
+    }
+    console.log(errors);
+
+    setErrors({});
     // Basic Validation
     const requiredFields = [
       { name: "name", label: "Program Name" },
@@ -60,17 +104,17 @@ export default function EditProgram() {
       { name: "program_description", label: "Program Description" },
     ];
 
-    if (!formData.vma && !formData.vsa) {
-      toast.error("VMA or VSA is required.");
-      return;
-    }
+    // if (!formData.vma && !formData.vsa) {
+    //   toast.error("VMA or VSA is required.");
+    //   return;
+    // }
 
-    for (const field of requiredFields) {
-      if (!formData[field.name]?.trim()) {
-        toast.error(`${field.label} is required.`);
-        return;
-      }
-    }
+    // for (const field of requiredFields) {
+    //   if (!formData[field.name]?.trim()) {
+    //     toast.error(`${field.label} is required.`);
+    //     return;
+    //   }
+    // }
 
     setLoading(true);
     try {
@@ -100,7 +144,9 @@ export default function EditProgram() {
         );
 
         toast.success("Program created!");
-        navigate("/programs");
+        setTimeout(() => {
+          navigate("/programs");
+        }, 1500);
       } else {
         // dont include vma and vsa field in dataToSend object
         const dataToSend = {
@@ -109,9 +155,11 @@ export default function EditProgram() {
         };
         delete dataToSend.vma;
         delete dataToSend.vsa;
-        navigate(`/programs/edit-decision-tree-flow/${id}`, {
-          state: { programDetails: dataToSend },
-        });
+        setTimeout(() => {
+          navigate(`/programs/edit-decision-tree-flow/${id}`, {
+            state: { programDetails: dataToSend },
+          });
+        }, 1500);
       }
     } catch (err) {
       console.error("❌ Error:", err.response?.data || err.message);
@@ -130,8 +178,8 @@ export default function EditProgram() {
       const formData = {
         ...res.data,
         ...(res.data.advisor.advisor_type === "VMA"
-          ? { vma: res.data.advisor.id, vsa: "" }
-          : { vsa: res.data.advisor.id, vma: "" }),
+          ? { vma: res.data.advisor.id, vsa: undefined }
+          : { vsa: res.data.advisor.id, vma: undefined }),
       };
       delete formData.advisor;
       setFormData(formData);
@@ -214,6 +262,7 @@ export default function EditProgram() {
             vmaList={vmaList}
             vsaList={vsaList}
             navigate={navigate}
+            errors={errors}
           />
         )}
       </div>
@@ -236,7 +285,7 @@ const BreadCrumb = ({ BREADCRUMBS, handleSubmit, formData, navigate, id }) => {
                                             }`}
           onClick={() => {
             if (item.href === "/edit-decision-tree-flow") {
-              handleSubmit();
+              // handleSubmit();
             } else {
               const dataToSend = {
                 advisor: formData.vma || formData.vsa,
@@ -244,9 +293,11 @@ const BreadCrumb = ({ BREADCRUMBS, handleSubmit, formData, navigate, id }) => {
               };
               delete dataToSend.vma;
               delete dataToSend.vsa;
-              navigate(`${item.href}/${id}`, {
-                state: { programDetails: dataToSend },
-              });
+              // setTimeout(() => {
+              //   navigate(`${item.href}/${id}`, {
+              //     state: { programDetails: dataToSend },
+              //   });
+              // }, 1500);
             }
           }}
         >
@@ -268,6 +319,7 @@ const ProgramForm = ({
   navigate,
   vmaList,
   vsaList,
+  errors,
 }) => {
   const formFields = [
     {
@@ -332,30 +384,43 @@ const ProgramForm = ({
                   autoComplete="off"
                 />
               </div>
+              {errors[id] && (
+                <p className="text-red-500 text-xs mt-1">{errors[id]}</p>
+              )}
             </div>
           ))}
 
           <div className="flex flex-col">
-            {vsaList.length > 0 ? (
-              <CustomDropdown
-                label="VSA"
-                disabled={formData.vma}
-                options={vsaList}
-                selected={
-                  vsaList.find((item) => item.id === formData.vsa)?.name
-                }
-                onSelect={(value) => setFormData({ ...formData, vsa: value })}
-                onRemove={() => setFormData({ ...formData, vsa: "" })}
-              />
+            {vsaList?.length > 0 ? (
+              <>
+                <CustomDropdown
+                  label="VSA"
+                  disabled={formData.vma}
+                  options={vsaList}
+                  selected={
+                    vsaList.find((item) => item.id === formData.vsa)?.name
+                  }
+                  onSelect={(value) => setFormData({ ...formData, vsa: value })}
+                  onRemove={() => setFormData({ ...formData, vsa: undefined })}
+                />
+                {errors.vsa && (
+                  <p className="text-red-500 text-xs mt-1">{errors.vsa}</p>
+                )}
+              </>
             ) : (
-              <CustomDropdown
-                label="VSA"
-                disabled={formData.vma}
-                options={[]}
-                selected={""}
-                onSelect={(value) => setFormData({ ...formData, vsa: value })}
-                onRemove={() => setFormData({ ...formData, vsa: "" })}
-              />
+              <>
+                <CustomDropdown
+                  label="VSA"
+                  disabled={formData.vma}
+                  options={[]}
+                  selected={""}
+                  onSelect={(value) => setFormData({ ...formData, vsa: value })}
+                  onRemove={() => setFormData({ ...formData, vsa: undefined })}
+                />
+                {errors.vsa && (
+                  <p className="text-red-500 text-xs mt-1">{errors.vsa}</p>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -379,31 +444,46 @@ const ProgramForm = ({
                   }
                   onRemove={() => setFormData({ ...formData, [valueKey]: "" })}
                 />
+                {errors[valueKey] && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors[valueKey]}
+                  </p>
+                )}
               </div>
             )
           )}
 
           <div className="flex flex-col">
-            {vmaList.length > 0 ? (
-              <CustomDropdown
-                label="VMA"
-                disabled={formData.vsa}
-                options={vmaList}
-                selected={
-                  vmaList.find((item) => item.id === formData.vma)?.name
-                }
-                onSelect={(value) => setFormData({ ...formData, vma: value })}
-                onRemove={() => setFormData({ ...formData, vma: "" })}
-              />
+            {vmaList?.length > 0 ? (
+              <>
+                <CustomDropdown
+                  label="VMA"
+                  disabled={formData.vsa}
+                  options={vmaList}
+                  selected={
+                    vmaList.find((item) => item.id === formData.vma)?.name
+                  }
+                  onSelect={(value) => setFormData({ ...formData, vma: value })}
+                  onRemove={() => setFormData({ ...formData, vma: undefined })}
+                />
+                {errors.vma && (
+                  <p className="text-red-500 text-xs mt-1">{errors.vma}</p>
+                )}
+              </>
             ) : (
-              <CustomDropdown
-                label="VMA"
-                disabled={formData.vsa}
-                options={[]}
-                selected={""}
-                onSelect={(value) => setFormData({ ...formData, vma: value })}
-                onRemove={() => setFormData({ ...formData, vma: "" })}
-              />
+              <>
+                <CustomDropdown
+                  label="VMA"
+                  disabled={formData.vsa}
+                  options={[]}
+                  selected={""}
+                  onSelect={(value) => setFormData({ ...formData, vma: value })}
+                  onRemove={() => setFormData({ ...formData, vma: undefined })}
+                />
+                {errors.vma && (
+                  <p className="text-red-500 text-xs mt-1">{errors.vma}</p>
+                )}
+              </>
             )}
           </div>
         </div>

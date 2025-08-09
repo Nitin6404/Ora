@@ -1,10 +1,7 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import axiosInstance from "../../services/apiService";
 import Navigation from "../admin/Navigation";
 import { useNavigate } from "react-router-dom";
-import { DateRange } from "react-date-range";
-import "react-date-range/dist/styles.css";
-import "react-date-range/dist/theme/default.css";
 import ProgramCard from "../../components/ProgramCard";
 import ProgramTopBar from "./components/ProgramTopBar";
 import UniversalTopBar from "../../components/UniversalTopBar";
@@ -43,9 +40,10 @@ export default function NewProgram() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [programData, setProgramData] = useState(null);
 
+  const controllerRef = useRef(null);
   const navigate = useNavigate();
 
-  // Debounce search input
+  // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
@@ -53,16 +51,17 @@ export default function NewProgram() {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch programs on dependency change
-  useEffect(() => {
-    fetchPrograms();
-  }, [debouncedSearchTerm, activeFilter, currentPage, startDate, endDate]);
-
   const fetchPrograms = useCallback(async () => {
     setLoading(true);
 
-    const params = new URLSearchParams();
-    params.append("page", currentPage);
+    // Abort previous request if any
+    if (controllerRef.current) controllerRef.current.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+
+    const params = new URLSearchParams({
+      page: currentPage,
+    });
     if (activeFilter !== "all") params.append("status", activeFilter);
     if (debouncedSearchTerm) params.append("search", debouncedSearchTerm);
     if (startDate && endDate) {
@@ -72,21 +71,29 @@ export default function NewProgram() {
 
     try {
       const res = await axiosInstance.get(
-        `${API_URL}${PROGRAM_ENDPOINT}?${params.toString()}`
+        `${API_URL}${PROGRAM_ENDPOINT}?${params.toString()}`,
+        { signal: controller.signal }
       );
-
       setPrograms(res.data.results);
       const pageSize = res.data.results.length || 10;
       setPageCount(Math.ceil(res.data.count / pageSize));
     } catch (err) {
-      console.error(
-        "❌ Failed to fetch programs:",
-        err.response?.data || err.message
-      );
+      if (err.name !== "CanceledError") {
+        console.error(
+          "❌ Program fetch error:",
+          err.response?.data || err.message
+        );
+      }
     } finally {
       setLoading(false);
     }
   }, [activeFilter, currentPage, debouncedSearchTerm, startDate, endDate]);
+
+  useEffect(() => {
+    fetchPrograms();
+    // Cleanup abort on unmount
+    return () => controllerRef.current?.abort();
+  }, [fetchPrograms]);
 
   const fetchProgramDetails = async (id) => {
     try {
@@ -94,14 +101,10 @@ export default function NewProgram() {
       setProgramData(res.data);
     } catch (err) {
       console.error(
-        "❌ Failed to fetch program details:",
+        "❌ Detail fetch error:",
         err.response?.data || err.message
       );
     }
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
   };
 
   const handleSearch = (term) => {
@@ -109,12 +112,7 @@ export default function NewProgram() {
     setCurrentPage(1);
   };
 
-  const handleAddProgram = () => navigate("/programs/addprogram");
-
-  const handleDateSelect = () => setIsDatePickerVisible((prev) => !prev);
-
   const handleReset = () => {
-    // Reset all states to default
     setCurrentPage(1);
     setActiveFilter("all");
     setSearchTerm("");
@@ -125,6 +123,9 @@ export default function NewProgram() {
       { startDate: new Date(), endDate: new Date(), key: "selection" },
     ]);
     setIsDatePickerVisible(false);
+    setFilterOptions((prev) =>
+      prev.map((opt) => ({ ...opt, isActive: opt.id === "all" }))
+    );
     fetchPrograms();
   };
 
@@ -143,6 +144,8 @@ export default function NewProgram() {
     );
   };
 
+  const handleAddProgram = () => navigate("/programs/addprogram");
+
   return (
     <Navigation>
       <div className="h-full flex flex-col p-2">
@@ -153,7 +156,7 @@ export default function NewProgram() {
           onSearchChange={handleSearch}
           startDate={startDate}
           endDate={endDate}
-          onDateSelect={handleDateSelect}
+          onDateSelect={() => setIsDatePickerVisible((prev) => !prev)}
           onAddClick={handleAddProgram}
           addButtonText="Add New Program"
           searchPlaceholder="Search..."
@@ -166,17 +169,31 @@ export default function NewProgram() {
               <div className="flex justify-center items-center py-10 w-full col-span-4">
                 <PrimaryLoader />
               </div>
-            ) : programs.length > 0 ? (
-              programs.map((program, index) => (
-                <ProgramCard
-                  key={index}
-                  program={program}
-                  onClick={(id) => {
-                    fetchProgramDetails(id);
-                    setIsModalOpen(true);
-                  }}
-                />
-              ))
+            ) : Array.isArray(programs) && programs.length > 0 ? (
+              <div
+                className="grid gap-2 w-full h-auto 
+                 grid-cols-1 
+                 sm:grid-cols-2 
+                 md:grid-cols-3 
+                 lg:grid-cols-4 
+                 xl:grid-cols-6"
+              >
+                {programs.map((program) => (
+                  <div
+                    key={program.id}
+                    className="col-span-1 sm:col-span-1 md:col-span-3 lg:col-span-2 xl:col-span-2"
+                  >
+                    <ProgramCard
+                      key={program.id}
+                      program={program}
+                      onClick={(id) => {
+                        fetchProgramDetails(id);
+                        setIsModalOpen(true);
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
             ) : (
               <div className="flex justify-center items-center py-10 w-full col-span-4">
                 <p className="text-gray-600">No programs found</p>
@@ -185,18 +202,18 @@ export default function NewProgram() {
           </div>
         </div>
 
-        <div className="h-16 flex-shrink-0  z-10 bg-white/10 rounded-b-[1.875rem]">
+        <div className="h-16 flex-shrink-0 z-10 bg-white/10 rounded-b-[1.875rem]">
           <div className="p-2 w-full flex h-full">
             <div className="w-full h-full bg-white/10 rounded-[1.875rem] flex justify-between items-center gap-2">
               {pageCount > 0 ? (
                 <Pagination
                   pageCount={pageCount}
                   currentPage={currentPage}
-                  handlePageChange={handlePageChange}
+                  handlePageChange={setCurrentPage}
                 />
               ) : (
                 <div className="flex justify-center items-center w-full gap-2">
-                  {Array.isArray(programs) && programs.length > 0 ? (
+                  {programs.length > 0 ? (
                     <PrimaryLoader />
                   ) : (
                     <p className="text-gray-500">No page found</p>
@@ -217,7 +234,7 @@ export default function NewProgram() {
           onApply={(start, end) => {
             setStartDate(start);
             setEndDate(end);
-            fetchPrograms();
+            setCurrentPage(1);
           }}
         />
       )}

@@ -17,6 +17,7 @@ const CustomFileUploader = forwardRef(
       defaultTitle,
       sizeLimit,
       description,
+      hidePreview = false,
     },
     ref
   ) => {
@@ -234,7 +235,7 @@ const CustomFileUploader = forwardRef(
             </div>
           )}
 
-          {(uploaded || preview) && !uploading && (
+          {(uploaded || preview) && !uploading && !hidePreview && (
             <div className="flex items-center justify-between border border-gray-300 rounded-xl lg:p-4 md:p-6 p-1 relative bg-white h-full w-full">
               <div className="w-full h-full flex items-center justify-between">
                 <div className="flex justify-between items-center h-full w-full">

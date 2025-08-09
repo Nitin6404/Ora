@@ -30,12 +30,12 @@ const PrimarySearchInput = ({
                             py-4 px-4
                             flex items-center justify-between
                             rounded-[1.25rem] border border-[#7367F0]
-                            bg-white text-[#A4A7AE] text-[0.875rem] font-sans
+                            bg-white text-black text-[0.875rem] font-sans
                             shadow-[0px_0.125rem_0.375rem_rgba(100,90,209,0.1)]
                             outline-none
                             transition-all duration-500 ease-in-out
                             focus:[box-shadow:0_0_0_0.06rem_#7367F0]
-                            placeholder:text-[#A4A7AE]
+                            placeholder:text-black
                             placeholder:font-inter
                             placeholder:text-[0.875rem]
                             placeholder:font-normal

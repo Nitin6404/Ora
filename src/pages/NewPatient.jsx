@@ -19,6 +19,7 @@ const API_URL = API_BASE_URL + PATIENT_ENDPOINT;
 
 export default function NewPatient() {
   const [patients, setPatients] = useState([]);
+  const abortControllerRef = React.useRef(null);
   const [loading, setLoading] = useState(true);
   const [nextPage, setNextPage] = useState(null);
   const [prevPage, setPrevPage] = useState(null);
@@ -166,61 +167,59 @@ export default function NewPatient() {
     },
   ];
 
-  const fetchPatients = async (
-    url = API_URL,
-    filter = activeFilter,
-    page = 1
-  ) => {
+  const fetchPatients = async () => {
     setLoading(true);
-    const token = localStorage.getItem("token");
-    if (!token) {
-      console.error("❌ No token found");
-      return;
+
+    // Abort any previous request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
     }
 
-    try {
-      let fullUrl = url;
+    // Create a new controller for this request
+    abortControllerRef.current = new AbortController();
 
-      // if (url === API_URL) {
+    try {
       const params = new URLSearchParams();
-      if (filter === "active") params.append("is_active", "true");
-      if (filter === "inactive") params.append("is_active", "false");
-      params.append("page", page);
+      if (activeFilter === "active") params.append("is_active", "true");
+      if (activeFilter === "inactive") params.append("is_active", "false");
+      params.append("page", currentPage);
       if (startDate) {
         params.append("start_date", startDate);
         params.append("end_date", endDate);
       }
       if (debouncedSearchTerm) {
-        console.log("search", debouncedSearchTerm);
         params.append("search", debouncedSearchTerm);
       }
-      fullUrl = `${API_URL}?${params.toString()}`;
-      // }
-      // params.append("page", page);
 
-      const res = await axiosInstance.get(fullUrl, {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await axiosInstance.get(`${API_URL}?${params.toString()}`, {
+        signal: abortControllerRef.current.signal, // attach abort signal
       });
 
       setPatients(res.data.results);
       setNextPage(res.data.next);
       setPrevPage(res.data.previous);
       setPageCount(Math.ceil(res.data.count / 10));
-      setCurrentPage(page);
     } catch (err) {
-      console.error(
-        "❌ Failed to fetch patients:",
-        err.response?.data || err.message
-      );
+      if (err.name === "CanceledError" || err.code === "ERR_CANCELED") {
+        console.log("⚠️ Request canceled");
+      } else {
+        console.error(
+          "❌ Failed to fetch patients:",
+          err.response?.data || err.message
+        );
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    fetchPatients(API_URL, activeFilter, page);
-  };
+  // ✅ ONE useEffect to rule them all
+  useEffect(() => {
+    fetchPatients();
+  }, [debouncedSearchTerm, activeFilter, startDate, endDate, currentPage]);
+
+  // --- Handlers now only update state ---
+  const handlePageChange = (page) => setCurrentPage(page);
 
   const handleEdit = (id) => {
     navigate(`/patients/editpatient/${id}`);
@@ -255,35 +254,26 @@ export default function NewPatient() {
   const handleFilterChange = (filterId) => {
     setActiveFilter(filterId);
     setFilterOptions((prev) =>
-      prev.map((option) => ({
-        ...option,
-        isActive: option.id === filterId,
-      }))
+      prev.map((option) => ({ ...option, isActive: option.id === filterId }))
     );
-    fetchPatients(API_URL, filterId, 1);
+    setCurrentPage(1); // reset page
   };
 
-  const handleSearchChange = (searchValue) => {
-    setSearchTerm(searchValue);
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
     if (debounceTimer) clearTimeout(debounceTimer);
-
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchValue);
-      fetchPatients(API_URL, activeFilter, 1);
-    }, 400);
-
+    const timer = setTimeout(() => setDebouncedSearchTerm(value), 400);
     setDebounceTimer(timer);
   };
 
   const handleReset = () => {
-    // reset all states to default
     setSearchTerm("");
     setDebouncedSearchTerm("");
     setStartDate(null);
     setEndDate(null);
     setActiveFilter("all");
     setFilterOptions(FILTER_OPTIONS);
-    fetchPatients(API_URL, "all", 1);
+    setCurrentPage(1);
   };
 
   const handleDateSelect = () => {

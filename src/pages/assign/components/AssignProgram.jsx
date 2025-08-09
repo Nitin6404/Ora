@@ -14,7 +14,6 @@ import {
 } from "../../../constants";
 import {
   API_BASE_URL as API_URL,
-  ASSIGNMENT_ENDPOINT,
   ASSIGN_PATIENT_ENDPOINT,
   PROGRAM_DROPDOWN,
   PATIENT_DROPDOWN,
@@ -27,6 +26,7 @@ const BREADCRUMBS = [
 ];
 
 export default function AssignProgram() {
+  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     program_id: "",
     patient_id: "",
@@ -44,61 +44,62 @@ export default function AssignProgram() {
 
   const handleSubmit = async (next) => {
     setLoading(true);
-    // Basic Validation
-    const requiredFields = [
-      { name: "program_id", label: "Program" },
-      { name: "patient_id", label: "Patient" },
-      { name: "environment_id", label: "Environment" },
-      { name: "tone_preference", label: "Tone Preference" },
-      { name: "solfeggio_frequency", label: "Solfeggio Frequency" },
-      { name: "number_of_sessions", label: "No of Sessions" },
-    ];
 
-    for (const field of requiredFields) {
-      if (!formData[field.name]) {
-        toast.error(`${field.label} is required.`);
-        setLoading(false);
-        return;
+    const newErrors = {};
+
+    for (const key in formData) {
+      if (formData[key] === "") {
+        newErrors[key] = `${
+          key.charAt(0).toUpperCase() + key.slice(1).split("_").join(" ")
+        } is required`;
       }
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      setLoading(false);
+      return;
     }
 
     try {
       const body = {
-        program_id: formData.program_id,
-        patient_id: formData.patient_id,
-        environment_id: formData.environment_id,
+        program_id: formData?.program_id,
+        patient_id: formData?.patient_id,
+        environment_id: formData?.environment_id,
         started_at: new Date().toISOString(),
         tone_preference: TONE_PREFERENCE_CHOICES.find(
-          (item) => item.id === formData.tone_preference
-        ).name,
+          (item) => item.id === formData?.tone_preference
+        )?.name,
         solfeggio_frequency: SOLFEGGIO_FREQUENCY.find(
-          (item) => item.id === formData.solfeggio_frequency
-        ).value,
-        number_of_sessions: formData.number_of_sessions,
+          (item) => item.id === formData?.solfeggio_frequency
+        )?.value,
+        number_of_sessions: formData?.number_of_sessions,
       };
 
-      const res = await axiosInstance.post(ASSIGN_PATIENT_ENDPOINT, body);
-      console.log(res);
-
+      await axiosInstance.post(ASSIGN_PATIENT_ENDPOINT, body);
       toast.success("Program assigned!");
-      if (next) {
-        navigate(next, {
-          state: {
-            patientData: patientList.find(
-              (item) => item.id === formData.patient_id
-            ),
-          },
-        });
-      } else {
-        navigate("/assign");
-      }
+
+      setTimeout(() => {
+        if (next) {
+          navigate(next, {
+            state: {
+              patientData: patientList.find(
+                (item) => item.id === formData?.patient_id
+              ),
+            },
+          });
+        } else {
+          navigate("/assign");
+        }
+      }, 1500); // Delay navigation to allow toast
     } catch (err) {
-      console.error("❌ Error:", err.response?.data || err.message);
       toast.error(err.response?.data?.message || "Failed to assign program.");
     } finally {
       setLoading(false);
     }
   };
+
   console.log(loading);
 
   const fetchData = async (endpoint) => {
@@ -114,6 +115,7 @@ export default function AssignProgram() {
   useEffect(() => {
     const fetchAllData = async () => {
       try {
+        setLoading(true);
         const [metaData, programDropdown, patientDropdown] = await Promise.all([
           fetchData(METADATA),
           fetchData(PROGRAM_DROPDOWN),
@@ -125,12 +127,15 @@ export default function AssignProgram() {
         setPatientList(patientDropdown);
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchAllData();
   }, []);
 
+  console.log(formData);
   return (
     <Navigation>
       <ToastContainer />
@@ -156,6 +161,7 @@ export default function AssignProgram() {
           programList={programList}
           environmentList={environmentList}
           loading={loading}
+          errors={errors}
         />
       </div>
     </Navigation>
@@ -169,11 +175,11 @@ const BreadCrumb = ({ BREADCRUMBS }) => {
         <button
           key={index}
           className={`px-6 py-3 text-xs lg:text-sm font-medium rounded-full flex items-center gap-2
-          ${
-            item.current
-              ? "bg-gradient-to-b from-[#7367F0] to-[#453E90] text-white shadow-md "
-              : "bg-white text-[#252B37] hover:text-[#574EB6] hover:bg-[#E3E1FC]"
-          }`}
+            ${
+              item.current
+                ? "bg-gradient-to-b from-[#7367F0] to-[#453E90] text-white shadow-md "
+                : "bg-white text-[#252B37] hover:text-[#574EB6] hover:bg-[#E3E1FC]"
+            }`}
         >
           {item.name}
         </button>
@@ -191,17 +197,22 @@ const AssignForm = ({
   programList,
   environmentList,
   loading,
+  errors,
 }) => {
   const dropDownListTwo = [
     {
+      id: "environment_id",
       label: "Environment",
+      loading,
       options: environmentList || [],
       selected:
         environmentList.find((item) => item.id === formData.environment_id)
           ?.name || "",
       onSelect: (value) => setFormData({ ...formData, environment_id: value }),
+      onRemove: () => setFormData({ ...formData, environment_id: "" }),
     },
     {
+      id: "tone_preference",
       label: "Tone Preference",
       options: TONE_PREFERENCE_CHOICES || [],
       selected:
@@ -209,8 +220,10 @@ const AssignForm = ({
           (item) => item.id === formData.tone_preference
         )?.name || "",
       onSelect: (value) => setFormData({ ...formData, tone_preference: value }),
+      onRemove: () => setFormData({ ...formData, tone_preference: "" }),
     },
     {
+      id: "solfeggio_frequency",
       label: "Solfeggio Frequency",
       options: SOLFEGGIO_FREQUENCY || [],
       selected:
@@ -219,8 +232,10 @@ const AssignForm = ({
         )?.value || "",
       onSelect: (value) =>
         setFormData({ ...formData, solfeggio_frequency: value }),
+      onRemove: () => setFormData({ ...formData, solfeggio_frequency: "" }),
     },
     {
+      id: "number_of_sessions",
       label: "Number of Sessions",
       options: NO_OF_SESSIONS || [],
       selected:
@@ -228,6 +243,7 @@ const AssignForm = ({
           ?.name || "",
       onSelect: (value) =>
         setFormData({ ...formData, number_of_sessions: value }),
+      onRemove: () => setFormData({ ...formData, number_of_sessions: "" }),
     },
   ];
 
@@ -246,7 +262,14 @@ const AssignForm = ({
               onSelect={(value) =>
                 setFormData({ ...formData, program_id: value })
               }
+              onRemove={() => setFormData({ ...formData, program_id: "" })}
+              loading={loading}
             />
+            {errors.program_id && (
+              <span className="text-red-500 text-xs mt-1">
+                {errors.program_id}
+              </span>
+            )}
           </div>
 
           <div className="hidden md:flex h-full items-end">
@@ -264,7 +287,14 @@ const AssignForm = ({
               onSelect={(value) =>
                 setFormData({ ...formData, patient_id: value })
               }
+              onRemove={() => setFormData({ ...formData, patient_id: "" })}
+              loading={loading}
             />
+            {errors.patient_id && (
+              <span className="text-red-500 text-xs mt-1">
+                {errors.patient_id}
+              </span>
+            )}
           </div>
         </div>
 
@@ -289,7 +319,14 @@ const AssignForm = ({
                       options={item.options}
                       selected={item.selected}
                       onSelect={(value) => item.onSelect(value)}
+                      onRemove={item.onRemove}
+                      loading={item.loading ? item.loading : false}
                     />
+                    {errors[item.id] && (
+                      <span className="text-red-500 text-xs mt-1">
+                        {errors[item.id]}
+                      </span>
+                    )}
                   </div>
                 </div>
               ))}

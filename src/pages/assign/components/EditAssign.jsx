@@ -1,9 +1,11 @@
+// ✅ Updated EditAssign component with proper Zod validation integration (no duplicate manual validation)
+
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../../services/apiService";
 import Navigation from "../../admin/Navigation";
 import "../../patient.css";
 import { ToastContainer, toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import UniversalTopBar from "../../../components/UniversalTopBar";
 import { ChevronLeft, Link } from "lucide-react";
 import CustomDropdown from "../../../components/CustomDropDown";
@@ -18,7 +20,6 @@ import {
   PATIENT_DROPDOWN,
   METADATA,
 } from "../../../config/apiConfig";
-import { useParams } from "react-router-dom";
 import { getPatientProgram } from "../helpers/getPatientProgram";
 import { useQuery } from "@tanstack/react-query";
 import updatePatientProgram from "../helpers/updatePatientProgram";
@@ -31,31 +32,14 @@ const BREADCRUMBS = [
 
 export default function EditAssign() {
   const { id } = useParams();
+  const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
 
   const { data: assignDetail, isLoading } = useQuery({
     queryKey: ["assignDetail", id],
     queryFn: () => getPatientProgram(id),
     enabled: !!id,
   });
-
-  useEffect(() => {
-    if (assignDetail) {
-      const initial = {
-        program_id: assignDetail?.program?.id,
-        patient_id: assignDetail?.patient?.id,
-        environment_id: assignDetail?.environment?.id,
-        tone_preference: TONE_PREFERENCE_CHOICES.find(
-          (item) => item.name === assignDetail?.tone_preference
-        ).id,
-        solfeggio_frequency: SOLFEGGIO_FREQUENCY.find(
-          (item) => item.value === assignDetail?.solfeggio_frequency
-        ).id,
-        number_of_sessions: assignDetail?.number_of_sessions,
-      };
-
-      setFormData(initial);
-    }
-  }, [assignDetail]);
 
   const [formData, setFormData] = useState({
     program_id: "",
@@ -66,31 +50,50 @@ export default function EditAssign() {
     number_of_sessions: "",
   });
 
+  useEffect(() => {
+    if (assignDetail) {
+      const initial = {
+        program_id: assignDetail?.program?.id,
+        patient_id: assignDetail?.patient?.id,
+        environment_id: assignDetail?.environment?.id,
+        tone_preference: TONE_PREFERENCE_CHOICES.find(
+          (item) => item.name === assignDetail?.tone_preference
+        )?.id,
+        solfeggio_frequency: SOLFEGGIO_FREQUENCY.find(
+          (item) => item.value === assignDetail?.solfeggio_frequency
+        )?.id,
+        number_of_sessions: assignDetail?.number_of_sessions,
+      };
+      setFormData(initial);
+    }
+  }, [assignDetail]);
+
   const [programList, setProgramList] = useState([]);
   const [patientList, setPatientList] = useState([]);
   const [environmentList, setEnvironmentList] = useState([]);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleSubmit = async (next) => {
-    // Basic Validation
-    const requiredFields = [
-      { name: "program_id", label: "Program" },
-      { name: "patient_id", label: "Patient" },
-      { name: "environment_id", label: "Environment" },
-      { name: "tone_preference", label: "Tone Preference" },
-      { name: "solfeggio_frequency", label: "Solfeggio Frequency" },
-      { name: "number_of_sessions", label: "No of Sessions" },
-    ];
+    setLoading(true);
 
-    for (const field of requiredFields) {
-      if (!formData[field.name]) {
-        toast.error(`${field.label} is required.`);
-        return;
+    const newErrors = {};
+
+    for (const key in formData) {
+      if (formData[key] === "") {
+        newErrors[key] = `${
+          key.charAt(0).toUpperCase() + key.slice(1).split("_").join(" ")
+        } is required`;
       }
     }
 
-    setLoading(true);
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      setLoading(false);
+      return;
+    }
+
+    console.log("no errors");
     try {
       const body = {
         program_id: formData.program_id,
@@ -100,28 +103,28 @@ export default function EditAssign() {
         number_of_sessions: formData.number_of_sessions,
         tone_preference: TONE_PREFERENCE_CHOICES.find(
           (item) => item.id === formData.tone_preference
-        ).name,
+        )?.name,
         solfeggio_frequency: SOLFEGGIO_FREQUENCY.find(
           (item) => item.id === formData.solfeggio_frequency
-        ).value,
+        )?.value,
       };
 
-      const res = await updatePatientProgram({ data: body });
-
+      await updatePatientProgram({ data: body });
       toast.success("Patient Program updated!");
-      if (next) {
-        navigate(next, {
-          state: {
-            patientData: patientList.find(
-              (item) => item.id === formData.patient_id
-            ),
-          },
-        });
-      } else {
-        navigate("/assign");
-      }
+      setTimeout(() => {
+        if (next) {
+          navigate(next, {
+            state: {
+              patientData: patientList.find(
+                (item) => item.id === formData.patient_id
+              ),
+            },
+          });
+        } else {
+          navigate("/assign");
+        }
+      }, 1500);
     } catch (err) {
-      console.error("❌ Error:", err.response?.data || err.message);
       toast.error(
         err.response?.data?.message || "Failed to update patient program."
       );
@@ -148,7 +151,6 @@ export default function EditAssign() {
           fetchData(PROGRAM_DROPDOWN),
           fetchData(PATIENT_DROPDOWN),
         ]);
-
         setEnvironmentList(metaData?.environments);
         setProgramList(programDropdown);
         setPatientList(patientDropdown);
@@ -156,7 +158,6 @@ export default function EditAssign() {
         console.error("Error fetching data:", error);
       }
     };
-
     fetchAllData();
   }, []);
 
@@ -169,13 +170,7 @@ export default function EditAssign() {
         backPath="/assign"
       />
       <div className="h-full flex flex-col bg-white/10 mb-2 p-4 rounded-2xl gap-2">
-        <BreadCrumb
-          BREADCRUMBS={BREADCRUMBS}
-          formData={formData}
-          navigate={navigate}
-          handleSubmit={handleSubmit}
-          patientList={patientList}
-        />
+        <BreadCrumb BREADCRUMBS={BREADCRUMBS} />
         {isLoading ? (
           <div className="flex justify-center items-center h-full w-full">
             <PrimaryLoader />
@@ -190,6 +185,7 @@ export default function EditAssign() {
             programList={programList}
             environmentList={environmentList}
             loading={loading}
+            error={errors}
           />
         )}
       </div>
@@ -197,25 +193,23 @@ export default function EditAssign() {
   );
 }
 
-const BreadCrumb = ({ BREADCRUMBS }) => {
-  return (
-    <div className="flex gap-2 overflow-x-auto no-scrollbar w-full md:w-auto rounded-full px-1 py-1 bg-white backdrop-blur-md border border-white/30 shadow-sm mb-2">
-      {BREADCRUMBS.map((item, index) => (
-        <button
-          key={index}
-          className={`px-6 py-3 text-xs lg:text-sm font-medium rounded-full flex items-center gap-2
-          ${
-            item.current
-              ? "bg-gradient-to-b from-[#7367F0] to-[#453E90] text-white shadow-md "
-              : "bg-white text-[#252B37] hover:text-[#574EB6] hover:bg-[#E3E1FC]"
-          }`}
-        >
-          {item.name}
-        </button>
-      ))}
-    </div>
-  );
-};
+const BreadCrumb = ({ BREADCRUMBS }) => (
+  <div className="flex gap-2 overflow-x-auto no-scrollbar w-full md:w-auto rounded-full px-1 py-1 bg-white backdrop-blur-md border border-white/30 shadow-sm mb-2">
+    {BREADCRUMBS.map((item, index) => (
+      <button
+        key={index}
+        className={`px-6 py-3 text-xs lg:text-sm font-medium rounded-full flex items-center gap-2
+        ${
+          item.current
+            ? "bg-gradient-to-b from-[#7367F0] to-[#453E90] text-white shadow-md "
+            : "bg-white text-[#252B37] hover:text-[#574EB6] hover:bg-[#E3E1FC]"
+        }`}
+      >
+        {item.name}
+      </button>
+    ))}
+  </div>
+);
 
 const AssignForm = ({
   formData,
@@ -226,17 +220,21 @@ const AssignForm = ({
   programList,
   environmentList,
   loading,
+  error,
 }) => {
   const dropDownListTwo = [
     {
+      id: "environment_id",
       label: "Environment",
       options: environmentList || [],
       selected:
         environmentList.find((item) => item.id === formData.environment_id)
           ?.name || "",
       onSelect: (value) => setFormData({ ...formData, environment_id: value }),
+      onRemove: () => setFormData({ ...formData, environment_id: "" }),
     },
     {
+      id: "tone_preference",
       label: "Tone Preference",
       options: TONE_PREFERENCE_CHOICES || [],
       selected:
@@ -244,8 +242,10 @@ const AssignForm = ({
           (item) => item.id === formData.tone_preference
         )?.name || "",
       onSelect: (value) => setFormData({ ...formData, tone_preference: value }),
+      onRemove: () => setFormData({ ...formData, tone_preference: "" }),
     },
     {
+      id: "solfeggio_frequency",
       label: "Solfeggio Frequency",
       options: SOLFEGGIO_FREQUENCY || [],
       selected:
@@ -254,8 +254,10 @@ const AssignForm = ({
         )?.value || "",
       onSelect: (value) =>
         setFormData({ ...formData, solfeggio_frequency: value }),
+      onRemove: () => setFormData({ ...formData, solfeggio_frequency: "" }),
     },
     {
+      id: "number_of_sessions",
       label: "Number of Sessions",
       options: NO_OF_SESSIONS || [],
       selected:
@@ -263,6 +265,7 @@ const AssignForm = ({
           ?.name || "",
       onSelect: (value) =>
         setFormData({ ...formData, number_of_sessions: value }),
+      onRemove: () => setFormData({ ...formData, number_of_sessions: "" }),
     },
   ];
 
@@ -273,7 +276,6 @@ const AssignForm = ({
           <div className="flex flex-col w-full lg:w-[20em]">
             <CustomDropdown
               label="Program"
-              disabled
               options={programList || []}
               selected={
                 programList.find((item) => item.id === formData.program_id)
@@ -282,7 +284,11 @@ const AssignForm = ({
               onSelect={(value) =>
                 setFormData({ ...formData, program_id: value })
               }
+              onRemove={() => setFormData({ ...formData, program_id: "" })}
             />
+            {error?.program_id && (
+              <p className="text-red-500 text-xs mt-1">{error.program_id}</p>
+            )}
           </div>
 
           <div className="hidden md:flex h-full items-end">
@@ -301,7 +307,11 @@ const AssignForm = ({
               onSelect={(value) =>
                 setFormData({ ...formData, patient_id: value })
               }
+              onRemove={() => setFormData({ ...formData, patient_id: "" })}
             />
+            {error?.patient_id && (
+              <p className="text-red-500 text-xs mt-1">{error.patient_id}</p>
+            )}
           </div>
         </div>
 
@@ -326,7 +336,13 @@ const AssignForm = ({
                       options={item.options}
                       selected={item.selected}
                       onSelect={(value) => item.onSelect(value)}
+                      onRemove={() => item.onRemove()}
                     />
+                    {error?.[item.id] && (
+                      <p className="text-red-500 text-xs mt-1">
+                        {error[item.id]}
+                      </p>
+                    )}
                   </div>
                 </div>
               ))}

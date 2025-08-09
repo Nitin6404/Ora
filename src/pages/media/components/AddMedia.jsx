@@ -276,6 +276,7 @@ const AddMediaForm = ({
             }`}
             sizeLimit={formData.type === "mp3" ? 20 : 100}
             onFileSelect={(file) => setFormData({ ...formData, file })}
+            hidePreview
           />
           {errors.file && (
             <p className="text-red-500 text-xs mt-1">{errors.file}</p>
@@ -296,7 +297,7 @@ const AddMediaForm = ({
         disabled={loading}
         className="patient-btn flex justify-center items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-b from-[#7367F0] to-[#453E90] rounded-full shadow-md gap-2"
       >
-        {loading ? "Uploading..." : "Create Media"}
+        {loading ? "Uploading..." : "Upload Media"}
       </button>
     </div>
   </div>

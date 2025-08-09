@@ -586,14 +586,18 @@ export default function NewDecisionTreeFlow() {
 
       console.log("✅ Backend response:", response.data);
       toast.success("Decision tree sent to backend!");
-      navigate("/programs");
+      setTimeout(() => {
+        navigate("/programs");
+      }, 1500);
     } catch (error) {
       const errorbj = error.response?.data;
       for (const key in errorbj) {
         console.error("API ERROR: ", errorbj[key][0]);
         toast.error(key.toLocaleUpperCase() + ": " + errorbj[key][0]);
       }
-      navigate("/programs/addprogram");
+      setTimeout(() => {
+        navigate("/programs/addprogram", { state: { programDetails } });
+      }, 1500);
     } finally {
       setLoading(false);
     }

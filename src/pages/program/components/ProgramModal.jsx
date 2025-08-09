@@ -1,5 +1,12 @@
 import React from "react";
-import { User, Zap, AlertTriangle, CircleCheckBig, Clock3 } from "lucide-react";
+import {
+  User,
+  Zap,
+  AlertTriangle,
+  CircleCheckBig,
+  Clock3,
+  ArrowLeft,
+} from "lucide-react";
 import { formatDate } from "../../../utils/format_date";
 import ModalWrapper from "../../../components/ModalWrapper";
 import "../../patient.css";
@@ -27,18 +34,34 @@ const ProgramModal = ({ isOpen, onClose, programData = {} }) => {
         </>
       }
     >
-      <ProgramInfoCard data={programData?.program_info || {}} />
+      <ProgramInfoCard
+        data={programData?.program_info || {}}
+        onClose={onClose}
+      />
       <AssignedPatientList patients={programData?.assigned_patients || []} />
-      <QuestionnaireCard questions={programData?.questionnaire || []} />
+      <QuestionnaireCard
+        programData={programData}
+        questions={programData?.questionnaire || []}
+      />
     </ModalWrapper>
   );
 };
 
-const ProgramInfoCard = ({ data }) => {
+const ProgramInfoCard = ({ data, onClose }) => {
   return (
-    <>
+    <div className="flex flex-col gap-4 overflow-auto">
+      <div className="bg-transparent rounded-t-2xl flex justify-between items-center">
+        <button
+          onClick={onClose}
+          className="flex justify-center items-center text-gray-600 hover:text-gray-800 bg-white/70 px-3 py-1 rounded-full"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back
+        </button>
+        {/* {Header} */}
+      </div>
       {data && Object.keys(data).length > 0 ? (
-        <div className="bg-white rounded-xl p-6 space-y-2 font-medium text-gray-500">
+        <div className="bg-white rounded-xl p-6 space-y-2 font-medium text-gray-500 overflow-auto h-full">
           <div className="flex flex-col items-center justify-between">
             <div className="flex items-center justify-between w-full">
               <div className="text-black flex flex-col space-y-1 text-sm font-medium">
@@ -110,7 +133,7 @@ const ProgramInfoCard = ({ data }) => {
           <span className="text-gray-600">No data available</span>
         </div>
       )}
-    </>
+    </div>
   );
 };
 const AdvisorInfo = ({ advisor }) => {
@@ -135,19 +158,24 @@ const ProgramDetailCard = ({ title, description }) => {
 
 const AssignedPatientList = ({ patients }) => {
   return (
-    <div className="flex flex-col items-start justify-start text-black bg-white rounded-xl p-6 h-full w-full">
-      <FilterBar options={["In Progress", "Completed", "Flagged"]} />
-      <Divider className="h-[3px]" />
-      <div className="flex flex-col items-start justify-start text-black w-full h-full">
-        {patients.length > 0 ? (
-          patients.map((patient, index) => (
-            <PatientInfoRow key={index} patient={patient} />
-          ))
-        ) : (
-          <div className="flex flex-1 items-center justify-center h-full w-full bg-[#f1f1fd] rounded-xl mt-3">
-            <span className="text-gray-600">No patients assigned</span>
-          </div>
-        )}
+    <div className="flex flex-col gap-4 overflow-auto">
+      <h1 className="hidden lg:block text-xl font-semibold text-gray-800">
+        Assigned Patients
+      </h1>
+      <div className="flex flex-col items-start justify-start text-black bg-white rounded-xl p-6 overflow-auto h-full w-full">
+        <FilterBar options={["In Progress", "Completed", "Flagged"]} />
+        <Divider className="h-[3px]" />
+        <div className="flex flex-col items-start justify-start text-black w-full h-full">
+          {patients.length > 0 ? (
+            patients.map((patient, index) => (
+              <PatientInfoRow key={index} patient={patient} />
+            ))
+          ) : (
+            <div className="flex flex-1 items-center justify-center h-full w-full bg-[#f1f1fd] rounded-xl mt-3">
+              <span className="text-gray-600">No patients assigned</span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -189,46 +217,56 @@ const PatientInfoRow = ({ patient }) => {
   );
 };
 
-const QuestionnaireCard = ({ questions }) => {
+const QuestionnaireCard = ({ programData, questions }) => {
   return (
-    <div className="bg-white rounded-xl p-6 flex flex-col items-start justify-start text-black h-full w-full">
-      <FilterBar options={["Questions Analytics", "Questions"]} />
-      <Divider className="h-[3px]" />
-      {questions.length > 0 ? (
-        <>
-          <QuestionCard
-            label="Overall Response Rate"
-            analytics={true}
-            questions={questions}
-          />
-          <QuestionCard
-            label="Top-Level Answer Trend (for each question)"
-            analytics={false}
-            questions={questions}
-          />
-        </>
-      ) : (
-        <div className="flex items-center justify-center h-full w-full bg-[#f1f1fd] rounded-xl mt-3">
-          <span className="text-gray-600">No questions found</span>
-        </div>
-      )}
+    <div className="flex flex-col gap-4 overflow-auto">
+      <h2 className="hidden lg:block text-xl font-semibold text-gray-800">
+        Onboarding Questionnaire Responses
+      </h2>
+      <div className="bg-white rounded-xl p-6 flex flex-col items-start justify-start text-black overflow-auto h-full w-full">
+        <FilterBar options={["Questions Analytics", "Questions"]} />
+        <Divider className="h-[3px]" />
+        {questions.length > 0 ? (
+          <>
+            <QuestionCard
+              label="Overall Response Rate"
+              analytics={true}
+              questions={questions}
+              programData={programData}
+            />
+            <QuestionCard
+              label="Top-Level Answer Trend (for each question)"
+              analytics={false}
+              questions={questions}
+              programData={programData}
+            />
+          </>
+        ) : (
+          <div className="flex items-center justify-center h-full w-full bg-[#f1f1fd] rounded-xl mt-3">
+            <span className="text-gray-600">No questions found</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
-const QuestionCard = ({ label, analytics, questions }) => {
+const QuestionCard = ({ label, analytics, questions, programData }) => {
+  console.log("programData", programData);
   const analyticsQuestions = [
     {
       question: "Average Time to complete",
-      answer: "7 Min 45 Sec",
+      answer: programData?.average_session_duration,
     },
     {
       question: "Average Time to complete",
-      answer: "7 Min 45 Sec",
+      answer: programData?.average_session_duration,
     },
   ];
   return (
     <div className="flex flex-col items-start justify-start w-full">
-      <span className="flex items-center text-md py-2">{label}</span>
+      <span className="flex items-center text-md py-2">
+        {label?.length > 20 ? label?.slice(0, 20) + "..." : label}
+      </span>
       {/* <Divider /> */}
       <div className="flex flex-col items-start justify-start w-full bg-[#f1f1fd] p-2 rounded-xl ">
         {analytics ? (
@@ -271,29 +309,78 @@ const QuestionCard = ({ label, analytics, questions }) => {
     </div>
   );
 };
+
 const QuestionRow = ({ question, analytics }) => {
+  const [activeTooltip, setActiveTooltip] = React.useState(null);
+
+  const truncate = (text, length) =>
+    text?.length > length ? text.slice(0, length) + "..." : text;
+
+  const toggleTooltip = (id) => {
+    setActiveTooltip(activeTooltip === id ? null : id);
+  };
+
   return (
     <div className="flex items-center justify-between w-full py-1">
-      <div className="flex items-center text-sm w-2/3">
-        {question.question || "-"}
+      {/* Question */}
+      <div
+        className="flex items-center text-sm w-2/3 relative group cursor-pointer"
+        onClick={() => toggleTooltip("question")}
+      >
+        {truncate(question.question, 40)}
+
+        {question.question?.length > 40 && (
+          <div
+            className={`
+              absolute right-0 -top-16 px-3 py-2 rounded-xl text-sm
+              backdrop-blur-md bg-white/30 border border-white/20 shadow-lg
+              text-black z-50 whitespace-normal max-w-xs
+              ${activeTooltip === "question" ? "block" : "hidden"}
+              group-hover:block
+            `}
+          >
+            {question.question}
+          </div>
+        )}
       </div>
+
+      {/* Answers */}
       {analytics ? (
         <span className="text-sm">{question.answer || "-"}</span>
       ) : (
         <div className="flex justify-center items-center gap-5 w-1/3">
           {question.answers.map((answer, index) => (
-            <span
-              className="text-gray-700 text-sm uppercase text-nowrap"
+            <div
               key={index}
+              className="relative group cursor-pointer"
+              onClick={() => toggleTooltip(`answer-${index}`)}
             >
-              {answer.label || "-"}
-            </span>
+              <span className="text-gray-700 text-sm uppercase text-nowrap">
+                {truncate(answer.label, 5)}
+              </span>
+
+              {answer.label?.length > 5 && (
+                <div
+                  className={`
+                    absolute right-0 -top-16 px-3 py-2 rounded-xl text-sm
+                    backdrop-blur-md bg-white/30 border border-white/20 shadow-lg
+                    text-black z-50 whitespace-normal max-w-xs
+                    ${activeTooltip === `answer-${index}` ? "block" : "hidden"}
+                    group-hover:block
+                  `}
+                >
+                  {answer.label}
+                </div>
+              )}
+            </div>
           ))}
         </div>
       )}
     </div>
   );
 };
+
+// export default QuestionRow;
 
 const FilterBar = ({ options = [] }) => {
   const [selectedOption, setSelectedOption] = React.useState(options[0]);

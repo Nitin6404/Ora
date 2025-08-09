@@ -149,7 +149,7 @@ const AssignCard = ({ assign, onAssignClick }) => {
           )}
         </div>
         <div className="ml-auto text-sm bg-[#f8f7fd] px-3 py-1.5 rounded-full">
-          {mood || "😐 Sad"}
+          {mood || "-"}
         </div>{" "}
         {/* mood_status is null; fallback */}
       </div>

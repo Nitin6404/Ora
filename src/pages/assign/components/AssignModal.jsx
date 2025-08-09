@@ -1,5 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import { User, Zap, AlertTriangle, CircleCheckBig, Clock3 } from "lucide-react";
+import {
+  User,
+  Zap,
+  AlertTriangle,
+  CircleCheckBig,
+  Clock3,
+  Clock,
+  ArrowLeft,
+} from "lucide-react";
 import { formatDate } from "../../../utils/format_date";
 import ModalWrapper from "../../../components/ModalWrapper";
 import "../../patient.css";
@@ -11,24 +19,29 @@ import CustomDropDown from "../../../components/CustomDropDown";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import raiseFlag from "../helpers/raiseFlag";
 
+// DISTRESS_FLAG = "distress_flag"
+
 const formType = [
-  { id: 1, name: "Ok" },
-  { id: 2, name: "Not Ok" },
+  { id: "ok", name: "Ok" },
+  { id: "distress_flag", name: "Distress Flag" },
 ];
 
 const MoodEmoji = ({ mood }) => {
+  console.log(mood);
   const getMoodEmoji = () => {
     switch (mood?.toLowerCase()) {
       case "sad":
         return "😢";
-      case "stable":
+      case "calm":
         return "😊";
       case "improving":
         return "🙂";
       case "happy":
         return "😊";
-      default:
-        return "😊";
+      case "neutral":
+        return "😐";
+      // default:
+      //   return "😊";
     }
   };
   return <span className="text-lg">{getMoodEmoji()}</span>;
@@ -39,6 +52,7 @@ const getStatusColor = (status, flagged) => {
   if (status === "Completed") return "bg-[#70eba8] text-green-700";
   if (status === "Active") return "bg-[#d6d7db] text-[#333]";
   if (status === "In Progress") return "bg-yellow-100 text-yellow-700";
+  if (status === "Pending") return "bg-yellow-100 text-yellow-700";
   if (status === "Flagged") return "bg-red-100 text-red-700";
   return "bg-gray-100 text-gray-700";
 };
@@ -119,7 +133,7 @@ const AssignModal = ({ isOpen, onClose, assignId }) => {
         </div>
       ) : (
         <>
-          <PatientInfoCard data={data} />
+          <PatientInfoCard data={data} onClose={onClose} />
           <SessionsList data={data} />
           <SessionLog
             data={data}
@@ -133,7 +147,7 @@ const AssignModal = ({ isOpen, onClose, assignId }) => {
   );
 };
 
-const PatientInfoCard = ({ data }) => {
+const PatientInfoCard = ({ data, onClose }) => {
   const completionPercentage = data?.program_info?.completion_percentage;
   const status = data?.program_info?.status;
   const patientInfo = data?.patient_info;
@@ -142,157 +156,170 @@ const PatientInfoCard = ({ data }) => {
     (session) => session.session_number === data?.program_info?.current_session
   );
   return (
-    <div className="bg-white rounded-xl p-6 space-y-4 font-medium text-gray-500 lg:overflow-auto no-scrollbar">
-      <div className="flex items-center justify-between w-full">
-        <div className="text-black flex flex-col text-sm font-medium">
-          <div className="flex flex-col gap-y-1 divide-y text-sm text-gray-600">
-            <div className="flex items-center gap-x-2">
-              <span>Assigned On: </span>
-              <span> {formatDate(programInfo?.assigned_on) || "-"}</span>
-            </div>
-            <div className="flex items-center gap-x-2">
-              <span>Last Session: </span>
-              <span> {formatDate(programInfo?.last_session) || "-"}</span>
-            </div>
-          </div>
-        </div>
-        <span
-          className={`px-1 py-1 rounded-full text-xs font-medium flex justify-center items-center  ${getStatusColor(
-            status,
-            data?.flagged
-          )}`}
+    <div className="flex flex-col gap-4 overflow-auto">
+      <div className="bg-transparent rounded-t-2xl flex justify-between items-center">
+        <button
+          onClick={onClose}
+          className="flex justify-center items-center text-gray-600 hover:text-gray-800 bg-white/70 px-3 py-1 rounded-full"
         >
-          <div className="mr-1 bg-white rounded-full w-6 h-6 flex items-center justify-center">
-            {data.flagged && <AlertTriangle className="w-4 h-4" />}
-            {status === "published" && <CircleCheckBig className="w-4 h-4" />}
-            {status === "draft" && <Zap className="w-4 h-4" />}
-            {status === "Active" && <Zap className="w-4 h-4" />}
-            {status === "In Progress" && <Clock3 className="w-4 h-4" />}
-            {status === "Completed" && <CircleCheckBig className="w-4 h-4" />}
-            {status === "Flagged" && <AlertTriangle className="w-4 h-4" />}
-          </div>
-          <span className="pr-3 pl-1 uppercase">{status}</span>
-        </span>
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back
+        </button>
+        {/* {Header} */}
       </div>
+      <div className="bg-white rounded-xl p-6 space-y-4 font-medium text-gray-500 h-full overflow-auto no-scrollbar">
+        <div className="flex items-center justify-between w-full">
+          <div className="text-black flex flex-col text-sm font-medium">
+            <div className="flex flex-col gap-y-1 divide-y text-sm text-gray-600">
+              <div className="flex items-center gap-x-2">
+                <span>Assigned On: </span>
+                <span> {formatDate(programInfo?.assigned_on) || "-"}</span>
+              </div>
+              <div className="flex items-center gap-x-2">
+                <span>Last Session: </span>
+                <span> {formatDate(programInfo?.last_session) || "-"}</span>
+              </div>
+            </div>
+          </div>
+          <span
+            className={`px-1 py-1 rounded-full text-xs font-medium flex justify-center items-center  ${getStatusColor(
+              status,
+              data?.flagged
+            )}`}
+          >
+            <div className="mr-1 bg-white rounded-full w-6 h-6 flex items-center justify-center">
+              {data.flagged && <AlertTriangle className="w-4 h-4" />}
+              {status === "published" && <CircleCheckBig className="w-4 h-4" />}
+              {status === "draft" && <Zap className="w-4 h-4" />}
+              {status === "Active" && <Zap className="w-4 h-4" />}
+              {status === "In Progress" && <Clock3 className="w-4 h-4" />}
+              {status === "Pending" && <Clock className="w-4 h-4" />}
+              {status === "Completed" && <CircleCheckBig className="w-4 h-4" />}
+              {status === "Flagged" && <AlertTriangle className="w-4 h-4" />}
+            </div>
+            <span className="pr-3 pl-1 uppercase">{status}</span>
+          </span>
+        </div>
 
-      <div className="flex items-center justify-between gap-[0.5rem] py-[0.5rem]">
-        <span>{completionPercentage + "%"}</span>
-        <div className="w-full flex items-center justify-between bg-gray-100 h-[0.5rem] rounded-full">
-          <div
-            className={` h-full rounded-full
+        <div className="flex items-center justify-between gap-[0.5rem] py-[0.5rem]">
+          <span>{completionPercentage + "%"}</span>
+          <div className="w-full flex items-center justify-between bg-gray-100 h-[0.5rem] rounded-full">
+            <div
+              className={` h-full rounded-full
             ${status === "Completed" && "bg-[#70eba8]"}
             ${status === "Active" && "bg-[#8057db]"}
             ${status === "In Progress" && "bg-yellow-400"}
+            ${status === "Pending" && "bg-yellow-400"}
             ${status === "Flagged" && "bg-red-400"}
             `}
-            style={{
-              width: completionPercentage + "%",
-            }}
-          />
-        </div>
-      </div>
-
-      <div className="flex items-center gap-4">
-        {patientInfo?.profile_image ? (
-          <img
-            src={patientInfo?.profile_image}
-            alt={patientInfo?.full_name}
-            className="w-16 h-16 rounded-full mr-4"
-          />
-        ) : (
-          <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-            {/* <User size={24} /> */}
-            {patientInfo?.full_name?.slice(0, 1)}
+              style={{
+                width: completionPercentage + "%",
+              }}
+            />
           </div>
-        )}
-        <div className="flex flex-col space-y-2">
-          {/* <StatusBadge className status={data.status} /> */}
-          {/* <div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          {patientInfo?.profile_image ? (
+            <img
+              src={patientInfo?.profile_image}
+              alt={patientInfo?.full_name}
+              className="w-16 h-16 rounded-full mr-4"
+            />
+          ) : (
+            <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+              {/* <User size={24} /> */}
+              {patientInfo?.full_name?.slice(0, 1)}
+            </div>
+          )}
+          <div className="flex flex-col space-y-2">
+            {/* <StatusBadge className status={data.status} /> */}
+            {/* <div>
             <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
               {data.status || "-"}
             </span>
           </div> */}
-          <div className="flex flex-col items-start mb-2">
-            <h3 className="text-xl font-semibold mr-3 text-black">
-              {patientInfo?.full_name || "-"}
-            </h3>
-            <p className="text-gray-600 text-start text-base">
-              ORA-00{patientInfo?.patient_id || "-"}
-            </p>
+            <div className="flex flex-col items-start mb-2">
+              <h3 className="text-xl font-semibold mr-3 text-black">
+                {patientInfo?.full_name || "-"}
+              </h3>
+              <p className="text-gray-600 text-start text-base">
+                ORA-00{patientInfo?.patient_id || "-"}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="flex items-center gap-4 text-sm">
-        <p>Program</p>
-        <p className="bg-[#f1f1fd] px-[0.75em] py-[0.25em] rounded-full text-[#7367f0]">
-          {programInfo?.name || "-"}
-        </p>
-      </div>
-
-      <div className="h-[2px] bg-gray-200 font-medium" />
-
-      <div className="space-y-2 bg-[#f1f1fd] rounded-xl py-4 px-2 text-md">
-        <div className="flex justify-between">
-          <span className="text-gray-600 font-medium">
-            {programInfo.advisor_type || "-"}
-          </span>
-          <span className="font-medium px-[0.75em] py-[0.25em] rounded-full bg-white">
-            {programInfo.advisor || "-"}
-          </span>
+        <div className="flex items-center gap-4 text-sm">
+          <p>Program</p>
+          <p className="bg-[#f1f1fd] px-[0.75em] py-[0.25em] rounded-full text-[#7367f0]">
+            {programInfo?.name || "-"}
+          </p>
         </div>
-        <div className="flex justify-between items-center">
-          <span className="text-gray-600 font-medium">Environment</span>
-          <span className="font-medium text-cyan-500 px-[0.75em] py-[0.25em] rounded-full bg-cyan-50">
-            {programInfo.environment || "-"}
-          </span>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-gray-600 font-medium">Frequency</span>
-          <span className="font-medium text-cyan-500 px-[0.75em] py-[0.25em] rounded-full bg-cyan-50">
-            {programInfo.frequency || "-"}
-          </span>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-gray-600 font-medium">Tone Preference</span>
-          <span className="font-medium px-[0.75em] py-[0.25em] rounded-full bg-white">
-            {programInfo.tone_preference || "-"}
-          </span>
-        </div>
-      </div>
 
-      <Divider />
+        <div className="h-[2px] bg-gray-200 font-medium" />
 
-      <div className="space-y-3 rounded-xl text-sm">
-        <div className="flex justify-between text-[#42424e]">
-          <div className="flex flex-col justify-between font-medium">
-            <span>Current Session</span>
-            <span className="px-4 py-1.5 rounded-full bg-[#f2f0fd] text-center mt-2 text-[#7670b8]">
-              {programInfo?.current_session +
-                " of " +
-                programInfo?.total_sessions || "-"}
+        <div className="space-y-2 bg-[#f1f1fd] rounded-xl py-4 px-2 text-md">
+          <div className="flex justify-between">
+            <span className="text-gray-600 font-medium">
+              {programInfo?.advisor_type || "-"}
+            </span>
+            <span className="font-medium px-[0.75em] py-[0.25em] rounded-full bg-white">
+              {programInfo?.advisor || "-"}
             </span>
           </div>
-          <div className="w-[1.5px] h-12 bg-gray-200" />
-          <div className="flex flex-col justify-between font-medium">
-            <span>Break Taken</span>
-            <span className="px-4 py-1.5 rounded-full bg-[#eff8ff] text-center mt-2 text-[#5d84a3]">
-              {programInfo?.breaks_taken + " Breaks"}
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600 font-medium">Environment</span>
+            <span className="font-medium text-cyan-500 px-[0.75em] py-[0.25em] rounded-full bg-cyan-50">
+              {programInfo?.environment || "-"}
             </span>
           </div>
-          <div className="w-[1.5px] h-12 bg-gray-200" />
-          <div className="flex flex-col justify-between font-medium">
-            <span>Flag Raised</span>
-            <span className="px-4 py-1.5 rounded-full bg-green-100 text-center mt-2 text-green-700">
-              {programInfo?.flag_raised ? "Yes" : "No"}
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600 font-medium">Frequency</span>
+            <span className="font-medium text-cyan-500 px-[0.75em] py-[0.25em] rounded-full bg-cyan-50">
+              {programInfo?.frequency || "-"}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600 font-medium">Tone Preference</span>
+            <span className="font-medium px-[0.75em] py-[0.25em] rounded-full bg-white">
+              {programInfo?.tone_preference || "-"}
             </span>
           </div>
         </div>
-      </div>
 
-      <Divider />
+        <Divider />
 
-      <div className="w-full flex justify-between text-sm">
+        <div className="space-y-3 rounded-xl text-sm">
+          <div className="flex justify-between text-[#42424e]">
+            <div className="flex flex-col justify-between font-medium">
+              <span>Current Session</span>
+              <span className="px-4 py-1.5 rounded-full bg-[#f2f0fd] text-center mt-2 text-[#7670b8]">
+                {programInfo?.current_session +
+                  " of " +
+                  programInfo?.total_sessions || "-"}
+              </span>
+            </div>
+            <div className="w-[1.5px] h-12 bg-gray-200" />
+            <div className="flex flex-col justify-between font-medium">
+              <span>Break Taken</span>
+              <span className="px-4 py-1.5 rounded-full bg-[#eff8ff] text-center mt-2 text-[#5d84a3]">
+                {programInfo?.breaks_taken + " Breaks"}
+              </span>
+            </div>
+            <div className="w-[1.5px] h-12 bg-gray-200" />
+            <div className="flex flex-col justify-between font-medium">
+              <span>Flag Raised</span>
+              <span className="px-4 py-1.5 rounded-full bg-green-100 text-center mt-2 text-green-700">
+                {programInfo?.flag_raised ? "Yes" : "No"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <Divider />
+
+        {/* <div className="w-full flex justify-between text-sm">
         <div className="flex flex-col justify-center items-center space-y-1">
           <span>Mood Before Session</span>
           <span className="px-8 py-1 rounded-full bg-gray-100 flex items-center gap-2">
@@ -307,6 +334,7 @@ const PatientInfoCard = ({ data }) => {
             <p>{currentSession?.mood_after || "-"}</p>
           </span>
         </div>
+      </div> */}
       </div>
     </div>
   );
@@ -315,16 +343,21 @@ const PatientInfoCard = ({ data }) => {
 const SessionsList = ({ data }) => {
   const sessions = data?.sessions;
   return (
-    <div className="bg-white rounded-xl p-6 space-y-4 h-full lg:overflow-y-auto no-scrollbar ">
-      {sessions.length > 0 ? (
-        sessions.map((session, index) => (
-          <ProgramCard session={session} index={index} />
-        ))
-      ) : (
-        <div className="flex items-center justify-center h-full bg-[#f1f1fd] uppercase font-bold rounded-xl">
-          No sessions found
-        </div>
-      )}
+    <div className="flex flex-col gap-4 overflow-auto">
+      <h1 className="hidden lg:block text-xl font-semibold text-gray-800">
+        Completed Sessions
+      </h1>
+      <div className="bg-white rounded-xl p-6 space-y-4 h-full overflow-auto no-scrollbar ">
+        {sessions.length > 0 ? (
+          sessions.map((session, index) => (
+            <ProgramCard session={session} index={index} />
+          ))
+        ) : (
+          <div className="flex items-center justify-center h-full bg-[#f1f1fd] uppercase font-bold rounded-xl">
+            No sessions found
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -354,6 +387,7 @@ const ProgramCard = ({ session, index }) => (
             )}
             {session.status === "Active" && <Zap className="w-4 h-4" />}
             {session.status === "In Progress" && <Clock3 className="w-4 h-4" />}
+            {session.status === "Pending" && <Clock className="w-4 h-4" />}
           </div>
           <span className="pr-3 pl-1">{session.status}</span>
         </span>
@@ -384,15 +418,27 @@ const ProgramCard = ({ session, index }) => (
         <div className="flex flex-col justify-center items-center space-y-1">
           <span>Mood Before Session</span>
           <span className="px-8 py-1 rounded-full bg-gray-100 flex items-center gap-2">
-            <p>{MoodEmoji(session?.mood_before || "") || "-"}</p>
-            <p>{session?.mood_before || "-"}</p>
+            {session?.mood_before ? (
+              <p>
+                {<MoodEmoji mood={session?.mood_before} />}{" "}
+                {session?.mood_before || "-"}
+              </p>
+            ) : (
+              <p>{session?.mood_before || "-"}</p>
+            )}
           </span>
         </div>
         <div className="flex flex-col justify-center items-center space-y-1">
           <span>Mood After Session</span>
           <span className="px-8 py-1 rounded-full bg-gray-100 flex items-center gap-2">
-            <p>{MoodEmoji(session?.mood_after || "") || "-"}</p>
-            <p>{session?.mood_after || "-"}</p>
+            {session?.mood_after ? (
+              <p>
+                {<MoodEmoji mood={session?.mood_after} />}{" "}
+                {session?.mood_after || "-"}
+              </p>
+            ) : (
+              <p>{session?.mood_after || "-"}</p>
+            )}
           </span>
         </div>
       </div>
@@ -426,148 +472,161 @@ const SessionLog = ({ data, formData, setFormData, raiseFlagMutation }) => {
   );
   const totalSessions = data.program_info.total_sessions;
   const handleRaiseFlag = () => {
-    if (!currentSession) return;
+    if (!currentSession) {
+      toast.error("Distress flag can only be raised for the current session");
+      return;
+    }
     raiseFlagMutation.mutate({ id: currentSession.session_id, data: formData });
   };
 
   return (
-    <div className="bg-white rounded-xl p-6 space-y-2 h-full lg:overflow-y-auto no-scrollbar ">
-      <BreadCrumb
-        BREADCRUMBS={[
-          { id: "flag", name: "Raise Flag", current: true },
-          { id: "session", name: "Session Overview", current: false },
-        ]}
-        onSelect={(id) => setActiveTab(id)}
-        activeTab={activeTab}
-      />
+    <div className="flex flex-col gap-4 overflow-auto">
+      <h2 className="hidden lg:block text-xl font-semibold text-gray-800">
+        Session Details
+      </h2>
+      <div className="bg-white rounded-xl p-6 space-y-2 h-full overflow-y-auto no-scrollbar ">
+        <BreadCrumb
+          BREADCRUMBS={[
+            { id: "flag", name: "Raise Flag", current: true },
+            { id: "session", name: "Session Overview", current: false },
+          ]}
+          onSelect={(id) => setActiveTab(id)}
+          activeTab={activeTab}
+        />
 
-      <Divider />
+        <Divider />
 
-      {activeTab === "flag" ? (
-        <>
-          <div className="p-6 space-y-2 bg-gray-100 rounded-lg">
-            <CustomDropDown
-              label="Flag Type"
-              // placeholder="Select Program"
-              options={formType}
-              selected={
-                formType.find((item) => item.id === formData.flag_type)?.name
-              }
-              onSelect={(id) => setFormData({ ...formData, flag_type: id })}
-            />
-            <div>
-              <label className="text-sm font-medium text-gray-700">
-                Note/Reason
-              </label>
-              <div className="input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8">
-                <input
-                  type="text"
-                  value={formData.note}
-                  onChange={(e) =>
-                    setFormData({ ...formData, note: e.target.value })
-                  }
-                  placeholder={"Enter note/reason"}
-                  autoComplete="off"
-                  className="input-field pr-10"
-                />
-              </div>
-            </div>
-            <Divider />
-            <button
-              onClick={handleRaiseFlag}
-              className="patient-btn flex justify-center items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-b from-[#7367F0] to-[#453E90] rounded-full shadow-md gap-2"
-            >
-              Raise Flag
-            </button>
-          </div>
-
-          <Divider />
-
-          {/* Flag List */}
-          <div className="font-bold font-inter space-y-2">
-            <h1>Flag List</h1>
-            {flags.length > 0 ? (
-              flags.map((flag, index) => (
-                <div key={index} className="bg-[#f1f1fd] rounded-lg p-4">
-                  <div className="flex items-center justify-between">
-                    <span>{formatDate(flag?.date)}</span>
-                    <span>{"Session " + flag?.session}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-red-500">{flag?.type || "-"}</span>
-                    <span>{"Raised By: " + flag?.raised_by}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Program</span>
-                    <span className="text-[#7367F0]">{program?.name}</span>
-                  </div>
-                  <Divider />
-                  <div className="flex items-center justify-start">
-                    <span>{flag?.note || "-"}</span>
-                    {/* <span>Flagged By</span> */}
-                  </div>
+        {activeTab === "flag" ? (
+          <>
+            <div className="p-6 space-y-2 bg-gray-100 rounded-lg">
+              <CustomDropDown
+                label="Flag Type"
+                // placeholder="Select Program"
+                options={formType}
+                selected={
+                  formType.find((item) => item.id === formData.flag_type)?.name
+                }
+                onSelect={(id) => setFormData({ ...formData, flag_type: id })}
+                onRemove={() => setFormData({ ...formData, flag_type: "" })}
+                hideDD
+              />
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  Note/Reason
+                </label>
+                <div className="input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8">
+                  <input
+                    type="text"
+                    value={formData.note}
+                    onChange={(e) =>
+                      setFormData({ ...formData, note: e.target.value })
+                    }
+                    placeholder={"Enter note/reason"}
+                    autoComplete="off"
+                    className="input-field pr-10"
+                  />
                 </div>
-              ))
-            ) : (
-              <div className="flex items-center justify-center bg-[#f1f1fd] uppercase font-bold rounded-lg min-h-[10rem]">
-                No flags found
-              </div>
-            )}
-          </div>
-        </>
-      ) : (
-        <div className="flex flex-col space-y-2 font-inter font-semibold">
-          <div className="space-y-2">
-            <h1> Session Progress Tracker</h1>
-            <div className="bg-[#f1f1fd] rounded-lg p-4 space-y-2">
-              <div className="flex items-center justify-between font-bold">
-                <span>Metric</span>
-                <span>Response</span>
               </div>
               <Divider />
-              <div className="flex items-center justify-between">
-                <span>Session Completed</span>
-                <span>
-                  {currentSession?.session_number + " of " + totalSessions}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
+              <button
+                onClick={handleRaiseFlag}
+                className="patient-btn flex justify-center items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-b from-[#7367F0] to-[#453E90] rounded-full shadow-md gap-2"
+              >
+                Raise Flag
+              </button>
+            </div>
+
+            <Divider />
+
+            {/* Flag List */}
+            <div className="font-bold font-inter space-y-2">
+              <h1>Flag List</h1>
+              {flags.length > 0 ? (
+                flags.map((flag, index) => (
+                  <div key={index} className="bg-[#f1f1fd] rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <span>{formatDate(flag?.date)}</span>
+                      <span>{"Session " + flag?.session}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-red-500">{flag?.type || "-"}</span>
+                      <span>{"Raised By: " + flag?.raised_by}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Program</span>
+                      <span className="text-[#7367F0]">{program?.name}</span>
+                    </div>
+                    <Divider />
+                    <div className="flex items-center justify-start">
+                      <span>{flag?.note || "-"}</span>
+                      {/* <span>Flagged By</span> */}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="flex items-center justify-center bg-[#f1f1fd] uppercase font-bold rounded-lg min-h-[10rem]">
+                  No flags found
+                </div>
+              )}
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col space-y-2 font-inter font-semibold">
+            <div className="space-y-2">
+              <h1> Session Progress Tracker</h1>
+              <div className="bg-[#f1f1fd] rounded-lg p-4 space-y-2">
+                <div className="flex items-center justify-between font-bold">
+                  <span>Metric</span>
+                  <span>Response</span>
+                </div>
+                <Divider />
+                <div className="flex items-center justify-between">
+                  <span>Session Completed</span>
+                  <span>
+                    {currentSession?.session_number + " of " + totalSessions}
+                  </span>
+                </div>
+                {/* <div className="flex items-center justify-between">
                 <span>Total Time Spent</span>
                 <span>{currentSession?.total_time_spent || "-"}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Avg. Session Duration</span>
-                <span>{currentSession?.avg_session_duration || "-"}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Breaks Taken</span>
-                <span>{currentSession?.break_taken ? "Yes" : "No"}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Distress Flag</span>
-                <span>{currentSession?.distress_flag ? "Yes" : "No"}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <h1>Mood Trends Per Session</h1>
-            <div className="bg-[#f1f1fd] rounded-lg p-4 space-y-2">
-              <div className="flex items-center justify-between">
-                <span>Session</span>
-                <span>Mood</span>
-              </div>
-              <Divider />
-              {sessions?.map((session, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <span>{"Session " + session?.session_number || "-"}</span>
-                  <span>{session?.mood_after || "-"}</span>
+              </div> */}
+                <div className="flex items-center justify-between">
+                  <span>Avg. Session Duration</span>
+                  <span>{data?.average_session_duration || "-"}</span>
                 </div>
-              ))}
+                <div className="flex items-center justify-between">
+                  <span>Breaks Taken</span>
+                  <span>{currentSession?.break_taken ? "Yes" : "No"}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Distress Flag</span>
+                  <span>{currentSession?.distress_flag ? "Yes" : "No"}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h1>Mood Trends Per Session</h1>
+              <div className="bg-[#f1f1fd] rounded-lg p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span>Session</span>
+                  <span>Mood</span>
+                </div>
+                <Divider />
+                {sessions?.map((session, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
+                    <span>{"Session " + session?.session_number || "-"}</span>
+                    <span>{session?.mood_after || "-"}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
