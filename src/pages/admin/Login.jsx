@@ -70,35 +70,16 @@ export default function NewLogin() {
         password,
       });
 
-      const {
-        token,
-        refresh,
-        id,
-        role_name,
-        email: userEmail,
-        allowed_pages,
-        last_name,
-        first_name,
-      } = response.data;
+      const user = response.data;
       console.log(response.data);
 
       // Save token and user info in localStorage
-      localStorage.setItem("token", token);
-      localStorage.setItem("refresh", refresh);
-      localStorage.setItem("role_name", role_name);
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          role_name,
-          id,
-          userEmail,
-          allowed_pages,
-          last_name,
-          first_name,
-        })
-      );
+      localStorage.setItem("token", user.token);
+      localStorage.setItem("refresh", user.refresh);
+      localStorage.setItem("role_name", user.role_name);
+      localStorage.setItem("user", JSON.stringify(user));
 
-      if (role_name == "patient") {
+      if (user.role_name == "patient") {
         navigate("/dashboard");
       } else {
         navigate("/dashboard");

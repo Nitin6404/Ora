@@ -104,6 +104,7 @@ export default function NewLogin() {
         navigate("/dashboard");
       }
     } catch (error) {
+      console.log(error);
       console.error("Login error:", error.response?.data || error.message);
       // Delay to show
       toast.error("Login failed. Please check your credentials.");

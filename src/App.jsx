@@ -8,6 +8,7 @@ import {
   refreshAccessToken,
 } from "./services/tokenService";
 import "./App.css";
+import { LOGOUT } from "./config/apiConfig";
 
 const queryClient = new QueryClient();
 
@@ -28,7 +29,12 @@ function App() {
 
       if (isTokenExpiringSoon(token)) {
         try {
-          await refreshAccessToken(refresh);
+          console.log("✅ Token is expiring soon");
+          // await refreshAccessToken(refresh);
+          await api.post(LOGOUT);
+          console.log("✅ Logged out successfully");
+          localStorage.clear();
+          navigate("/login");
           console.log("🔁 Access token refreshed");
         } catch (err) {
           console.error("❌ Refresh failed:", err);

@@ -312,7 +312,7 @@ const MediaPage = () => {
           ) : (
             <table className="min-w-full border-separate border-spacing-y-2 px-2">
               <thead className="bg-white/35">
-                <tr className="sticky top-2 z-[60] bg-[#C7C2F9] rounded-[2.625rem] h-[3.125rem] text-[#181D27] text-[12px] leading-[18px] font-medium">
+                <tr className="sticky top-2 z-[60] bg-[#C7C2F9] rounded-[2.625rem] h-[3.125rem] text-[#181D27] text-[0.75rem] leading-[18px] font-medium">
                   {columns.map((col, i) => (
                     <th
                       key={col.key}
@@ -334,7 +334,7 @@ const MediaPage = () => {
                   data.results.map((row) => (
                     <tr
                       key={row.id}
-                      className="bg-white/90 rounded-[2.625rem] h-[3.5rem] px-[2rem] text-[#181D27] text-[12px] font-medium hover:bg-[#E3E1FC]"
+                      className="bg-white/90 rounded-[2.625rem] h-[3.5rem] px-[2rem] text-[#181D27] text-[0.75rem] font-medium hover:bg-[#E3E1FC]"
                     >
                       {columns.map((col, i) => (
                         <td

@@ -18,6 +18,8 @@ import { formatDate } from "../utils/format_date";
  * @param {Function} props.onAddClick - Callback function for the "Add" button click.
  * @param {string} props.addButtonText - Text to display on the "Add" button.
  * @param {string} props.searchPlaceholder - Placeholder text for the search input.
+//  * Component as prop 
+ * @param {React.ReactNode} props.children - Optional children to render inside the filter bar.
  * @returns {JSX.Element} The rendered FilterTopBar component.
  */
 const FilterTopBar = ({
@@ -32,6 +34,7 @@ const FilterTopBar = ({
   searchPlaceholder = "Search...",
   handleReset,
   isDashboard = false,
+  children,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showSearchInput, setShowSearchInput] = useState(false);
@@ -108,13 +111,17 @@ const FilterTopBar = ({
           </div>
 
           {onAddClick && (
-            <button
-              onClick={onAddClick}
-              className="rounded-full md:px-6 px-3 lg:py-[0.75rem] md:py-[0.5rem] py-[0.35rem] gap-[0.625rem] text-[0.525rem] md:text-[0.625rem] lg:text-[0.875rem] leading-[1.25rem] font-medium font-inter text-center box-border flex flex-row justify-center items-center bg-gradient-to-r from-[#574EB6] to-[#7367F0] hover:from-[#352F6E] hover:to-[#352F6E] border border-white shadow-[0.125rem_0.1875rem_0.5rem_rgba(100,90,209,0.5)] text-white hover:shadow-[0px_0.1875rem_0.5rem_rgba(100,90,209,0.5)] w-full text-nowrap"
-            >
-              <Plus className="w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5" />
-              {addButtonText}
-            </button>
+            <>
+              <button
+                onClick={onAddClick}
+                className="rounded-full md:px-6 px-3 lg:py-[0.75rem] md:py-[0.5rem] py-[0.35rem] gap-[0.625rem] text-[0.525rem] md:text-[0.625rem] lg:text-[0.875rem] leading-[1.25rem] font-medium font-inter text-center box-border flex flex-row justify-center items-center bg-gradient-to-r from-[#574EB6] to-[#7367F0] hover:from-[#352F6E] hover:to-[#352F6E] border border-white shadow-[0.125rem_0.1875rem_0.5rem_rgba(100,90,209,0.5)] text-white hover:shadow-[0px_0.1875rem_0.5rem_rgba(100,90,209,0.5)] w-full text-nowrap"
+              >
+                <Plus className="w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5" />
+                {addButtonText}
+              </button>
+
+              {children}
+            </>
           )}
         </div>
       </div>

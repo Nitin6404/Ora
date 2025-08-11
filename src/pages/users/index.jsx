@@ -163,7 +163,7 @@ export default function Users() {
           ) : (
             <table className="min-w-full border-separate border-spacing-y-2 px-2 no-scrollbar overflow-y-auto">
               <thead className="bg-white/35">
-                <tr className="sticky top-2 z-[60] bg-[#C7C2F9] rounded-[2.625rem] h-[3.125rem] px-[2rem] py-[1rem] text-[#181D27] text-[12px] leading-[18px] font-medium">
+                <tr className="sticky top-2 z-[60] bg-[#C7C2F9] rounded-[2.625rem] h-[3.125rem] px-[2rem] py-[1rem] text-[#181D27] text-[0.75rem] leading-[18px] font-medium">
                   {columns.map((col, i) => (
                     <th
                       key={col.key}
@@ -185,7 +185,7 @@ export default function Users() {
                     {users.map((row, rowIndex) => (
                       <tr
                         key={row.id || rowIndex}
-                        className="bg-white/90 backdrop-blur-[2.5px] rounded-[2.625rem] h-[3.5rem] max-h-16 px-[2rem] py-[0.8rem] text-[#181D27] text-[12px] leading-[18px] font-medium transition hover:bg-[#E3E1FC]"
+                        className="bg-white/90 backdrop-blur-[2.5px] rounded-[2.625rem] h-[3.5rem] max-h-16 px-[2rem] py-[0.8rem] text-[#181D27] text-[0.75rem] leading-[18px] font-medium transition hover:bg-[#E3E1FC]"
                       >
                         {columns.map((col, i) => (
                           <td
