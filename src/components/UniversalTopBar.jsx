@@ -1,9 +1,7 @@
-import { Settings, Bell, ArrowLeft, LogOut } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axiosInstance from "../services/apiService";
-import { LOGOUT } from "../config/apiConfig";
-import { Loader2 } from "lucide-react";
+import Avatar from "./Avatar";
 
 const UniversalTopBar = ({
   isAdd = false,
@@ -14,23 +12,10 @@ const UniversalTopBar = ({
   backPath = -1, // Can be -1 for history back or string path like '/programs'
 }) => {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    try {
-      setLoading(true);
-      await axiosInstance.post(LOGOUT);
-    } catch (error) {
-      console.error("❌ Logout error:", error.response?.data || error.message);
-    } finally {
-      setLoading(false);
-    }
-    localStorage.clear();
-    navigate("/login");
-  };
 
   const pageTitle = isAdd ? addTitle : isEdit ? editTitle : defaultTitle;
+
+  const navigate = useNavigate();
 
   const goBack = () => {
     if (backPath === -1) navigate(-1);
@@ -70,40 +55,7 @@ const UniversalTopBar = ({
           </div>
 
           <div className="flex items-center space-x-4">
-            {/* <button className="p-1 rounded-full bg-transparent">
-              <Bell className="w-5 h-5" />
-            </button>
-            <button className="p-1 rounded-full">
-              <Settings className="w-5 h-5 text-gray-600" />
-            </button> */}
-            <div className="relative">
-              <button
-                className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden border-2 border-gray-300"
-                onClick={() => setOpen(!open)}
-                style={{ aspectRatio: "1/1" }}
-              >
-                <img src="/pp.png" alt="Profile" className="w-full h-full" />
-              </button>
-              {open && (
-                <div className="absolute right-0 pt-2 rounded shadow p-2 w-32 z-10 bg-white dropdown">
-                  <button
-                    className="flex items-center space-x-2 p-1 text-sm w-full text-left"
-                    onClick={handleLogout}
-                  >
-                    {loading ? (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      </div>
-                    ) : (
-                      <>
-                        <LogOut className="w-4 h-4" />
-                        <span>Logout</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
-            </div>
+            <Avatar open={open} setOpen={setOpen} />
           </div>
         </div>
 
@@ -117,32 +69,7 @@ const UniversalTopBar = ({
         {/* Mobile Topbar */}
         <div className="relative flex justify-between items-center w-full lg:hidden bg-transparent p-2">
           <p className="text-sm lg:text-lg text-black">{pageTitle}</p>
-          <button onClick={() => setOpen(!open)}>
-            <img
-              src="/pp.png"
-              alt="Profile"
-              className="lg:w-8 md:w-6 w-8 lg:h-8 md:h-6 h-8 rounded-full bg-transparent"
-            />
-          </button>
-          {open && (
-            <div className="absolute right-6 top-10 pt-2 rounded shadow p-2 w-32 z-10 bg-white dropdown">
-              {/* <button className="flex items-center space-x-2 p-1 text-sm w-full text-left">
-                <Bell className="w-4 h-4" />
-                <span>Notifications</span>
-              </button>
-              <button className="flex items-center space-x-2 p-1 text-sm w-full text-left">
-                <Settings className="w-4 h-4" />
-                <span>Settings</span>
-              </button> */}
-              <button
-                className="flex items-center space-x-2 p-1 text-sm w-full text-left"
-                onClick={handleLogout}
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Logout</span>
-              </button>
-            </div>
-          )}
+          <Avatar open={open} setOpen={setOpen} />
         </div>
       </div>
     </div>

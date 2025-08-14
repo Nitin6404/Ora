@@ -157,17 +157,27 @@ const ProgramDetailCard = ({ title, description }) => {
 };
 
 const AssignedPatientList = ({ patients }) => {
+  const [statusFilter, setStatusFilter] = React.useState("In Progress");
+
+  // Apply client-side filtering
+  const filteredPatients = patients.filter(
+    (patient) => patient.status?.toLowerCase() === statusFilter.toLowerCase()
+  );
+
   return (
     <div className="flex flex-col gap-4 overflow-auto">
       <h1 className="hidden lg:block text-xl font-semibold text-gray-800">
         Assigned Patients
       </h1>
       <div className="flex flex-col items-start justify-start text-black bg-white rounded-xl p-6 overflow-auto h-full w-full">
-        <FilterBar options={["In Progress", "Completed", "Flagged"]} />
+        <FilterBar
+          options={["In Progress", "Completed", "Flagged"]}
+          onChange={(value) => setStatusFilter(value)}
+        />
         <Divider className="h-[3px]" />
         <div className="flex flex-col items-start justify-start text-black w-full h-full">
-          {patients.length > 0 ? (
-            patients.map((patient, index) => (
+          {filteredPatients.length > 0 ? (
+            filteredPatients.map((patient, index) => (
               <PatientInfoRow key={index} patient={patient} />
             ))
           ) : (
@@ -224,7 +234,7 @@ const QuestionnaireCard = ({ programData, questions }) => {
         Onboarding Questionnaire Responses
       </h2>
       <div className="bg-white rounded-xl p-6 flex flex-col items-start justify-start text-black overflow-auto h-full w-full">
-        <FilterBar options={["Questions Analytics", "Questions"]} />
+        <FilterBar options={["Questions Analytics"]} />
         <Divider className="h-[3px]" />
         {questions.length > 0 ? (
           <>
@@ -258,8 +268,8 @@ const QuestionCard = ({ label, analytics, questions, programData }) => {
       answer: programData?.average_session_duration,
     },
     {
-      question: "Average Time to complete",
-      answer: programData?.average_session_duration,
+      question: "Patient who completed the questionnaire",
+      answer: programData?.patients_completed || 0,
     },
   ];
   return (
@@ -380,9 +390,7 @@ const QuestionRow = ({ question, analytics }) => {
   );
 };
 
-// export default QuestionRow;
-
-const FilterBar = ({ options = [] }) => {
+const FilterBar = ({ options = [], onChange }) => {
   const [selectedOption, setSelectedOption] = React.useState(options[0]);
   return (
     <>
@@ -390,7 +398,10 @@ const FilterBar = ({ options = [] }) => {
         <div className="flex items-center justify-start gap-4 w-full pb-3 ">
           {options.map((option, index) => (
             <button
-              onClick={() => setSelectedOption(option)}
+              onClick={() => {
+                setSelectedOption(option);
+                onChange(option);
+              }}
               className={`px-4 py-2 text-xs lg:text-sm rounded-full flex items-center gap-2
                             ${
                               selectedOption === option

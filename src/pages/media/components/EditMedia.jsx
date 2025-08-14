@@ -173,7 +173,9 @@ export default function EditMedia() {
   return (
     <Navigation>
       <ToastContainer />
-      <UniversalTopBar isAdd addTitle="Edit Media" backPath="/media" />
+      <div className="p-2">
+        <UniversalTopBar isAdd addTitle="Edit Media" backPath="/media" />
+      </div>
       <div className="h-full flex flex-col py-2 bg-white/30 m-2 p-2 rounded-2xl gap-2">
         <BreadCrumb />
         <EditMediaForm

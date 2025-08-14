@@ -146,7 +146,9 @@ export default function AddPatient() {
   return (
     <Navigation>
       <ToastContainer />
-      <UniversalTopBar isAdd addTitle="Add Patient" backPath="/patients" />
+      <div className="p-2">
+        <UniversalTopBar isAdd addTitle="Add Patient" backPath="/patients" />
+      </div>
       <div className="h-full flex flex-col py-2 bg-white/30 m-2 p-2 rounded-2xl gap-2">
         <BreadCrumb />
         <AddPatientForm

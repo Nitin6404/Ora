@@ -71,52 +71,44 @@ export default function EditProgram() {
     }));
   };
 
+  const requiredFields = [
+    { name: "name", label: "Program Name" },
+    { name: "condition_type", label: "Condition Type" },
+    { name: "estimate_duration", label: "Estimate Duration" },
+    { name: "therapy_goal", label: "Therapy Goal" },
+    { name: "target_group", label: "Target Group" },
+    { name: "program_description", label: "Program Description" },
+  ];
+
+  const validateForm = (formData) => {
+    const newErrors = {};
+
+    // Loop through required fields
+    requiredFields.forEach(({ name, label }) => {
+      if (!formData[name] || String(formData[name]).trim() === "") {
+        newErrors[name] = `${label} is required`;
+      }
+    });
+
+    // VMA / VSA validation
+    if (!formData.vma && !formData.vsa) {
+      newErrors.vma = "Either VMA or VSA is required";
+      newErrors.vsa = "Either VMA or VSA is required";
+    }
+
+    return newErrors;
+  };
+
   const handleSubmit = async (isSaveAsDraft = false) => {
-    const result = programSchema.safeParse(formData);
-    if (!result.success) {
-      const newErrors = {};
-      result.error.issues.forEach((issue) => {
-        if (
-          issue.path[0] === "vma" &&
-          issue.message === "Either VMA or VSA is required"
-        ) {
-          // Assign the same error to both
-          newErrors["vma"] = issue.message;
-          newErrors["vsa"] = issue.message;
-        } else {
-          newErrors[issue.path[0]] = issue.message;
-        }
-      });
+    const newErrors = validateForm(formData);
+    if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      setLoading(false);
       return;
     }
-    console.log(errors);
 
     setErrors({});
-    // Basic Validation
-    const requiredFields = [
-      { name: "name", label: "Program Name" },
-      { name: "condition_type", label: "Condition Type" },
-      { name: "estimate_duration", label: "Estimate Duration" },
-      { name: "therapy_goal", label: "Therapy Goal" },
-      { name: "target_group", label: "Target Group" },
-      { name: "program_description", label: "Program Description" },
-    ];
-
-    // if (!formData.vma && !formData.vsa) {
-    //   toast.error("VMA or VSA is required.");
-    //   return;
-    // }
-
-    // for (const field of requiredFields) {
-    //   if (!formData[field.name]?.trim()) {
-    //     toast.error(`${field.label} is required.`);
-    //     return;
-    //   }
-    // }
-
     setLoading(true);
+
     try {
       const multipartData = new FormData();
       multipartData.append("name", formData.name);
@@ -128,12 +120,8 @@ export default function EditProgram() {
       multipartData.append("status", isSaveAsDraft ? "draft" : "");
       multipartData.append("is_active", formData.is_active);
 
-      if (String(formData.vma).trim() !== "") {
-        multipartData.append("advisor", formData.vma);
-      }
-      if (String(formData.vsa).trim() !== "") {
-        multipartData.append("advisor", formData.vsa);
-      }
+      if (formData.vma) multipartData.append("advisor", formData.vma);
+      if (formData.vsa) multipartData.append("advisor", formData.vsa);
 
       if (isSaveAsDraft) {
         // append programData as empty array if isSaveAsDraft is true

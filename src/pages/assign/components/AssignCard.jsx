@@ -226,12 +226,9 @@ const AssignCard = ({ assign, onAssignClick }) => {
           <div className="flex flex-col gap-1">
             <span>
               Last Session:{" "}
-              {formatDate(assign?.current_session?.last_session) ||
-                "May 20, 2025"}
+              {formatDate(assign?.current_session?.last_session) || "-"}
             </span>
-            <span>
-              Created At: {formatDate(assign?.created_at) || "May 20, 2025"}
-            </span>
+            <span>Created At: {formatDate(assign?.created_at) || "-"}</span>
           </div>
           <img
             onClick={(e) => {

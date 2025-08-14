@@ -11,16 +11,17 @@ import UniversalTopBar from "../../../components/UniversalTopBar";
 import { useMutation } from "@tanstack/react-query";
 import uploadAudio from "../helpers/uploadAudio";
 import uploadVideo from "../helpers/uploadVideo";
+import { useLocation } from "react-router-dom";
 
 export default function AddMedia() {
+  const location = useLocation();
+  const type = location.state?.type;
+  console.log(type);
   const [formData, setFormData] = useState({
     title: "",
-    type: "mp3" || "mp4",
     file: null,
   });
   const [errors, setErrors] = useState({
-    title: "",
-    type: "",
     file: "",
   });
 
@@ -75,20 +76,14 @@ export default function AddMedia() {
   };
 
   const handleSubmit = async () => {
-    const { title, type, file } = formData;
-    const newErrors = { title: "", type: "", file: "" };
+    const { title, file } = formData;
+    const newErrors = { file: "" };
 
     let hasError = false;
 
     // Title
     if (!title.trim()) {
       newErrors.title = "Title is required.";
-      hasError = true;
-    }
-
-    // Type
-    if (!type) {
-      newErrors.type = "Media type is required.";
       hasError = true;
     }
 
@@ -119,9 +114,11 @@ export default function AddMedia() {
         "video/x-matroska", // .mkv
         "video/quicktime", // .mov
         "video/x-msvideo", // .avi
+        "video/3gpp", // .3gp
+        "video/3gpp2", // .3g2
       ];
 
-      if (type === "mp3") {
+      if (type === "mp3" || type === "audio") {
         if (!validAudioTypes.includes(fileType)) {
           newErrors.file =
             "Invalid audio format. Supported: MP3, WAV, OGG, AAC, FLAC.";
@@ -130,10 +127,10 @@ export default function AddMedia() {
           newErrors.file = "Audio file must be 20 MB or less.";
           hasError = true;
         }
-      } else if (type === "mp4") {
+      } else if (type === "mp4" || type === "video") {
         if (!validVideoTypes.includes(fileType)) {
           newErrors.file =
-            "Invalid video format. Supported: MP4, MKV, MOV, AVI, WEBM.";
+            "Invalid video format. Supported: MP4, MKV, MOV, AVI, WEBM, 3GP, 3G2.";
           hasError = true;
         } else if (fileSizeMB > 100) {
           newErrors.file = "Video file must be 100 MB or less.";
@@ -155,8 +152,10 @@ export default function AddMedia() {
       multipartData.append("type", type);
       multipartData.append("file", file);
 
-      if (type === "mp3") uploadAudioMutation.mutate(multipartData);
-      else if (type === "mp4") uploadVideoMutation.mutate(formData);
+      if (type === "mp3" || type === "audio")
+        uploadAudioMutation.mutate(multipartData);
+      else if (type === "mp4" || type === "video")
+        uploadVideoMutation.mutate(formData);
 
       uploaderRef.current.reset();
     } catch (err) {
@@ -165,19 +164,27 @@ export default function AddMedia() {
     } finally {
       setFormData({
         title: "",
-        type: "mp3",
+        type,
         file: null,
       });
-      setErrors({ title: "", type: "", file: "" });
+      setErrors({ title: "", file: "" });
     }
   };
 
   return (
     <Navigation>
       <ToastContainer />
-      <UniversalTopBar isAdd addTitle="Add Media" backPath="/media" />
+      <div className="p-2">
+        <UniversalTopBar
+          isAdd
+          addTitle={
+            type === "mp3" || type === "audio" ? "Add Audio" : "Add Video"
+          }
+          backPath="/media"
+        />
+      </div>
       <div className="h-full flex flex-col py-2 bg-white/30 m-2 p-2 rounded-2xl gap-2">
-        <BreadCrumb />
+        <BreadCrumb type={type} />
 
         <AddMediaForm
           formData={formData}
@@ -188,18 +195,19 @@ export default function AddMedia() {
           navigate={navigate}
           uploaderRef={uploaderRef}
           errors={errors}
+          type={type}
         />
       </div>
     </Navigation>
   );
 }
 
-const BreadCrumb = () => (
+const BreadCrumb = ({ type }) => (
   <div className="flex gap-2 overflow-x-auto no-scrollbar w-full md:w-auto rounded-full px-1 py-1 bg-white backdrop-blur-md border border-white/30 shadow-sm mb-2">
     <button
       className={`px-6 py-3 text-xs lg:text-sm font-medium rounded-full flex items-center gap-2 bg-gradient-to-b from-[#7367F0] to-[#453E90] text-white shadow-md`}
     >
-      Media Upload
+      {type === "mp3" || type === "audio" ? "Audio Upload" : "Video Upload"}
     </button>
   </div>
 );
@@ -213,6 +221,7 @@ const AddMediaForm = ({
   navigate,
   uploaderRef,
   errors,
+  type,
 }) => (
   <div className="bg-white/30 mx-2 px-4 rounded-xl h-[92%] flex flex-col justify-between">
     <div className="space-y-6">
@@ -234,31 +243,15 @@ const AddMediaForm = ({
                 value={formData.title}
                 onChange={handleChange}
                 className="input-field w-full"
-                placeholder="Enter media title"
+                placeholder={
+                  type === "mp3" || type === "audio"
+                    ? "Enter audio title"
+                    : "Enter video title"
+                }
               />
             </div>
             {errors.title && (
               <p className="text-red-500 text-xs mt-1">{errors.title}</p>
-            )}
-          </div>
-          <div className="col-span-2 md:col-span-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Media Type
-            </label>
-            <CustomDropdown
-              // label="Media Type"
-              options={MEDIA_TYPE}
-              selected={
-                MEDIA_TYPE.find((item) => item.value === formData.type)?.name ||
-                "Select Media Type"
-              }
-              onSelect={(item) =>
-                setFormData({ ...formData, type: item.value })
-              }
-              onRemove={() => setFormData({ ...formData, type: "" })}
-            />
-            {errors.type && (
-              <p className="text-red-500 text-xs mt-1">{errors.type}</p>
             )}
           </div>
         </div>
@@ -268,13 +261,17 @@ const AddMediaForm = ({
           </label>
           <CustomFileUploader
             ref={uploaderRef}
-            defaultTitle="Upload Media File"
+            defaultTitle={
+              type === "mp3" || type === "audio"
+                ? "Upload Audio File"
+                : "Upload Video File"
+            }
             description={`Allowed file types: ${
-              formData.type === "mp3"
+              type === "mp3" || type === "audio"
                 ? "MP3, WAV, OGG, AAC, FLAC."
                 : "MP4, MKV, MOV, AVI, WEBM."
             }`}
-            sizeLimit={formData.type === "mp3" ? 20 : 100}
+            sizeLimit={type === "mp3" || type === "audio" ? 20 : 100}
             onFileSelect={(file) => setFormData({ ...formData, file })}
             hidePreview
           />
@@ -297,7 +294,11 @@ const AddMediaForm = ({
         disabled={loading}
         className="patient-btn flex justify-center items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-b from-[#7367F0] to-[#453E90] rounded-full shadow-md gap-2"
       >
-        {loading ? "Uploading..." : "Upload Media"}
+        {loading
+          ? "Uploading..."
+          : type === "mp3" || type === "audio"
+          ? "Upload Audio"
+          : "Upload Video"}
       </button>
     </div>
   </div>

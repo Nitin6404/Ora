@@ -160,8 +160,9 @@ export default function EditPatient() {
   return (
     <Navigation>
       <ToastContainer />
-      <UniversalTopBar isEdit editTitle="Edit Patient" backPath="/patients" />
-
+      <div className="p-2">
+        <UniversalTopBar isEdit editTitle="Edit Patient" backPath="/patients" />
+      </div>
       <div className="h-full flex flex-col py-2 bg-white/30 m-2 p-2 rounded-2xl gap-2">
         <BreadCrumb />
         {loading ? (

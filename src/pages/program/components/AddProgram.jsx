@@ -19,27 +19,7 @@ import {
   PROGRAM_ENDPOINT,
 } from "../../../config/apiConfig";
 import UniversalTopBar from "../../../components/UniversalTopBar";
-import { z } from "zod";
 import { useLocation } from "react-router-dom";
-
-const programSchema = z
-  .object({
-    name: z.string().min(1, "Program name is required"),
-    condition_type: z.string().min(1, "Condition type is required"),
-    estimate_duration: z.string().min(1, "Estimate duration is required"),
-    therapy_goal: z.string().min(1, "Therapy goal is required"),
-    target_group: z.string().min(1, "Target group is required"),
-    program_description: z.string().min(1, "Program description is required"),
-    status: z.string().optional(),
-    is_active: z.boolean().default(true),
-
-    vma: z.number().optional(),
-    vsa: z.number().optional(),
-  })
-  .refine((data) => data.vma || data.vsa, {
-    message: "Either VMA or VSA is required",
-    path: ["vma"], // still attach error to one field
-  });
 
 export default function AddProgram() {
   const [errors, setErrors] = useState({});
@@ -103,29 +83,10 @@ export default function AddProgram() {
   };
 
   const handleSubmit = async (isSaveAsDraft = false) => {
-    const result = programSchema.safeParse(formData);
-    if (!result.success) {
-      const newErrors = {};
-      result.error.issues.forEach((issue) => {
-        if (
-          issue.path[0] === "vma" &&
-          issue.message === "Either VMA or VSA is required"
-        ) {
-          // Assign the same error to both
-          newErrors["vma"] = issue.message;
-          newErrors["vsa"] = issue.message;
-        } else {
-          newErrors[issue.path[0]] = issue.message;
-        }
-      });
-      setErrors(newErrors);
-      setLoading(false);
-      return;
-    }
-    console.log(errors);
+    setLoading(true);
+    const newErrors = {};
 
-    setErrors({});
-    // Basic resutl
+    // List of required fields
     const requiredFields = [
       { name: "name", label: "Program Name" },
       { name: "condition_type", label: "Condition Type" },
@@ -135,20 +96,31 @@ export default function AddProgram() {
       { name: "program_description", label: "Program Description" },
     ];
 
-    // validate vma and vsa
-    // if (!formData.vma && !formData.vsa) {
-    //   toast.error("VMA or VSA is required.");
-    //   return;
-    // }
-
-    for (const field of requiredFields) {
-      if (!formData[field.name]?.trim()) {
-        toast.error(`${field.label} is required.`);
-        return;
+    // Loop validation for required fields
+    requiredFields.forEach((field) => {
+      if (!formData[field.name] || String(formData[field.name]).trim() === "") {
+        newErrors[field.name] = `${field.label} is required`;
       }
+    });
+
+    // Validate VMA / VSA selection
+    if (!formData.vma && !formData.vsa) {
+      newErrors.vma = "Either VMA or VSA is required";
+      newErrors.vsa = "Either VMA or VSA is required";
+    }
+    if (formData.vma && formData.vsa) {
+      newErrors.vma = "Select only one: VMA or VSA";
+      newErrors.vsa = "Select only one: VMA or VSA";
     }
 
-    setLoading(true);
+    setErrors(newErrors);
+
+    // Stop if errors exist
+    if (Object.keys(newErrors).length > 0) {
+      setLoading(false);
+      return;
+    }
+
     try {
       const multipartData = new FormData();
       multipartData.append("name", formData.name);
@@ -160,26 +132,18 @@ export default function AddProgram() {
       multipartData.append("status", isSaveAsDraft ? "draft" : "");
       multipartData.append("is_active", formData.is_active);
 
-      if (String(formData.vma).trim() !== "") {
-        console.log("vma", formData.vma);
-        multipartData.append("advisor", formData.vma);
-      }
-      if (String(formData.vsa).trim() !== "") {
-        console.log("vsa", formData.vsa);
-        multipartData.append("advisor", formData.vsa);
-      }
+      if (formData.vma) multipartData.append("advisor", formData.vma);
+      if (formData.vsa) multipartData.append("advisor", formData.vsa);
+
       if (isSaveAsDraft) {
-        // append programData as empty array if isSaveAsDraft is true
         multipartData.append("programData", JSON.stringify([]));
-        const res = await axiosInstance.post(
+        await axiosInstance.post(
           API_BASE_URL + PROGRAM_ENDPOINT,
           multipartData
         );
-
         toast.success("Program created!");
         navigate("/programs");
       } else {
-        // dont include vma and vsa field in dataToSend object
         const dataToSend = {
           advisor: formData.vma || formData.vsa,
           ...formData,
@@ -191,14 +155,10 @@ export default function AddProgram() {
         });
       }
     } catch (error) {
-      const errorbj = error.response?.data;
-      for (const key in errorbj) {
-        console.error("API ERROR: ", errorbj[key][0]);
-        toast.error(key.toLocaleUpperCase() + ": " + errorbj[key][0]);
+      const errorObj = error.response?.data;
+      for (const key in errorObj) {
+        toast.error(`${key.toUpperCase()}: ${errorObj[key][0]}`);
       }
-      setTimeout(() => {
-        navigate("/programs/addprogram", { state: { programDetails } });
-      }, 1500);
     } finally {
       setLoading(false);
     }
@@ -282,12 +242,12 @@ const BreadCrumb = ({ BREADCRUMBS, handleSubmit, formData, navigate }) => (
       <button
         key={index}
         className={`px-6 py-3 text-xs lg:text-sm font-medium rounded-full flex items-center gap-2
-                                            ${
-                                              item.current
-                                                ? "bg-gradient-to-b from-[#7367F0] to-[#453E90] text-white shadow-md "
-                                                : "bg-white text-[#252B37] hover:text-[#574EB6] hover:bg-[#E3E1FC]"
-                                            }
-                                            }`}
+        ${
+          item.current
+            ? "bg-gradient-to-b from-[#7367F0] to-[#453E90] text-white shadow-md "
+            : "bg-white text-[#252B37] hover:text-[#574EB6] hover:bg-[#E3E1FC]"
+        }
+        }`}
         onClick={() => {
           if (item.href === "/decisiontreeflow") {
             // handleSubmit();

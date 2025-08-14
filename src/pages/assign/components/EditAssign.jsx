@@ -164,11 +164,13 @@ export default function EditAssign() {
   return (
     <Navigation>
       <ToastContainer />
-      <UniversalTopBar
-        isAdd={true}
-        addTitle="Assign Program"
-        backPath="/assign"
-      />
+      <div className="p-2">
+        <UniversalTopBar
+          isAdd={true}
+          addTitle="Assign Program"
+          backPath="/assign"
+        />
+      </div>
       <div className="h-full flex flex-col bg-white/10 mb-2 p-4 rounded-2xl gap-2">
         <BreadCrumb BREADCRUMBS={BREADCRUMBS} />
         {isLoading ? (

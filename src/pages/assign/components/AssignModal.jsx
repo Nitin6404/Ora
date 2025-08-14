@@ -18,6 +18,7 @@ import PrimaryLoader from "../../../components/PrimaryLoader";
 import CustomDropDown from "../../../components/CustomDropDown";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import raiseFlag from "../helpers/raiseFlag";
+import { snakeToCamel } from "../../../constants";
 
 // DISTRESS_FLAG = "distress_flag"
 
@@ -498,45 +499,51 @@ const SessionLog = ({ data, formData, setFormData, raiseFlagMutation }) => {
 
         {activeTab === "flag" ? (
           <>
-            <div className="p-6 space-y-2 bg-gray-100 rounded-lg">
-              <CustomDropDown
-                label="Flag Type"
-                // placeholder="Select Program"
-                options={formType}
-                selected={
-                  formType.find((item) => item.id === formData.flag_type)?.name
-                }
-                onSelect={(id) => setFormData({ ...formData, flag_type: id })}
-                onRemove={() => setFormData({ ...formData, flag_type: "" })}
-                hideDD
-              />
-              <div>
-                <label className="text-sm font-medium text-gray-700">
-                  Note/Reason
-                </label>
-                <div className="input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8">
-                  <input
-                    type="text"
-                    value={formData.note}
-                    onChange={(e) =>
-                      setFormData({ ...formData, note: e.target.value })
+            {sessions?.length > 0 && (
+              <>
+                <div className="p-6 space-y-2 bg-gray-100 rounded-lg">
+                  <CustomDropDown
+                    label="Flag Type"
+                    // placeholder="Select Program"
+                    options={formType}
+                    selected={
+                      formType.find((item) => item.id === formData.flag_type)
+                        ?.name
                     }
-                    placeholder={"Enter note/reason"}
-                    autoComplete="off"
-                    className="input-field pr-10"
+                    onSelect={(id) =>
+                      setFormData({ ...formData, flag_type: id })
+                    }
+                    onRemove={() => setFormData({ ...formData, flag_type: "" })}
+                    hideDD
                   />
+                  <div>
+                    <label className="text-sm font-medium text-gray-700">
+                      Note/Reason
+                    </label>
+                    <div className="input-wrapper !rounded-[0.375rem] !px-3 lg:!h-12 md:!h-8 !h-8">
+                      <input
+                        type="text"
+                        value={formData.note}
+                        onChange={(e) =>
+                          setFormData({ ...formData, note: e.target.value })
+                        }
+                        placeholder={"Enter note/reason"}
+                        autoComplete="off"
+                        className="input-field pr-10"
+                      />
+                    </div>
+                  </div>
+                  <Divider />
+                  <button
+                    onClick={handleRaiseFlag}
+                    className="patient-btn flex justify-center items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-b from-[#7367F0] to-[#453E90] rounded-full shadow-md gap-2"
+                  >
+                    Raise Flag
+                  </button>
                 </div>
-              </div>
-              <Divider />
-              <button
-                onClick={handleRaiseFlag}
-                className="patient-btn flex justify-center items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-b from-[#7367F0] to-[#453E90] rounded-full shadow-md gap-2"
-              >
-                Raise Flag
-              </button>
-            </div>
-
-            <Divider />
+                <Divider />
+              </>
+            )}
 
             {/* Flag List */}
             <div className="font-bold font-inter space-y-2">
@@ -549,7 +556,9 @@ const SessionLog = ({ data, formData, setFormData, raiseFlagMutation }) => {
                       <span>{"Session " + flag?.session}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-red-500">{flag?.type || "-"}</span>
+                      <span className="text-red-500">
+                        {snakeToCamel(flag?.type) || "-"}
+                      </span>
                       <span>{"Raised By: " + flag?.raised_by}</span>
                     </div>
                     <div className="flex items-center justify-between">

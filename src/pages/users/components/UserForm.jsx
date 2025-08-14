@@ -270,7 +270,7 @@ const UserForm = ({
             }}
             defaultTitle="Profile Image"
             description="Allowed file types: PNG, JPEG, JPG, formats only."
-            sizeLimit={12}
+            sizeLimit={10}
           />
           {errors["profile_image"] && (
             <p className="text-red-500 text-xs mt-1">

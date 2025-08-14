@@ -214,7 +214,11 @@ const MediaPage = () => {
   });
 
   const handleAddMedia = () => {
-    navigate("/media/add");
+    navigate("/media/add", {
+      state: {
+        type: activeFilter,
+      },
+    });
   };
   const handleEditMedia = (id) => {
     navigate(`/media/edit/${id}`, {
