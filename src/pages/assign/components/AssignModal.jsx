@@ -319,23 +319,6 @@ const PatientInfoCard = ({ data, onClose }) => {
         </div>
 
         <Divider />
-
-        {/* <div className="w-full flex justify-between text-sm">
-        <div className="flex flex-col justify-center items-center space-y-1">
-          <span>Mood Before Session</span>
-          <span className="px-8 py-1 rounded-full bg-gray-100 flex items-center gap-2">
-            <p>{MoodEmoji(currentSession?.mood_before || "") || "-"}</p>
-            <p>{currentSession?.mood_before || "-"}</p>
-          </span>
-        </div>
-        <div className="flex flex-col justify-center items-center space-y-1">
-          <span>Mood After Session</span>
-          <span className="px-8 py-1 rounded-full bg-gray-100 flex items-center gap-2">
-            <p>{MoodEmoji(currentSession?.mood_after || "") || "-"}</p>
-            <p>{currentSession?.mood_after || "-"}</p>
-          </span>
-        </div>
-      </div> */}
       </div>
     </div>
   );
