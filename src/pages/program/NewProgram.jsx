@@ -75,8 +75,7 @@ export default function NewProgram() {
         { signal: controller.signal }
       );
       setPrograms(res.data.results);
-      const pageSize = res.data.results.length || 10;
-      setPageCount(Math.ceil(res.data.count / pageSize));
+      setPageCount(Math.ceil(res.data.count / 10));
     } catch (err) {
       if (err.name !== "CanceledError") {
         console.error(
@@ -111,6 +110,8 @@ export default function NewProgram() {
     setSearchTerm(term);
     setCurrentPage(1);
   };
+
+  const handlePageChange = (page) => setCurrentPage(page);
 
   const handleReset = () => {
     setCurrentPage(1);
@@ -209,7 +210,7 @@ export default function NewProgram() {
                 <Pagination
                   pageCount={pageCount}
                   currentPage={currentPage}
-                  handlePageChange={setCurrentPage}
+                  handlePageChange={handlePageChange}
                 />
               ) : (
                 <div className="flex justify-center items-center w-full gap-2">

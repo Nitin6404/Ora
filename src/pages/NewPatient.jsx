@@ -23,8 +23,6 @@ export default function NewPatient() {
   const [patients, setPatients] = useState([]);
   const abortControllerRef = React.useRef(null);
   const [loading, setLoading] = useState(true);
-  const [nextPage, setNextPage] = useState(null);
-  const [prevPage, setPrevPage] = useState(null);
   const [pageCount, setPageCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [showSearchInput, setShowSearchInput] = useState(false);
@@ -200,8 +198,6 @@ export default function NewPatient() {
       });
 
       setPatients(res.data.results);
-      setNextPage(res.data.next);
-      setPrevPage(res.data.previous);
       setPageCount(Math.ceil(res.data.count / 10));
     } catch (err) {
       if (err.name === "CanceledError" || err.code === "ERR_CANCELED") {
