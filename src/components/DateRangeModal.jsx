@@ -31,7 +31,7 @@ export default function DateRangeModal({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-md shadow-md p-3 w-[90vw] max-w-[24rem] md:w-auto z-[9999]"
+        className="bg-white rounded-md shadow-md p-3 w-fit z-[9999] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative flex items-center justify-between">
@@ -47,7 +47,7 @@ export default function DateRangeModal({
           onChange={(item) => setDateRange([item.selection])}
           moveRangeOnFirstSelection={false}
           ranges={dateRange}
-          className="w-full"
+          // className="w-full flex"
         />
 
         <button
