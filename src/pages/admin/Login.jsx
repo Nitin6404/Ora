@@ -267,36 +267,6 @@ export default function NewLogin() {
             )}
           </div>
 
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center text-sm space-y-2 sm:space-y-0">
-            <label className="flex items-center space-x-2">
-              <label class="inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="sr-only peer"
-                  checked={checked}
-                  onChange={(e) => setChecked(e.target.checked)}
-                />
-
-                <div
-                  className="relative w-11 h-6 peer-focus:outline-none peer-focus:ring-4 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all"
-                  style={{
-                    backgroundColor: "#e6e5eb",
-                    borderColor: "#e6e5eb",
-                    "--tw-ring-color": "#e6e5eb",
-                  }}
-                ></div>
-
-                <span class="ms-3 text-sm font-medium text-gray-900 dark:text-black-300">
-                  Remember me
-                </span>
-              </label>
-              {/* <span>Remember me</span> */}
-            </label>
-          </div>
-          {errors.agree && (
-            <p className="text-red-500 text-sm">{errors.agree}</p>
-          )}
-
           <div className="w-full flex justify-center">
             <button className="login-button">
               {loading ? <Loader2 className="animate-spin" /> : "Login"}
