@@ -393,6 +393,7 @@ export default function EditDecisionTreeFlow() {
   const navigate = useNavigate();
   const [audioList, setAudioList] = useState([]);
   const [videoList, setVideoList] = useState([]);
+  const [disabled, setDisabled] = useState(false);
 
   const nodesRef = useRef([]);
 
@@ -415,7 +416,9 @@ export default function EditDecisionTreeFlow() {
 
   // Fetch media first
   useEffect(() => {
+    setDisabled(true);
     if (!programDetails) {
+      setDisabled(false);
       toast.error("Program details not found");
       setTimeout(() => {
         navigate("/programs/newprogram");
@@ -448,6 +451,8 @@ export default function EditDecisionTreeFlow() {
   // Process program details once audio/video are loaded
   useEffect(() => {
     if (!programDetails || !audioList.length || !videoList.length) return;
+
+    setDisabled(true);
 
     const rawNodes = programDetails.program_data?.nodes || [];
     const rawEdges = programDetails.program_data?.edges || [];
@@ -517,6 +522,9 @@ export default function EditDecisionTreeFlow() {
         ? parseInt(enrichedNodes[enrichedNodes.length - 1].id) + 1
         : 0
     );
+    setTimeout(() => {
+      setDisabled(false);
+    }, 2000);
   }, [audioList, videoList, programDetails]);
 
   const onConnect = useCallback(
@@ -987,6 +995,7 @@ export default function EditDecisionTreeFlow() {
           handleSettingsChange={handleSettingsChange}
           closeModal={closeModal}
           saveSettings={saveSettings}
+          disabled={disabled}
         />
       </div>
     </Navigation>
@@ -1051,6 +1060,7 @@ const Canvas = ({
   handleSettingsChange,
   closeModal,
   saveSettings,
+  disabled,
 }) => {
   return (
     <div className="bg-white/30 mx-2 lg:px-8 lg:py-4 rounded-xl h-[92%] flex flex-col justify-between">
@@ -1211,7 +1221,7 @@ const Canvas = ({
                 </button>
                 <button
                   onClick={saveSettings}
-                  className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 "
                 >
                   Save
                 </button>
@@ -1235,10 +1245,10 @@ const Canvas = ({
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 !w-full sm:!w-auto">
           <button
             onClick={() => submitTreeToBackend("published")}
-            disabled={loading}
-            className="patient-btn flex justify-center items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-b from-[#7367F0] to-[#453E90] rounded-full shadow-md gap-2"
+            disabled={loading || disabled}
+            className="patient-btn flex justify-center items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-b from-[#7367F0] to-[#453E90] rounded-full shadow-md gap-2 disabled:cursor-not-allowed"
           >
-            {loading ? "Saving..." : "Submit"}
+            {loading || disabled ? "Saving..." : "Submit"}
           </button>
         </div>
       </div>

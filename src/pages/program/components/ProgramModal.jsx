@@ -53,7 +53,7 @@ const ProgramInfoCard = ({ data, onClose }) => {
       <div className="bg-transparent rounded-t-2xl flex justify-between items-center">
         <button
           onClick={onClose}
-          className="flex justify-center items-center text-gray-600 hover:text-gray-800 bg-white/70 px-3 py-1 rounded-full"
+          className="flex justify-center items-center text-gray-600 hover:text-gray-800 bg-white/70 px-3 py-1 rounded-full text-sm"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
@@ -110,7 +110,7 @@ const ProgramInfoCard = ({ data, onClose }) => {
           <InfoRow
             label="Target Group"
             value={data.target_group || "-"}
-            className="bg-[#dff0fe] text-blue-600"
+            className="bg-[#e5f0f9] text-[#88a5ba]"
           />
           <InfoRow
             label="Estimate Duration"
@@ -166,7 +166,7 @@ const AssignedPatientList = ({ patients }) => {
 
   return (
     <div className="flex flex-col gap-4 overflow-auto">
-      <h1 className="hidden lg:block text-xl font-semibold text-gray-800">
+      <h1 className="hidden lg:block text-base font-semibold text-gray-800">
         Assigned Patients
       </h1>
       <div className="flex flex-col items-start justify-start text-black bg-white rounded-xl p-6 overflow-auto h-full w-full">
@@ -174,7 +174,7 @@ const AssignedPatientList = ({ patients }) => {
           options={["In Progress", "Completed", "Flagged"]}
           onChange={(value) => setStatusFilter(value)}
         />
-        <Divider className="h-[3px]" />
+        <Divider className="h-[1px]" height={1} />
         <div className="flex flex-col items-start justify-start text-black w-full h-full">
           {filteredPatients.length > 0 ? (
             filteredPatients.map((patient, index) => (
@@ -198,12 +198,12 @@ const PatientInfoRow = ({ patient }) => {
           {patient.profile_image ? (
             <img
               src={patient.profile_image}
-              alt={patient.name}
+              alt={patient.full_name}
               className="w-full h-full object-cover"
             />
           ) : (
             <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-              <User size={24} />
+              {patient.full_name?.slice(0, 1).toUpperCase()}
             </div>
           )}
         </div>
@@ -230,12 +230,12 @@ const PatientInfoRow = ({ patient }) => {
 const QuestionnaireCard = ({ programData, questions }) => {
   return (
     <div className="flex flex-col gap-4 overflow-auto">
-      <h2 className="hidden lg:block text-xl font-semibold text-gray-800">
+      <h2 className="hidden lg:block text-base font-semibold text-gray-800">
         Onboarding Questionnaire Responses
       </h2>
       <div className="bg-white rounded-xl p-6 flex flex-col items-start justify-start text-black overflow-auto h-full w-full">
         <FilterBar options={["Questions Analytics"]} />
-        <Divider className="h-[3px]" />
+        <Divider height={1} />
         {questions.length > 0 ? (
           <>
             <QuestionCard
@@ -274,22 +274,22 @@ const QuestionCard = ({ label, analytics, questions, programData }) => {
   ];
   return (
     <div className="flex flex-col items-start justify-start w-full">
-      <span className="flex items-center text-md py-2">
-        {label?.length > 20 ? label?.slice(0, 20) + "..." : label}
+      <span className="flex items-center font-bold text-gray-700 text-md py-2">
+        {label}
       </span>
       {/* <Divider /> */}
       <div className="flex flex-col items-start justify-start w-full bg-[#f1f1fd] p-2 rounded-xl ">
         {analytics ? (
           <>
             <div className="flex items-center justify-between w-full py-2">
-              <span className="font-medium flex items-center text-sm">
+              <span className="font-bold flex items-center text-sm">
                 Metric
               </span>
-              <span className="font-medium flex items-center text-sm">
+              <span className="font-bold flex items-center text-sm">
                 Response
               </span>
             </div>
-            <Divider />
+            <Divider height={1} />
             {analyticsQuestions.map((question, index) => (
               <QuestionRow key={index} question={question} analytics={true} />
             ))}
@@ -297,14 +297,14 @@ const QuestionCard = ({ label, analytics, questions, programData }) => {
         ) : (
           <>
             <div className="flex items-center justify-between w-full py-2">
-              <span className="font-medium flex items-center text-sm">
+              <span className="font-bold flex items-center text-sm">
                 Question
               </span>
               <div className="flex items-center gap-5">
-                <span className="font-medium flex items-center text-sm">
+                <span className="font-bold flex items-center text-sm">
                   Option A
                 </span>
-                <span className="font-medium flex items-center text-sm">
+                <span className="font-bold flex items-center text-sm">
                   Option B
                 </span>
               </div>
@@ -334,7 +334,7 @@ const QuestionRow = ({ question, analytics }) => {
     <div className="flex items-center justify-between w-full py-1">
       {/* Question */}
       <div
-        className="flex items-center text-sm w-2/3 relative group cursor-pointer"
+        className="flex items-center font-semibold text-sm w-2/3 relative group cursor-pointer"
         onClick={() => toggleTooltip("question")}
       >
         {truncate(question.question, 40)}
@@ -365,7 +365,7 @@ const QuestionRow = ({ question, analytics }) => {
               className="relative group cursor-pointer"
               onClick={() => toggleTooltip(`answer-${index}`)}
             >
-              <span className="text-gray-700 text-sm uppercase text-nowrap">
+              <span className="text-black font-semibold text-sm uppercase text-nowrap">
                 {truncate(answer.label, 5)}
               </span>
 
@@ -402,13 +402,19 @@ const FilterBar = ({ options = [], onChange }) => {
                 setSelectedOption(option);
                 onChange(option);
               }}
-              className={`px-4 py-2 text-xs lg:text-sm rounded-full flex items-center gap-2
-                            ${
-                              selectedOption === option
-                                ? "bg-gradient-to-b from-[#7367F0] to-[#453E90] text-white shadow-md"
-                                : "bg-white text-black hover:bg-gray-100 hover:text-black"
-                            }
-                            `}
+              className={`px-4 py-2 text-xs lg:text-sm rounded-full flex items-center gap-2 font-semibold
+              ${
+                selectedOption === option
+                  ? "bg-gradient-to-b from-[#7367F0] to-[#453E90] text-white shadow-md"
+                  : "bg-white text-black hover:bg-gray-100 hover:text-black"
+              }
+              `}
+              style={{
+                background:
+                  selectedOption === option
+                    ? "linear-gradient(26.57deg, #574EB6 8.33%, #7367F0 91.67%)"
+                    : "",
+              }}
               key={index}
             >
               <span className="flex items-center">{option}</span>
@@ -429,8 +435,8 @@ const InfoRow = ({ label, value, className }) => (
     </span>
   </div>
 );
-const Divider = ({ className }) => (
-  <div className={`h-[3px] w-full bg-gray-200 ${className}`} />
+const Divider = ({ className, height = 2 }) => (
+  <div className={`h-[${height}px] w-full bg-[#7367F0]/20 ${className}`} />
 );
 
 export default ProgramModal;
