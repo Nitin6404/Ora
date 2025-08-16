@@ -188,7 +188,7 @@ export default function Navigation({ children }) {
 
       {/* Main Content */}
       <main
-        className={`transition-margin duration-300 h-full no-scrollbar
+        className={`transition-margin duration-300 h-full no-scrollbar font-inter
     ${isOpen ? "lg:ml-64 md:ml-48 ml-36" : "ml-16"}
     ${isDashboard ? "pt-0 px-0" : ""}`}
       >
